@@ -1,0 +1,2 @@
+#LWP-Cookies-2.0
+Set-Cookie3: OG_lastServer="s105-br.ogame.gameforge.com"; path="/"; domain=".br.ogame.gameforge.com"; path_spec; expires="2015-12-16 05:39:03Z"; httponly=None; version=0
