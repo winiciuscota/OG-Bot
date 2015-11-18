@@ -12,7 +12,7 @@ class Hangar:
         self.browser = browser
 
     def GetShips(self):
-        self.logger.info('recuperando naves')
+        self.logger.info('Getting shipyard data')
         url = self.urlProvider.GetPageUrl('shipyard')
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())

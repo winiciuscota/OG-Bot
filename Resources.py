@@ -11,7 +11,7 @@ class Resources:
         self.browser = browser
 
     def GetResources(self):
-        self.logger.info('recuperando recursos')
+        self.logger.info('Getting resources data')
         url = self.urlProvider.GetPageUrl('resources')
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
