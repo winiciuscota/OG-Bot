@@ -1,4 +1,5 @@
-from OgameUtil import UrlProvider
+from Util import UrlProvider
+import Util
 from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
@@ -25,12 +26,5 @@ class Hangar:
                 shipData = re.sub('  +', '', aux).encode('utf8')
                 ships.append( tuple(shipData.split('\n')) )
 
-        ships = map(tuple, map(sanitize, [filter(None, i) for i in ships]))
+        ships = map(tuple, map(Util.sanitize, [filter(None, i) for i in ships]))
         return ships
-
-def sanitize(t):
-    for i in t:
-        try:
-            yield int(i)
-        except ValueError:
-            yield i

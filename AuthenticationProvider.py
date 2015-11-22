@@ -28,6 +28,33 @@ class AuthenticationProvider:
         self.br.addheaders = self.Headers
         self.path = os.path.dirname(os.path.realpath(__file__))
 
+    def VerifyConnection(self):
+        res = self.br.open(self.IndexUrl)
+        soup = BeautifulSoup(res.get_data())
+        if soup.find("meta", { "name" : "ogame-player-name" }) == None:
+            return False
+        else:
+            self.logger.info('Connection is ok')
+            self.logger.info('Logged in as %s ' % soup.find("meta", { "name" : "ogame-player-name" })['content'])
+            self.logger.info('Language is %s ' % soup.find("meta", { "name" : "ogame-language" })['content'])
+            self.logger.info('Game version is %s ' % soup.find("meta", { "name" : "ogame-version" })['content'])
+            return True
+
+    def Connect(self):
+        self.logger.info('Opening login page ' + self.LoginUrl)
+        # Open login page
+        self.br.open(self.LoginUrl)
+        self.br.select_form(name="loginForm")
+
+        # enter Username and password
+        self.br['login'] = self.Username
+        self.br['pass'] = self.Password
+        self.br['uni'] = ['s%s-br.ogame.gameforge.com' % self.Universe]
+        self.logger.info('Logging in to server: %s' % self.br['uni']  )
+        self.br.submit()
+        self.logger.info(self.IndexUrl)
+        self.logger.info('Saving authentication data')
+
     def GetBrowser(self):
 
         # name of the cookies file
@@ -35,30 +62,14 @@ class AuthenticationProvider:
 
         # Check if cookies file exists
         if os.path.isfile(cookiesFileName):
-            self.logger.info('found stored cookies')
+            self.logger.info('Found stored cookies')
             self.cj.load(cookiesFileName)
-            self.br.open(self.LoginUrl)
-        else:
-            self.logger.info('Opening login page ' + self.LoginUrl)
-            # Open login page
-            self.br.open(self.LoginUrl)
-            self.br.select_form(name="loginForm")
-
-            # enter Username and password
-            self.br['login'] = self.Username
-            self.br['pass'] = self.Password
-            self.br['uni'] = ['s%s-br.ogame.gameforge.com' % self.Universe]
-            self.logger.info('Logging in to server: %s' % self.br['uni']  )
-            self.br.submit()
-            self.logger.info(self.IndexUrl)
-            self.logger.info('Saving authentication data')
-
-        res = self.br.open(self.IndexUrl)
-        soup = BeautifulSoup(res.get_data())
-        self.logger.info('Logged in as %s ' % soup.find("meta", { "name" : "ogame-player-name" })['content'])
-        self.logger.info('Language is %s ' % soup.find("meta", { "name" : "ogame-language" })['content'])
-        self.logger.info('Game version is %s ' % soup.find("meta", { "name" : "ogame-version" })['content'])
-
+            if self.VerifyConnection():
+                return self.br
+            else:
+                self.logger.info('Could not restore session from cookies file')
+        self.Connect()
+        self.VerifyConnection()
 
         self.cj.save(cookiesFileName)
         return self.br

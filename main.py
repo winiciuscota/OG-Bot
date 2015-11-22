@@ -2,7 +2,9 @@ import re
 import logging
 from mechanize import Browser
 from Hangar import Hangar
-from Resources import Resources
+from Buildings import Buildings
+from Defense import Defense
+from General import General
 import cookielib
 import sys
 from AuthenticationProvider import AuthenticationProvider
@@ -28,10 +30,16 @@ universe = sys.argv[3]
 logger.info('Starting the bot')
 browser = AuthenticationProvider(username, password, universe).GetBrowser()
 
-resources = Resources(browser, universe)
-res = resources.GetResources()
-print res
+client = Buildings(browser, universe)
+client.Build()
 
-hangar = Hangar(browser, universe)
-ships = hangar.GetShips()
-print ships
+#
+# hangar = Hangar(browser, universe)
+# ships = hangar.GetShips()
+# print ships
+
+
+# defense = Defense(browser, universe)
+# defense.build_defense()
+# defenses = defense.GetDefenses()
+# print defenses
