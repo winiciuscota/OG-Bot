@@ -1,7 +1,6 @@
 import logging
 from mechanize import Browser
 from bs4 import BeautifulSoup
-from Hangar import Hangar
 import cookielib
 import os
 
@@ -28,7 +27,7 @@ class AuthenticationProvider:
         self.br.addheaders = self.Headers
         self.path = os.path.dirname(os.path.realpath(__file__))
 
-    def VerifyConnection(self):
+    def verify_connection(self):
         res = self.br.open(self.IndexUrl)
         soup = BeautifulSoup(res.get_data())
         if soup.find("meta", { "name" : "ogame-player-name" }) == None:
@@ -40,7 +39,7 @@ class AuthenticationProvider:
             self.logger.info('Game version is %s ' % soup.find("meta", { "name" : "ogame-version" })['content'])
             return True
 
-    def Connect(self):
+    def connect(self):
         self.logger.info('Opening login page ' + self.LoginUrl)
         # Open login page
         self.br.open(self.LoginUrl)
@@ -55,7 +54,7 @@ class AuthenticationProvider:
         self.logger.info(self.IndexUrl)
         self.logger.info('Saving authentication data')
 
-    def GetBrowser(self):
+    def get_browser(self):
 
         # name of the cookies file
         cookiesFileName = os.path.join(self.path, 'cookies.txt')
@@ -64,12 +63,12 @@ class AuthenticationProvider:
         if os.path.isfile(cookiesFileName):
             self.logger.info('Found stored cookies')
             self.cj.load(cookiesFileName)
-            if self.VerifyConnection():
+            if self.verify_connection():
                 return self.br
             else:
                 self.logger.info('Could not restore session from cookies file')
-        self.Connect()
-        self.VerifyConnection()
+        self.connect()
+        self.verify_connection()
 
         self.cj.save(cookiesFileName)
         return self.br

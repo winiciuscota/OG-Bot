@@ -1,35 +1,29 @@
-from OgameUtil import UrlProvider
+import util
 from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
 import logging
 
-class Resources:
+
+class Hangar:
     def __init__(self, browser, universe):
-        self.urlProvider = UrlProvider(universe)
+        self.url_provider = util.UrlProvider(universe)
         self.logger = logging.getLogger('ogame-bot')
         self.browser = browser
 
-    def GetResources(self):
-        self.logger.info('Getting resources data')
-        url = self.urlProvider.GetPageUrl('resources')
+    def get_ships(self):
+        self.logger.info('Getting shipyard data')
+        url = self.url_provider.GetPageUrl('shipyard')
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
         refs = soup.findAll("span", { "class" : "textlabel" })
 
-        res = []
+        ships = []
         for ref in refs:
             if ref.parent['class'] == ['level']:
                 aux = ref.parent.text.replace('\t','')
                 shipData = re.sub('  +', '', aux).encode('utf8')
-                res.append( tuple(shipData.split('\n')))
+                ships.append( tuple(shipData.split('\n')) )
 
-        res = map(tuple, map(sanitize, [filter(None, i) for i in res]))
-        return res
-
-def sanitize(t):
-    for i in t:
-        try:
-            yield int(i)
-        except ValueError:
-            yield i
+        ships = map(tuple, map(Util.sanitize, [filter(None, i) for i in ships]))
+        return ships

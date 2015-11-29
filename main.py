@@ -1,13 +1,13 @@
 import re
 import logging
 from mechanize import Browser
-from Hangar import Hangar
-from Buildings import Buildings
-from Defense import Defense
-from General import General
+from hangar import Hangar
+from buildings import Buildings
+from defense import Defense
+from general import General
 import cookielib
 import sys
-from AuthenticationProvider import AuthenticationProvider
+from authentication_provider import AuthenticationProvider
 
 # setting up logger
 logger = logging.getLogger('ogame-bot')
@@ -28,18 +28,13 @@ password = sys.argv[2]
 universe = sys.argv[3]
 
 logger.info('Starting the bot')
-browser = AuthenticationProvider(username, password, universe).GetBrowser()
+browser = AuthenticationProvider(username, password, universe).get_browser()
 
-client = Buildings(browser, universe)
-client.Build()
+general_client = General(browser, universe)
+planets = general_client.get_planets()
+defense_client = Defense(browser, universe)
 
-#
-# hangar = Hangar(browser, universe)
-# ships = hangar.GetShips()
-# print ships
-
-
-# defense = Defense(browser, universe)
-# defense.build_defense()
-# defenses = defense.GetDefenses()
-# print defenses
+# type = ('406', '100')
+# defense_client.build_defense(type, planets[1])
+for planet in planets:
+    defense_client.auto_build_defenses(planet)

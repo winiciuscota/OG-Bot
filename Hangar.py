@@ -1,5 +1,4 @@
-from Util import UrlProvider
-import Util
+import util
 from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
@@ -8,13 +7,13 @@ import logging
 
 class Hangar:
     def __init__(self, browser, universe):
-        self.urlProvider = UrlProvider(universe)
+        self.url_provider = util.UrlProvider(universe)
         self.logger = logging.getLogger('ogame-bot')
         self.browser = browser
 
-    def GetShips(self):
+    def get_ships(self):
         self.logger.info('Getting shipyard data')
-        url = self.urlProvider.GetPageUrl('shipyard')
+        url = self.url_provider.GetPageUrl('shipyard')
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
         refs = soup.findAll("span", { "class" : "textlabel" })

@@ -15,16 +15,16 @@ class UrlProvider:
             'events':       self.MAIN_URL + '?page=eventList'
         }
 
-    def GetPages(self):
+    def get_pages(self):
         return self.PAGES
 
-    def GetPageUrl(self, page, planet = None):
+    def get_page_url(self, page, planet = None):
         url = self.PAGES[page]
         if planet is not None:
-            url += '&cp=%s' % planet.id
+            url += '&cp=%s' % planet
         return url
 
-    def GetMainUrl(self):
+    def get_main_url(self):
         return self.MAIN_URL
 
 def sanitize(t):
