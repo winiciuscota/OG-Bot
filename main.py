@@ -8,6 +8,7 @@ from general import General
 import cookielib
 import sys
 from authentication_provider import AuthenticationProvider
+import ConfigParser
 
 # setting up logger
 logger = logging.getLogger('ogame-bot')
@@ -17,17 +18,29 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-if len(sys.argv) < 4:
-    logger.info('You must pass 3 arguments (username, password, universe)')
-    exit()
-
-username = sys.argv[1]
-password = sys.argv[2]
-
-# universe 105
-universe = sys.argv[3]
-
 logger.info('Starting the bot')
+
+config = ConfigParser.ConfigParser()
+cfg = config.read('user.cfg')
+
+username = ''
+password = ''
+universe = ''
+
+if len(sys.argv) < 4 :
+    if cfg == []:
+        logger.info('You must pass 3 arguments (username, password, universe) or write have a config file')
+        exit()
+    else:
+        logger.info('Getting user info from config file')
+        username = config.get('UserInfo','username')
+        password = config.get('UserInfo','password')
+        universe = config.get('UserInfo','universe')
+else:
+    username = sys.argv[1]
+    password = sys.argv[2]
+    universe = sys.argv[3]
+
 browser = AuthenticationProvider(username, password, universe).get_browser()
 
 general_client = General(browser, universe)

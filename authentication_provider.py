@@ -7,15 +7,15 @@ import os
 class AuthenticationProvider:
 
     def __init__(self, username, password, universe):
-        self.LoginUrl = 'http://br.ogame.gameforge.com/'
+        self.login_url = 'http://br.ogame.gameforge.com/'
                         # http://s114-br.ogame.gameforge.com/game/index.php?page=overview
-        self.IndexUrl = 'http://s%s-br.ogame.gameforge.com' % universe + '/game/index.php'
-        self.Headers = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) \
+        self.index_url = 'http://s%s-br.ogame.gameforge.com' % universe + '/game/index.php'
+        headers = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) \
         AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36')]
         # Dados de autenticacao
-        self.Username = username
-        self.Password = password
-        self.Universe = universe
+        self.username = username
+        self.password = password
+        self.universe = universe
 
         self.logger = logging.getLogger('ogame-bot')
         # Preparando o browser
@@ -24,11 +24,13 @@ class AuthenticationProvider:
         self.br = Browser()
         self.br.set_cookiejar(self.cj)
         self.br.set_handle_robots(False)
-        self.br.addheaders = self.Headers
+        self.br.addheaders = headers
         self.path = os.path.dirname(os.path.realpath(__file__))
+        # name of the cookies file
+        self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
 
     def verify_connection(self):
-        res = self.br.open(self.IndexUrl)
+        res = self.br.open(self.index_url)
         soup = BeautifulSoup(res.get_data())
         if soup.find("meta", { "name" : "ogame-player-name" }) == None:
             return False
@@ -40,29 +42,25 @@ class AuthenticationProvider:
             return True
 
     def connect(self):
-        self.logger.info('Opening login page ' + self.LoginUrl)
+        self.logger.info('Opening login page ' + self.login_url)
         # Open login page
-        self.br.open(self.LoginUrl)
+        self.br.open(self.login_url)
         self.br.select_form(name="loginForm")
 
         # enter Username and password
-        self.br['login'] = self.Username
-        self.br['pass'] = self.Password
-        self.br['uni'] = ['s%s-br.ogame.gameforge.com' % self.Universe]
+        self.br['login'] = self.username
+        self.br['pass'] = self.password
+        self.br['uni'] = ['s%s-br.ogame.gameforge.com' % self.universe]
         self.logger.info('Logging in to server: %s' % self.br['uni']  )
         self.br.submit()
-        self.logger.info(self.IndexUrl)
         self.logger.info('Saving authentication data')
+        self.cj.save(self.cookies_file_name)
 
     def get_browser(self):
-
-        # name of the cookies file
-        cookiesFileName = os.path.join(self.path, 'cookies.txt')
-
         # Check if cookies file exists
-        if os.path.isfile(cookiesFileName):
+        if os.path.isfile(self.cookies_file_name):
             self.logger.info('Found stored cookies')
-            self.cj.load(cookiesFileName)
+            self.cj.load(self.cookies_file_name)
             if self.verify_connection():
                 return self.br
             else:
@@ -70,5 +68,5 @@ class AuthenticationProvider:
         self.connect()
         self.verify_connection()
 
-        self.cj.save(cookiesFileName)
+        self.cj.save(self.cookies_file_name)
         return self.br

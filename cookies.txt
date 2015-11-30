@@ -1,5 +1,0 @@
-#LWP-Cookies-2.0
-Set-Cookie3: OG_lastServer="s114-br.ogame.gameforge.com"; path="/"; domain=".br.ogame.gameforge.com"; path_spec; expires="2015-12-29 22:49:23Z"; httponly=None; version=0
-Set-Cookie3: SID=qd4em8660ectb8h4ffvv2sjai1; path="/"; domain=".br.ogame.gameforge.com"; path_spec; expires="2015-11-29 23:19:34Z"; version=0
-Set-Cookie3: login_108475="U_br114%3AIshak%3A8d1333361e4f32719115ef408b51f02a"; path="/"; domain="s114-br.ogame.gameforge.com"; path_spec; expires="2015-11-30 22:49:25Z"; version=0
-Set-Cookie3: prsess_108475=098a8068875c2e0ce1dfd34ce4056c84; path="/"; domain="s114-br.ogame.gameforge.com"; path_spec; expires="2015-11-30 22:49:25Z"; version=0
