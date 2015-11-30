@@ -16,15 +16,24 @@ class UrlProvider:
         }
 
     def get_pages(self):
+        """
+        Returns list of pages
+        """
         return self.pages
 
     def get_page_url(self, page, planet = None):
+        """
+        Get page url for planet
+        """
         url = self.pages[page]
         if planet is not None:
             url += '&cp=%s' % planet
         return url
 
     def get_main_url(self):
+        """
+        Return the main url
+        """
         return self.main_url
 
 def sanitize(t):

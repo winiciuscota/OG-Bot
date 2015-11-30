@@ -12,6 +12,9 @@ class Defense:
         self.br = browser
 
     def get_defenses(self, planet = None):
+        """
+        Get defenses for the given planet
+        """
         self.logger.info('Getting defense data')
         url = self.url_provider.get_page_url('defense', planet)
         self.logger.info('The defense url is ' + url)
@@ -31,11 +34,9 @@ class Defense:
 
     def auto_build_defenses(self, planet = None):
         """
-        401. missile launcher
-        402. light cannon
-        404. gauss cannon
-        406. plasma
+        Build some defenses for the given planet
         """
+
         defense_types = [('406', '100'), ('404', '100'), ('402', '1500'), ('401', '3000')]
 
         self.redirect_to_page(planet)
@@ -44,11 +45,25 @@ class Defense:
 
 
     def redirect_to_page(self, planet = None):
+        """
+        Redirect to defense page for the given planet
+        """
         url = self.url_provider.get_page_url('defense', planet)
         self.logger.info("Redirecting to page %s" % url)
         self.br.open(url)
 
     def build_defense(self, defense, planet = None):
+        """
+        Build defenses for the given planet.
+        defense should be a tuple where defense[0] is the defense type
+        and defense[1] is the amount as string.
+        defense type examples:
+            401 - missile launcher
+            402 - light cannon
+            404 - gauss cannon
+            406 - plasma
+        """
+
         self.redirect_to_page(planet)
 
         try:
@@ -70,7 +85,3 @@ class Defense:
         self.br.form.fixup()
         self.br['modus'] = '1'
         self.br.submit()
-
-    def get_ships_in_construction(self):
-        soup = BeautifulSoup(res.br.response.read())
-        defenses = soup.findAll("span", { "class" : "count undermark" })
