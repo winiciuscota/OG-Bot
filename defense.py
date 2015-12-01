@@ -69,6 +69,7 @@ class Defense:
         try:
             self.build_defense_item(defense, planet)
         except Exception as e:
+            self.logger.info('Error building defense')
             self.logger.info(e)
 
     def build_defense_item(self, defense, planet = None):
@@ -84,4 +85,5 @@ class Defense:
         self.br.form.new_control('text','modus',{'value':'1'})
         self.br.form.fixup()
         self.br['modus'] = '1'
-        self.br.submit()
+        self.logger.info("Submitting build defense request")
+        util.submit_request(self.br)

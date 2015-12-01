@@ -1,3 +1,5 @@
+import mechanize
+
 class UrlProvider:
     def __init__(self, universe):
         self.main_url = 'http://s' + str(universe) + '-br.ogame.gameforge.com/game/index.php'
@@ -42,3 +44,11 @@ def sanitize(t):
             yield int(i)
         except ValueError:
             yield i
+
+def submit_request(browser):
+    for attempt in (1, 3):
+        try:
+            res = browser.submit()
+            return res
+        except mechanize.URLError:
+            self.error("URLError submitting form, trying again for the %sth time" % attempt)
