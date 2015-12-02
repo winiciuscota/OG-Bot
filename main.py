@@ -47,7 +47,5 @@ general_client = General(browser, universe)
 planets = general_client.get_planets()
 defense_client = Defense(browser, universe)
 
-# type = ('406', '100')
-# defense_client.build_defense(type, planets[1])
 for planet in planets:
     defense_client.auto_build_defenses(planet)

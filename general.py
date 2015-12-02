@@ -34,8 +34,10 @@ class General:
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
         planets = []
-        current_planet = soup.find("meta", { "name" : "ogame-planet-id"})['content']
+        current_planet_id = soup.find("meta", { "name" : "ogame-planet-id"})['content']
+        current_planet_name = soup.find("meta", { "name" : "ogame-planet-name"})['content']
+        current_planet = (current_planet_name, current_planet_id)
         planets.append(current_planet)
         links = soup.findAll("a", { "class" : "planetlink tooltipRight js_hideTipOnMobile" })
-        planets.extend( [ urlparse.parse_qs(link['href'])['cp'][0] for link in links])
+        planets.extend( [  (str(link.find("span", {"class" : "planet-name  "}).contents[0]), urlparse.parse_qs(link['href'])['cp'][0]) for link in links])
         return planets

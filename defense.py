@@ -16,7 +16,7 @@ class Defense:
         Get defenses for the given planet
         """
         self.logger.info('Getting defense data')
-        url = self.url_provider.get_page_url('defense', planet)
+        url = self.url_provider.get_page_url('defense', planet[1])
         self.logger.info('The defense url is ' + url)
         res = self.br.open(url)
         soup = BeautifulSoup(res.read())
@@ -36,19 +36,17 @@ class Defense:
         """
         Build some defenses for the given planet
         """
-
         defense_types = [('406', '100'), ('404', '100'), ('402', '1500'), ('401', '3000')]
-
+        self.logger.info('Auto building defenses')
         self.redirect_to_page(planet)
         for defense in defense_types:
             self.build_defense_item(defense, planet)
-
 
     def redirect_to_page(self, planet = None):
         """
         Redirect to defense page for the given planet
         """
-        url = self.url_provider.get_page_url('defense', planet)
+        url = self.url_provider.get_page_url('defense', planet[1])
         self.logger.info("Redirecting to page %s" % url)
         self.br.open(url)
 
@@ -73,7 +71,7 @@ class Defense:
             self.logger.info(e)
 
     def build_defense_item(self, defense, planet = None):
-        self.logger.info("building %s %s on planet %s" % (defense[1], defense[0], planet))
+        self.logger.info("building %s %s on planet %s" % (defense[1], defense[0], planet[0]))
         self.logger.info("Writing data to form")
         self.br.select_form(name='form')
         self.br.form.new_control('text','menge',{'value': defense[1]})
