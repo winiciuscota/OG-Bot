@@ -39,5 +39,7 @@ class General:
         current_planet = (current_planet_name, current_planet_id)
         planets.append(current_planet)
         links = soup.findAll("a", { "class" : "planetlink tooltipRight js_hideTipOnMobile" })
-        planets.extend( [  (str(link.find("span", {"class" : "planet-name  "}).contents[0]), urlparse.parse_qs(link['href'])['cp'][0]) for link in links])
+        other_planets = [ (str(link.find("span", {"class" : "planet-name  "}).contents[0]), urlparse.parse_qs(link['href'])['cp'][0]) for link in links]
+        if len(other_planets) > 1:
+            planets.extend(other_planets)
         return planets

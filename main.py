@@ -7,7 +7,7 @@ from defense import Defense
 from general import General
 import cookielib
 import sys
-from authentication_provider import AuthenticationProvider
+from authentication import AuthenticationProvider
 import ConfigParser
 
 # setting up logger
@@ -45,7 +45,9 @@ browser = AuthenticationProvider(username, password, universe).get_browser()
 
 general_client = General(browser, universe)
 planets = general_client.get_planets()
-defense_client = Defense(browser, universe)
+building_client = Buildings(browser, universe)
+
+logger.info("Found %i planets" % len(planets))
 
 for planet in planets:
-    defense_client.auto_build_defenses(planet)
+    building_client.build_structure(Buildings.Building_Types.SolarPlant, planet)

@@ -27,7 +27,7 @@ class UrlProvider:
         """
         Get page url for planet
         """
-        url = self.pages[page]
+        url = self.pages.get(page)
         if planet is not None:
             url += '&cp=%s' % planet
         return url
