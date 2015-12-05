@@ -16,7 +16,7 @@ class Defense:
         Get defenses for the given planet
         """
         self.logger.info('Getting defense data')
-        url = self.url_provider.get_page_url('defense', planet[1])
+        url = self.url_provider.get_page_url('defense', planet)
         self.logger.info('The defense url is ' + url)
         res = self.br.open(url)
         soup = BeautifulSoup(res.read())
@@ -46,7 +46,7 @@ class Defense:
         """
         Redirect to defense page for the given planet
         """
-        url = self.url_provider.get_page_url('defense', planet[1])
+        url = self.url_provider.get_page_url('defense', planet)
         self.logger.info("Redirecting to page %s" % url)
         self.br.open(url)
 

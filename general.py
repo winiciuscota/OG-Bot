@@ -11,22 +11,19 @@ class General:
         self.logger = logging.getLogger('ogame-bot')
         self.browser = browser
 
-    def get_resources(self):
-        self.logger.info('Getting resources data')
-        url = self.url_provider.get_page_url('resources')
+    def get_resources(self, planet):
+        self.logger.info('Getting resources data for planet %s' % planet[0])
+        url = self.url_provider.get_page_url('resources', planet)
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
 
         resources = []
         metal = int(soup.find(id='resources_metal').text.replace('.',''))
-        resources.append({'metal': metal })
         crystal = int(soup.find(id='resources_crystal').text.replace('.',''))
-        resources.append({'crystal': crystal })
         deuterium = int(soup.find(id='resources_deuterium').text.replace('.',''))
-        resources.append({'deuterium': deuterium })
         energy = int(soup.find(id='resources_energy').text.replace('.',''))
-        resources.append({'energy': energy })
-        return resources
+
+        return Resources(metal, crystal, deuterium, energy)
 
     def get_planets(self):
         self.logger.info('Getting planets')
@@ -43,3 +40,10 @@ class General:
         if len(other_planets) > 1:
             planets.extend(other_planets)
         return planets
+
+class Resources(object):
+    def __init__(self, metal, crystal, deuterium, energy):
+        self.metal = metal
+        self.crystal = crystal
+        self.deuterium = deuterium
+        self.energy = energy

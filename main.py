@@ -3,12 +3,13 @@ import logging
 from mechanize import Browser
 from hangar import Hangar
 from buildings import Buildings
+import buildings
 from defense import Defense
-from general import General
 import cookielib
 import sys
 from authentication import AuthenticationProvider
 import ConfigParser
+from general import General
 
 # setting up logger
 logger = logging.getLogger('ogame-bot')
@@ -33,9 +34,9 @@ if len(sys.argv) < 4 :
         exit()
     else:
         logger.info('Getting user info from config file')
-        username = config.get('UserInfo','username')
-        password = config.get('UserInfo','password')
-        universe = config.get('UserInfo','universe')
+        username = config.get('UserInfo', 'username')
+        password = config.get('UserInfo', 'password')
+        universe = config.get('UserInfo', 'universe')
 else:
     username = sys.argv[1]
     password = sys.argv[2]
@@ -46,8 +47,7 @@ browser = AuthenticationProvider(username, password, universe).get_browser()
 general_client = General(browser, universe)
 planets = general_client.get_planets()
 building_client = Buildings(browser, universe)
-
-logger.info("Found %i planets" % len(planets))
+general_client = General(browser, universe)
 
 for planet in planets:
-    building_client.build_structure(Buildings.Building_Types.SolarPlant, planet)
+    building_client.auto_build_structure(planet)
