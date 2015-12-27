@@ -29,7 +29,7 @@ class UrlProvider:
         """
         url = self.pages.get(page)
         if planet is not None:
-            url += '&cp=%s' % planet[1]
+            url += '&cp=%s' % planet.link
         return url
 
     def get_main_url(self):

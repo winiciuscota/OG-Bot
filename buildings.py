@@ -28,9 +28,9 @@ class BuildingTypes(Enum):
     DeuteriumTank = "24"
 
 class Building(object):
-    def __init__(self, name, amount):
+    def __init__(self, name, level):
         self.name = name
-        self.amount = amount
+        self.level = level
 
 class Buildings:
     def __init__(self, browser, universe):
@@ -48,7 +48,7 @@ class Buildings:
         return planet_buildings
 
     def get_buildings(self, planet):
-        self.logger.info('Getting resources data')
+        self.logger.info('Getting buildings data')
         url = self.url_provider.get_page_url('resources', planet)
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
@@ -65,28 +65,57 @@ class Buildings:
         return buildings
 
     def auto_build_structure(self, planet):
-        resources = self.general_client.get_resources(planet)
-
-        if resources.energy < 0:
-            self.build_structure(BuildingTypes.SolarPlant, planet)
+        if self.construction_mode(planet):
+            self.logger.info('Planet is already in construction mode')
+            return
         else:
-            self.build_structure(BuildingTypes.CrystalMine, planet)
+            resources = self.general_client.get_resources(planet)
+            buildings = self.get_buildings(planet)
+
+            crystal_mine_level = buildings.get(BuildingTypes.CrystalMine).level
+            metal_mine_level = buildings.get(BuildingTypes.MetalMine).level
+            deuterium_synthesizer_level = buildings.get(BuildingTypes.DeuteriumSynthesizer).level
+            metal_storage_level = buildings.get(BuildingTypes.MetalStorage).level
+            crystal_storage_level = buildings.get(BuildingTypes.CrystalStorage).level
+            deuterium_tank_level = buildings.get(BuildingTypes.DeuteriumTank).level
+
+            if resources.energy < 0:
+                self.build_structure_item(BuildingTypes.SolarPlant, planet)
+            else:
+                if crystal_mine_level - metal_mine_level > 2:
+                    if crystal_storage_level == 0 or crystal_mine_level / crystal_storage_level > 3:
+                        self.build_structure_item(BuildingTypes.CrystalStorage, planet)
+                    else:
+                        self.build_structure_item(BuildingTypes.CrystalMine, planet)
+                else:
+                    if deuterium_synthesizer_level - metal_mine_level > 5:
+                        if deuterium_tank_level == 0 or deuterium_synthesizer_level / deuterium_tank_level > 3:
+                            self.build_structure_item(BuildingTypes.DeuteriumTank, planet)
+                        else:
+                            self.build_structure_item(BuildingTypes.DeuteriumSynthesizer, planet)
+                    else:
+                        if metal_storage_level == 0 or metal_mine_level / metal_storage_level > 3:
+                            self.build_structure_item(BuildingTypes.MetalStorage, planet)
+                        else:
+                            self.build_structure_item(BuildingTypes.MetalMine, planet)
 
     def build_structure(self, type, planet):
         if self.construction_mode(planet):
             self.logger.info('Planet is already in construction mode')
             return
-        self.build_structure_item(type.value, planet)
+        else:
+            self.build_structure_item(type.value, planet)
 
     def build_structure_item(self, type, planet = None):
+        self.logger.info('Building %s on planet %s' %(type, planet[1]))
         self.browser.select_form(name='form')
         self.browser.form.new_control('text','menge',{'value':'1'})
         self.browser.form.fixup()
         self.browser['menge'] = '1'
 
-        self.browser.form.new_control('text','type',{'value':type})
+        self.browser.form.new_control('text','type',{'value': str(type)})
         self.browser.form.fixup()
-        self.browser['type'] = type
+        self.browser['type'] = str(type)
 
         self.browser.form.new_control('text','modus',{'value':'1'})
         self.browser.form.fixup()

@@ -33,13 +33,21 @@ class General:
         planets = []
         current_planet_id = soup.find("meta", { "name" : "ogame-planet-id"})['content']
         current_planet_name = soup.find("meta", { "name" : "ogame-planet-name"})['content']
-        current_planet = (current_planet_name, current_planet_id)
+        current_planet_koords = soup.find("meta", { "name" : "ogame-planet-coordinates"})['content']
+        current_planet = Planet(current_planet_name, current_planet_id, current_planet_koords)
         planets.append(current_planet)
         links = soup.findAll("a", { "class" : "planetlink tooltipRight js_hideTipOnMobile" })
-        other_planets = [ (str(link.find("span", {"class" : "planet-name  "}).contents[0]), urlparse.parse_qs(link['href'])['cp'][0]) for link in links]
+        other_planets = [ Planet((str(link.find("span", {"class" : "planet-name  "}).contents[0])),
+                            urlparse.parse_qs(link['href'])['cp'][0],
+                            self.parse_coordinates(str(link.find("span", {"class" : "planet-koords  "}).contents[0])))
+                            for link in links]
         if len(other_planets) > 1:
             planets.extend(other_planets)
         return planets
+
+    def parse_coordinates(self, coords):
+        return coords.replace('[', '').replace(']', '')
+
 
 class Resources(object):
     def __init__(self, metal, crystal, deuterium, energy):
@@ -47,3 +55,15 @@ class Resources(object):
         self.crystal = crystal
         self.deuterium = deuterium
         self.energy = energy
+
+    def __str__(self):
+        return "[Metal: %s, Crystal: %s, Deuterium: %s, Energy: %s]" % (self.metal, self.crystal, self.deuterium, self.energy)
+
+class Planet(object):
+    def __init__(self, name, link, coordinates):
+        self.name = name
+        self.link = link
+        self.coordinates = coordinates
+
+    def __str__(self):
+        return "[Planet: %s, Link: %s, Coordinates: %s]" % (self.name, self.link, self.coordinates)

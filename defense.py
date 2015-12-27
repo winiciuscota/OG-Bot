@@ -71,7 +71,7 @@ class Defense:
             self.logger.info(e)
 
     def build_defense_item(self, defense, planet = None):
-        self.logger.info("building %s %s on planet %s" % (defense[1], defense[0], planet[0]))
+        self.logger.info("building %s %s on planet %s" % (defense[1], defense[0], planet.name))
         self.logger.info("Writing data to form")
         self.br.select_form(name='form')
         self.br.form.new_control('text','menge',{'value': defense[1]})

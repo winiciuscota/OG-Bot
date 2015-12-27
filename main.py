@@ -10,6 +10,8 @@ import sys
 from authentication import AuthenticationProvider
 import ConfigParser
 from general import General
+from fleet import Fleet
+import general
 
 # setting up logger
 logger = logging.getLogger('ogame-bot')
@@ -47,7 +49,10 @@ browser = AuthenticationProvider(username, password, universe).get_browser()
 general_client = General(browser, universe)
 planets = general_client.get_planets()
 building_client = Buildings(browser, universe)
-general_client = General(browser, universe)
+fleet_client = Fleet(browser, universe)
+logger.info('starting fleet client')
+hangar_client = Hangar(browser, universe)
+defense_client = Defense(browser, universe)
 
-for planet in planets:
-    building_client.auto_build_structure(planet)
+
+fleet_client.transport_resources(planets[0], planets[1], general.Resources(1000, 0, 0, 0))

@@ -11,9 +11,9 @@ class Hangar:
         self.logger = logging.getLogger('ogame-bot')
         self.browser = browser
 
-    def get_ships(self):
-        self.logger.info('Getting shipyard data')
-        url = self.url_provider.GetPageUrl('shipyard')
+    def get_ships(self, planet):
+        self.logger.info('Getting shipyard data for planet %s' % planet)
+        url = self.url_provider.get_page_url('shipyard', planet)
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
         refs = soup.findAll("span", { "class" : "textlabel" })
@@ -25,5 +25,5 @@ class Hangar:
                 shipData = re.sub('  +', '', aux).encode('utf8')
                 ships.append( tuple(shipData.split('\n')) )
 
-        ships = map(tuple, map(Util.sanitize, [filter(None, i) for i in ships]))
+        ships = map(tuple, map(util.sanitize, [filter(None, i) for i in ships]))
         return ships
