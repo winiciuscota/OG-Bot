@@ -107,7 +107,7 @@ class Buildings:
             self.build_structure_item(type.value, planet)
 
     def build_structure_item(self, type, planet = None):
-        self.logger.info('Building %s on planet %s' %(type, planet[1]))
+        self.logger.info('Building %s on planet %s' %(type, planet.name))
         self.browser.select_form(name='form')
         self.browser.form.new_control('text','menge',{'value':'1'})
         self.browser.form.fixup()

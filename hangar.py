@@ -22,8 +22,21 @@ class Hangar:
         for ref in refs:
             if ref.parent['class'] == ['level']:
                 aux = ref.parent.text.replace('\t','')
-                shipData = re.sub('  +', '', aux).encode('utf8')
-                ships.append( tuple(shipData.split('\n')) )
+                ship_raw_data = re.sub('  +', '', aux).encode('utf8')
+                ship_id = ref.parent.parent.parent['ref']
+                ship_data = ship_raw_data.split('\n');
+                ship_data.append(ship_id)
+                ships.append( tuple(ship_data) )
 
         ships = map(tuple, map(util.sanitize, [filter(None, i) for i in ships]))
-        return ships
+        return [Ship(ship[0], ship[2], ship[1]) for ship in ships]
+
+
+class Ship(object):
+    def __init__(self, name, id, amount):
+        self.name = name
+        self.id = id
+        self.amount = amount
+
+    def __str__(self):
+        return "[Description: %s, Id: %s, Amount: %s ]" % (self.name, self.id, self.amount)

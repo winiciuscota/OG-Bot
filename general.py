@@ -12,7 +12,7 @@ class General:
         self.browser = browser
 
     def get_resources(self, planet):
-        self.logger.info('Getting resources data for planet %s' % planet[0])
+        self.logger.info('Getting resources data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('resources', planet)
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
@@ -50,14 +50,26 @@ class General:
 
 
 class Resources(object):
-    def __init__(self, metal, crystal, deuterium, energy):
+    def __init__(self, metal, crystal, deuterium, energy = 0):
         self.metal = metal
         self.crystal = crystal
         self.deuterium = deuterium
         self.energy = energy
 
     def __str__(self):
-        return "[Metal: %s, Crystal: %s, Deuterium: %s, Energy: %s]" % (self.metal, self.crystal, self.deuterium, self.energy)
+        result = []
+        if self.metal != 0:
+            result.append("Metal: %s" % self.metal)
+        if self.crystal != 0:
+            result.append("Crystal: %s" % self.crystal)
+        if self.deuterium != 0:
+            result.append("Deuterium: %s" % self.deuterium)
+        if self.energy != 0:
+            result.append("Energy: %s" % self.energy)
+        return ', '.join(result)
+
+    def total(self):
+        return self.metal + self.crystal + self.deuterium
 
 class Planet(object):
     def __init__(self, name, link, coordinates):
