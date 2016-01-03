@@ -50,7 +50,7 @@ class General:
 
 
 class Resources(object):
-    def __init__(self, metal, crystal, deuterium, energy = 0):
+    def __init__(self, metal, crystal, deuterium = 0, energy = 0):
         self.metal = metal
         self.crystal = crystal
         self.deuterium = deuterium

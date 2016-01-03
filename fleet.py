@@ -15,8 +15,8 @@ class Fleet:
     def __init__(self, browser, universe):
         self.url_provider = util.UrlProvider(universe)
         self.logger = logging.getLogger('ogame-bot')
+        self.general_client = General(browser, universe)
         self.browser = browser
-
         self.missions = {
             "expedition" : 15,
             "colonization" : 7,
@@ -31,9 +31,18 @@ class Fleet:
         }
 
     def transport_resources(self, origin_planet, destination_planet, resources):
+        planet_resources = self.general_client.get_resources(origin_planet)
+        if planet_resources.metal < resources.metal:
+            resources.metal = planet_resources.metal
+        if planet_resources.crystal < resources.crystal:
+            resources.crystal = planet_resources.crystal
+        if planet_resources.deuterium < resources.deuterium:
+            resources.deuterium = planet_resources.deuterium
+
         resources_count = resources.total()
         ships_count = int(math.ceil(resources_count / 25000))
         self.logger.info("Sending %d heavy cargos" % ships_count)
+
         self.send_fleet(origin_planet, destination_planet, resources, { 203 : ships_count}, self.missions["transport"])
 
     def send_fleet(self, origin_planet, destination_planet, resources, ships, mission):
@@ -79,7 +88,6 @@ class Fleet:
         self.browser.submit()
 
         # set mission and resouces to send
-
         self.browser.select_form(name='sendForm')
         self.browser.form.find_control('mission').readonly = False
         self.browser["mission"] = str(mission)
@@ -87,3 +95,5 @@ class Fleet:
         self.browser["crystal"] = str(resources.crystal)
         self.browser["deuterium"] = str(resources.deuterium)
         self.browser.submit()
+        self.logger.info("Sending %s with %s from planet %s to planet %s" %
+            (ships, resources, origin_planet.name, destination_planet.name))

@@ -17,9 +17,27 @@ logger.info('Starting the bot')
 config = ConfigParser.ConfigParser()
 cfg = config.read('user.cfg')
 
+WRONG_ARGUMENTS_MESSAGE = """
+You must pass at least 3 arguments:
+    username - name of the user
+    password - password of the user
+    universe - universe id (e.g. 101)
+    mode (optional) - the mode in which the bot should run, defaults to get_planets
+    target plane (optional) - target planet if the mode requires some, defaults to the first planet
+Alternatively you can write a cfg file, the user.cfg file should look like this:
+    [UserInfo]
+    username = your_username
+    password = your_password
+    universe = your_universe
+
+    [Settings]
+    Mode = transport_resources_to_planet
+    TargetPlanet = target_planet_name
+"""
+
 if len(sys.argv) < 4 :
     if cfg == []:
-        logger.info('You must pass 5 arguments (username, password, universe, mode, target plane) or write have a config file')
+        print WRONG_ARGUMENTS_MESSAGE
         exit()
     else:
         logger.info('Getting user info from config file')
@@ -32,20 +50,24 @@ else:
     username = sys.argv[1]
     password = sys.argv[2]
     universe = sys.argv[3]
-    mode = sys.argv[4]
-    target_planet = sys.argv[5]
+    mode = sys.argv[4] if len(sys.argv) >= 5 else "overview"
+    target_planet = sys.argv[5] if len(sys.argv) >= 6 else None
 
 logger.info("Initializing bot")
+
+
 bot = OgameBot(username, password, universe, target_planet)
 
 switcher = {
     'auto_build_defenses': bot.auto_build_defenses,
-    'get_defenses':bot.get_defenses,
-    'get_ships': bot.get_ships,
-    'get_planets': bot.get_planets,
+    'log_defenses':bot.log_defenses,
+    'log_ships': bot.log_ships,
+    'log_planets': bot.log_planets,
+    'overview' : bot.log_overview,
     'transport_resources_to_planet' : bot.transport_resources_to_planet,
     'auto_build_structure_to_planet' : bot.auto_build_structure_to_planet
 }
 
 logger.info("Bot running on %s mode" % mode)
 switcher.get(mode)()
+logger.info("Quiting bot")
