@@ -31,9 +31,9 @@ universe = your_universe <br />
 Mode = transport_resources_to_planet <br />
 TargetPlanet = target_planet <br />
 
-#The currently supported modes are:
-auto_build_defenses: Spend all resouces on defenses for all planets
-get_defenses: Display defenses for all planets
-get_ships: Display all ships that are not in missions for all planets
-get_planets: Display all your planets
-transport_resources_to_planet: transport all resources of your planets to the target planet (from the config file)
+The currently supported modes are: <br />
+auto_build_defenses: Spend all resouces on defenses for all planets <br />
+get_defenses: Display defenses for all planets <br />
+get_ships: Display all ships that are not in missions for all planets <br />
+get_planets: Display all your planets <br />
+transport_resources_to_planet: transport all resources of your planets to the target planet (from the config file) <br />
