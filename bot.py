@@ -21,10 +21,6 @@ class OgameBot:
         self.planets = self.general_client.get_planets()
 
     # Bot functions
-    def auto_build_defenses(self):
-        planets = self.planets
-        for planet in planets:
-            self.defense_client.auto_build_defenses(planet)
 
     def log_planets(self):
         planets = self.planets
@@ -55,18 +51,30 @@ class OgameBot:
             self.logger.info("Planet %s:", res[0])
             self.logger.info("Resources: [%s]", res[1])
 
+    def auto_build_defenses(self):
+        planets = self.planets
+        for planet in planets:
+            self.defense_client.auto_build_defenses(planet)
+
+    def auto_build_defenses_to_planet(self):
+        target_planet = self.get_target_planet()
+        self.defense_client.auto_build_defenses(target_planet)
+
     def transport_resources_to_planet(self):
         planets = self.planets
         target_planet = self.get_target_planet()
         self.logger.info("Main planet found: %s"  % target_planet)
         for planet in [planet for planet in planets if planet != target_planet]:
             resources = general.Resources(1000000, 1000000, 0)
-            self.logger.info("Transporting %s from planet %s to planet %s" % (resources, planet.name, target_planet.name))
             self.fleet_client.transport_resources(planet, target_planet, resources)
 
     def auto_build_structure_to_planet(self):
         target_planet = self.get_target_planet()
         self.buildings_client.auto_build_structure(target_planet)
+
+    def auto_build_structures(self):
+        for planet in self.planets:
+            self.buildings_client.auto_build_structure(planet)
 
     # Util functions
     def get_target_planet(self):

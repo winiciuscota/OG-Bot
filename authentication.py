@@ -60,13 +60,12 @@ class AuthenticationProvider:
         # Check if cookies file exists
         if os.path.isfile(self.cookies_file_name):
             self.logger.info('Found stored cookies')
-            self.cj.load(self.cookies_file_name)
+            self.cj.load(self.cookies_file_name, ignore_discard=True)
             if self.verify_connection():
                 return self.br
             else:
                 self.logger.info('Could not restore session from cookies file')
         self.connect()
         self.verify_connection()
-
-        self.cj.save(self.cookies_file_name)
+        self.cj.save(self.cookies_file_name, ignore_discard=True)
         return self.br

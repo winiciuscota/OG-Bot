@@ -55,17 +55,18 @@ else:
 
 logger.info("Initializing bot")
 
-
 bot = OgameBot(username, password, universe, target_planet)
 
 switcher = {
-    'auto_build_defenses': bot.auto_build_defenses,
     'log_defenses':bot.log_defenses,
     'log_ships': bot.log_ships,
     'log_planets': bot.log_planets,
     'overview' : bot.log_overview,
-    'transport_resources_to_planet' : bot.transport_resources_to_planet,
-    'auto_build_structure_to_planet' : bot.auto_build_structure_to_planet
+    'auto_build_defenses': bot.auto_build_defenses,
+    'auto_build_structures' : bot.auto_build_structures,
+    'auto_build_structure_to_planet' : bot.auto_build_structure_to_planet,
+    "auto_build_defenses_to_planet" : bot.auto_build_defenses_to_planet,
+    'transport_resources_to_planet' : bot.transport_resources_to_planet
 }
 
 logger.info("Bot running on %s mode" % mode)
