@@ -5,6 +5,7 @@ import defense
 import buildings
 import hangar
 import fleet
+import galaxy
 
 class OgameBot:
 
@@ -19,9 +20,9 @@ class OgameBot:
         self.logger = logging.getLogger('ogame-bot')
         self.target_planet_name = target_planet_name
         self.planets = self.general_client.get_planets()
+        self.galaxy_client = galaxy.Galaxy(self.browser, self.universe)
 
     # Bot functions
-
     def log_planets(self):
         planets = self.planets
         self.logger.info("Logging planets")
@@ -75,6 +76,12 @@ class OgameBot:
     def auto_build_structures(self):
         for planet in self.planets:
             self.buildings_client.auto_build_structure(planet)
+
+    def log_planets_in_same_ss(self):
+        target_planet = self.get_target_planet()
+        planets = self.galaxy_client.get_planets(target_planet.coordinates.split(':')[0], target_planet.coordinates.split(':')[1])
+        for planet in planets:
+            self.logger.info(planet)
 
     # Util functions
     def get_target_planet(self):

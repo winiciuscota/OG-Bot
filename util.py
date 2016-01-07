@@ -7,14 +7,12 @@ class UrlProvider:
         self.pages = {
             'main':         self.main_url + '?page=overview',
             'resources':    self.main_url + '?page=resources',
-            'station':      self.main_url + '?page=station',
             'research':     self.main_url + '?page=research',
             'shipyard':     self.main_url + '?page=shipyard',
             'defense':      self.main_url + '?page=defense',
             'fleet':        self.main_url + '?page=fleet1',
             'galaxy':       self.main_url + '?page=galaxy',
-            'galaxyCnt':    self.main_url + '?page=galaxyContent',
-            'events':       self.main_url + '?page=eventList'
+            'galaxyContent':    self.main_url + '?page=galaxyContent',
         }
 
     def get_pages(self):
