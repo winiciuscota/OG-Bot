@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import logging
 import urllib
+from enum import Enum
 
 class Galaxy:
     def __init__(self, browser, universe):
@@ -26,29 +27,50 @@ class Galaxy:
         table_rows = [node.parent for node in nodes]
 
         planets = []
+        player_name = ''
+        player_inactive = ''
+
         for table_row in table_rows:
-            planet_name = table_row.find("td", { "class" : "planetname"}).text
-            planet_position = int(table_row.find("td", {"class" : "position js_no_action "}).text)
+            planet_name = table_row.find("td", { "class" : "planetname"}).text.strip()
+            planet_position = table_row.find("td", {"class" : "position js_no_action "}).text
+            planet_coordinates = ":".join([galaxy, system, planet_position])
+
             # first we will search for active player
             player_name_node = table_row.find("span", { "class" : "status_abbr_active"})
+
             if player_name_node != None :
                 player_name = player_name_node.text
+                player_inactive = PlayerState.Active
             else :
                 # then search for inactive player
                 player_name_node = table_row.find("span", { "class" : "status_abbr_longinactive"})
-            planets.append(Planet(planet_name, planet_position, int(galaxy), int(system), planet_position))
+                if player_name_node != None and len(player_name_node.text) > 1:
+                    player_name = player_name_node.text
+                    player_inactive = PlayerState.Inactive
+                else:
+                    # last look for players on vacation
+                    player_name_node = table_row.find("span", { "class" : "status_abbr_vacation"})
+                    if player_name_node != None and len(player_name_node.text) > 1:
+                        player_name = player_name_node.text
+                        player_inactive = PlayerState.Vacation
+
+            planets.append(Planet(planet_name.strip(), planet_coordinates, player_name, player_inactive))
 
         return planets
 
+class PlayerState(Enum):
+    Active = 1
+    Inactive = 2
+    Vacation = 3
 
 class Planet(object):
-    def __init__(self, name, galaxy, system, position, player_name = None, player_inactive = None):
+    def __init__(self, name, coordinates, player_name, player_state):
         self.name = name
-        self.galaxy = galaxy
-        self.system = system
-        self.position = position
+        self.coordinates = coordinates
         self.player_name = player_name
-        self.player_inactive = player_inactive
+        self.player_state = player_state
 
     def __str__(self):
-        return "%s (%d, %d, %d)" % (self.name, self.galaxy, self.system, self.position)
+        str = "Planet: %s, Coordinates: %s, Player %s (%s)" % (self.name,
+         self.coordinates, self.player_name, self.player_state)
+        return str

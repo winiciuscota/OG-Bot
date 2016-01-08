@@ -67,7 +67,10 @@ switcher = {
     'auto_build_structure_to_planet' : bot.auto_build_structure_to_planet,
     "auto_build_defenses_to_planet" : bot.auto_build_defenses_to_planet,
     'transport_resources_to_planet' : bot.transport_resources_to_planet,
-    'log_planets_in_same_ss' : bot.log_planets_in_same_ss
+    'log_planets_in_same_system' : bot.log_planets_in_same_system,
+    'log_nearest_planets' : bot.log_nearest_planets,
+    'log_nearest_inactive_planets' : bot.log_nearest_inactive_planets,
+    'spy_nearest_planets' : bot.spy_nearest_planets
 }
 
 logger.info("Bot running on %s mode" % mode)

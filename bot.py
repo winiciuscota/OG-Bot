@@ -23,6 +23,40 @@ class OgameBot:
         self.galaxy_client = galaxy.Galaxy(self.browser, self.universe)
 
     # Bot functions
+    def auto_build_defenses(self):
+        planets = self.planets
+        for planet in planets:
+            self.defense_client.auto_build_defenses(planet)
+
+    def auto_build_defenses_to_planet(self):
+        target_planet = self.get_target_planet()
+        self.defense_client.auto_build_defenses(target_planet)
+
+    def transport_resources_to_planet(self):
+        planets = self.planets
+        target_planet = self.get_target_planet()
+        self.logger.info("Main planet found: %s"  % target_planet)
+        for planet in [planet for planet in planets if planet != target_planet]:
+            resources = general.Resources(1000000, 1000000, 0)
+            self.fleet_client.transport_resources(planet, target_planet, resources)
+
+    def auto_build_structure_to_planet(self):
+        target_planet = self.get_target_planet()
+        self.buildings_client.auto_build_structure(target_planet)
+
+
+    def auto_build_structures(self):
+        for planet in self.planets:
+            self.buildings_client.auto_build_structure(planet)
+
+    def spy_nearest_planets(self):
+        target_planet = self.get_target_planet()
+        planets = self.get_nearest_inactive_planets(5)
+
+        for planet in planets:
+            self.fleet_client.spy_planet(target_planet, planet)
+
+    # Logging functions
     def log_planets(self):
         planets = self.planets
         self.logger.info("Logging planets")
@@ -52,34 +86,18 @@ class OgameBot:
             self.logger.info("Planet %s:", res[0])
             self.logger.info("Resources: [%s]", res[1])
 
-    def auto_build_defenses(self):
-        planets = self.planets
+    def log_planets_in_same_system(self):
+        planets = self.get_planets_in_same_ss()
         for planet in planets:
-            self.defense_client.auto_build_defenses(planet)
+            self.logger.info(planet)
 
-    def auto_build_defenses_to_planet(self):
-        target_planet = self.get_target_planet()
-        self.defense_client.auto_build_defenses(target_planet)
+    def log_nearest_planets(self):
+        planets = self.get_nearest_planets(50)
+        for planet in planets:
+            self.logger.info(planet)
 
-    def transport_resources_to_planet(self):
-        planets = self.planets
-        target_planet = self.get_target_planet()
-        self.logger.info("Main planet found: %s"  % target_planet)
-        for planet in [planet for planet in planets if planet != target_planet]:
-            resources = general.Resources(1000000, 1000000, 0)
-            self.fleet_client.transport_resources(planet, target_planet, resources)
-
-    def auto_build_structure_to_planet(self):
-        target_planet = self.get_target_planet()
-        self.buildings_client.auto_build_structure(target_planet)
-
-    def auto_build_structures(self):
-        for planet in self.planets:
-            self.buildings_client.auto_build_structure(planet)
-
-    def log_planets_in_same_ss(self):
-        target_planet = self.get_target_planet()
-        planets = self.galaxy_client.get_planets(target_planet.coordinates.split(':')[0], target_planet.coordinates.split(':')[1])
+    def log_nearest_inactive_planets(self):
+        planets = self.get_nearest_inactive_planets(50)
         for planet in planets:
             self.logger.info(planet)
 
@@ -90,3 +108,26 @@ class OgameBot:
             return planets[0]
         target_planet = [planet for planet in planets if planet.name.lower() == self.target_planet_name.lower()][0]
         return target_planet
+
+    def get_planets_in_same_system(self):
+        target_planet = self.get_target_planet()
+        planets = self.galaxy_client.get_planets(target_planet.coordinates.split(':')[0], target_planet.coordinates.split(':')[1])
+        return planets
+
+    def get_nearest_planets(self, systems_count):
+        target_planet = self.get_target_planet()
+        planets = []
+        galaxy = target_planet.coordinates.split(':')[0]
+        system =  target_planet.coordinates.split(':')[1]
+        for i in range(systems_count):
+            target_previous_system = str(int(system) - i)
+            target_later_system = str(int(system) - i)
+            previous_planets = self.galaxy_client.get_planets(galaxy, target_previous_system)
+            later_planets = self.galaxy_client.get_planets(galaxy, target_previous_system)
+            planets.extend(previous_planets)
+            planets.extend(later_planets)
+        return planets
+
+    def get_nearest_inactive_planets(self, systems_count):
+        planets = [planet for planet in self.get_nearest_planets(systems_count) if planet.player_state == galaxy.PlayerState.Inactive]
+        return planets

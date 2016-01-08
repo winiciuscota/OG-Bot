@@ -7,7 +7,7 @@ import re
 import logging
 import urlparse
 from enum import Enum
-from general import General
+import general
 import math
 
 class Ship(object):
@@ -22,7 +22,7 @@ class Fleet:
     def __init__(self, browser, universe):
         self.url_provider = util.UrlProvider(universe)
         self.logger = logging.getLogger('ogame-bot')
-        self.general_client = General(browser, universe)
+        self.general_client = general.General(browser, universe)
         self.browser = browser
         self.missions = {
             "expedition" : 15,
@@ -44,9 +44,15 @@ class Fleet:
             "bs" : Ship(207, "Battle Ship"),
             "cs" : Ship(207, "Colony Ship"),
             "sg" : Ship(202, "Small Cargo Ship"),
-            "lg" : Ship(203, "Large Cargo Ship")
+            "lg" : Ship(203, "Large Cargo Ship"),
+            "ep" : Ship(210, "Espionage Probe")
         }
 
+    def spy_planet(self, origin_planet, destination_planet):
+        spy_probes_count = 5
+
+        self.send_fleet(origin_planet, destination_planet.coordinates,
+            self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
 
     def transport_resources(self, origin_planet, destination_planet, resources):
         planet_resources = self.general_client.get_resources(origin_planet)
@@ -61,9 +67,10 @@ class Fleet:
         ships_count = int(math.ceil(resources_count / 25000))
         self.logger.info("Sending %d heavy cargos" % ships_count)
 
-        self.send_fleet(origin_planet, destination_planet, resources, { self.ships.get('lg') : ships_count}, self.missions["transport"])
+        self.send_fleet(origin_planet, destination_planet.coordinates,
+             self.missions["transport"], { self.ships.get('lg') : ships_count}, resources)
 
-    def send_fleet(self, origin_planet, destination_planet, resources, ships, mission):
+    def send_fleet(self, origin_planet, coordinates, mission, ships, resources = None):
         """
         Missions:
             15 - Expedition,
@@ -77,8 +84,10 @@ class Fleet:
             2 - Alliance attack,
             9 - Destroy star
         """
+        if resources == None:
+            resources = general.Resources(0, 0)
 
-        if origin_planet.coordinates == destination_planet.coordinates:
+        if origin_planet.coordinates == coordinates:
             self.logger.error("Origin and destination are the same")
             return
 
@@ -100,9 +109,9 @@ class Fleet:
 
         # set target planet
         self.browser.select_form(name='details')
-        self.browser["galaxy"] = destination_planet.coordinates.split(':')[0]
-        self.browser["system"] = destination_planet.coordinates.split(':')[1]
-        self.browser["position"] = destination_planet.coordinates.split(':')[2]
+        self.browser["galaxy"] = coordinates.split(':')[0]
+        self.browser["system"] = coordinates.split(':')[1]
+        self.browser["position"] = coordinates.split(':')[2]
         self.browser.submit()
 
         # set mission and resouces to send
@@ -113,8 +122,8 @@ class Fleet:
         self.browser["crystal"] = str(resources.crystal)
         self.browser["deuterium"] = str(resources.deuterium)
         self.browser.submit()
-        self.logger.info("Sending %s with %s from planet %s to planet %s" %
-            (self.get_ships_list(ships), resources, origin_planet.name, destination_planet.name))
+        self.logger.info("Sending %s with %s from planet %s to coordinates %s" %
+            (self.get_ships_list(ships), resources, origin_planet.name, coordinates))
 
     def get_ships_list(self, ships):
         return ", ".join([ str(ships.get(ship))  + ' ' + str(ship) for ship in ships])
