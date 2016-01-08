@@ -121,9 +121,9 @@ class OgameBot:
         system =  target_planet.coordinates.split(':')[1]
         for i in range(systems_count):
             target_previous_system = str(int(system) - i)
-            target_later_system = str(int(system) - i)
+            target_later_system = str(int(system) + i)
             previous_planets = self.galaxy_client.get_planets(galaxy, target_previous_system)
-            later_planets = self.galaxy_client.get_planets(galaxy, target_previous_system)
+            later_planets = self.galaxy_client.get_planets(galaxy, target_later_system)
             planets.extend(previous_planets)
             planets.extend(later_planets)
         return planets
