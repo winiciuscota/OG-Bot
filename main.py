@@ -70,7 +70,9 @@ switcher = {
     'log_planets_in_same_system' : bot.log_planets_in_same_system,
     'log_nearest_planets' : bot.log_nearest_planets,
     'log_nearest_inactive_planets' : bot.log_nearest_inactive_planets,
-    'spy_nearest_planets' : bot.spy_nearest_planets
+    'spy_nearest_planets' : bot.spy_nearest_planets,
+    'spy_nearest_inactive_planets' : bot.spy_nearest_inactive_planets,
+    'log_spy_reports' : bot.log_spy_reports
 }
 
 logger.info("Bot running on %s mode" % mode)

@@ -13,6 +13,7 @@ class UrlProvider:
             'fleet':        self.main_url + '?page=fleet1',
             'galaxy':       self.main_url + '?page=galaxy',
             'galaxyContent':    self.main_url + '?page=galaxyContent',
+            'messages':    self.main_url + '?page=messages',
         }
 
     def get_pages(self):

@@ -6,6 +6,7 @@ import buildings
 import hangar
 import fleet
 import galaxy
+import messages
 
 class OgameBot:
 
@@ -21,6 +22,7 @@ class OgameBot:
         self.target_planet_name = target_planet_name
         self.planets = self.general_client.get_planets()
         self.galaxy_client = galaxy.Galaxy(self.browser, self.universe)
+        self.messages_client = messages.Messages(self.browser, self.universe)
 
     # Bot functions
     def auto_build_defenses(self):
@@ -51,7 +53,14 @@ class OgameBot:
 
     def spy_nearest_planets(self):
         target_planet = self.get_target_planet()
-        planets = self.get_nearest_inactive_planets(5)
+        planets = self.get_nearest_planets(10)
+
+        for planet in planets:
+            self.fleet_client.spy_planet(target_planet, planet)
+
+    def spy_nearest_inactive_planets(self):
+        target_planet = self.get_target_planet()
+        planets = self.get_nearest_inactive_planets(10)
 
         for planet in planets:
             self.fleet_client.spy_planet(target_planet, planet)
@@ -101,6 +110,11 @@ class OgameBot:
         for planet in planets:
             self.logger.info(planet)
 
+    def log_spy_reports(self):
+        spy_reports = self.get_spy_reports()
+        for spy_report in spy_reports:
+            self.logger.info(spy_report)
+
     # Util functions
     def get_target_planet(self):
         planets = self.planets
@@ -131,3 +145,7 @@ class OgameBot:
     def get_nearest_inactive_planets(self, systems_count):
         planets = [planet for planet in self.get_nearest_planets(systems_count) if planet.player_state == galaxy.PlayerState.Inactive]
         return planets
+
+    def get_spy_reports(self):
+        spy_reports = self.messages_client.get_spy_reports()
+        return spy_reports
