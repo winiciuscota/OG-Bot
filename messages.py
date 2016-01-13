@@ -77,9 +77,9 @@ class Messages:
                 resources_data = resources_row.findAll("span", {"class": "resspan"})
                 resources = None
                 if resources_data != None:
-                    metal = self.parse_integer(resources_data[0].text)
-                    crystal = self.parse_integer(resources_data[1].text)
-                    deuterium = self.parse_integer(resources_data[2].text)
+                    metal = self.parse_resource(resources_data[0].text)
+                    crystal = self.parse_resource(resources_data[1].text)
+                    deuterium = self.parse_resource(resources_data[2].text)
                     resources = general.Resources(metal, crystal, deuterium)
 
                 defense_row = message_content[3]
@@ -87,8 +87,8 @@ class Messages:
                 defenses_data = defense_row.find("span", {"class": "ctn ctn4 fright tooltipRight"})
 
                 if fleet_data != None and defenses_data != None:
-                    fleet = self.parse_integer(fleet_data.text)
-                    defenses = self.parse_integer(defenses_data.text)
+                    fleet = self.parse_resource(fleet_data.text)
+                    defenses = self.parse_resource(defenses_data.text)
                 else:
                     fleet = None
                     defenses = None
@@ -97,8 +97,8 @@ class Messages:
 
         return spy_reports
 
-    def parse_integer(self, text):
-        """Use to parse string values to int, ex: 2.492M becomes 2492000"""
+    def parse_resource(self, text):
+        """Use to parse resources values to int, ex: metal: 2.492M becomes 2492000"""
         value = int(text.split(':')[1].strip().replace(".", "").replace("M", "000"))
         return value
 
