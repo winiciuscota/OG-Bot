@@ -11,6 +11,12 @@ class General:
         self.logger = logging.getLogger('ogame-bot')
         self.browser = browser
 
+    def log_index_page(self):
+        """Logs the index page, used for test purposes"""
+        url = self.url_provider.get_page_url('overview')
+        res = self.browser.open(url)
+        self.logger.info(res.read())
+
     def get_resources(self, planet):
         self.logger.info('Getting resources data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('resources', planet)

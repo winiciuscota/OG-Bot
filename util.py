@@ -5,7 +5,7 @@ class UrlProvider:
         self.main_url = 'http://s' + str(universe) + '-br.ogame.gameforge.com/game/index.php'
 
         self.pages = {
-            'main':         self.main_url + '?page=overview',
+            'overview':         self.main_url + '?page=overview',
             'resources':    self.main_url + '?page=resources',
             'research':     self.main_url + '?page=research',
             'shipyard':     self.main_url + '?page=shipyard',
@@ -14,6 +14,7 @@ class UrlProvider:
             'galaxy':       self.main_url + '?page=galaxy',
             'galaxyContent':    self.main_url + '?page=galaxyContent',
             'messages':    self.main_url + '?page=messages',
+            'movement':    self.main_url + '?page=movement'
         }
 
     def get_pages(self):

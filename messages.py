@@ -108,6 +108,7 @@ class MessageType(Enum):
 
 class SpyReport(object):
     def __init__(self, planet_name, player_name, player_state, coordinates, resources, defenses, fleet):
+        self.planet_name = planet_name
         self.player_name = player_name
         self.player_state = player_state
         self.coordinates = coordinates
@@ -116,4 +117,4 @@ class SpyReport(object):
         self.fleet = fleet
 
     def __str__(self):
-        return "Player %s, State: %s, coordinates %s, Resouces = %s, Fleet: %s, Defenses: %s, " % (self.player_name, self.player_state, self.coordinates, self.resources, self.fleet, self.defenses)
+        return "Planet %s,Player %s, State: %s, coordinates %s, Resouces = %s, Fleet: %s, Defenses: %s, " % (self.planet_name, self.player_name, self.player_state, self.coordinates, self.resources, self.fleet, self.defenses)

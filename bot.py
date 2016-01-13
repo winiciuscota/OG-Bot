@@ -65,6 +65,16 @@ class OgameBot:
         for planet in planets:
             self.fleet_client.spy_planet(target_planet, planet)
 
+    def attack_inactive_planets_from_spy_reports(self):
+        origin_planet = self.get_target_planet()
+        inactive_planets = [ planet for planet in self.get_spy_reports() if planet.player_state == galaxy.PlayerState.Inactive]
+        for target_planet in inactive_planets:
+            if target_planet.defenses == 0:
+                self.attack_inactive_planet(origin_planet, target_planet)
+
+    def attack_inactive_planet(self, origin_planet, target_planet):
+        self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
+
     # Logging functions
     def log_planets(self):
         planets = self.planets
@@ -112,6 +122,7 @@ class OgameBot:
 
     def log_spy_reports(self):
         spy_reports = self.get_spy_reports()
+        self.logger.info('test')
         for spy_report in spy_reports:
             self.logger.info(spy_report)
 
@@ -149,3 +160,6 @@ class OgameBot:
     def get_spy_reports(self):
         spy_reports = self.messages_client.get_spy_reports()
         return spy_reports
+
+    def log_index_page(self):
+        self.general_client.log_index_page()

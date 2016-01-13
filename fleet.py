@@ -54,6 +54,12 @@ class Fleet:
         self.send_fleet(origin_planet, destination_planet.coordinates,
             self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
 
+    def attack_inactive_planet(self, origin_planet, target_planet):
+        fleet = self.get_tranport_fleet(target_planet.resources)
+        self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
+        self.send_fleet(origin_planet, target_planet.coordinates,
+             self.missions["attack"], fleet)
+
     def transport_resources(self, origin_planet, destination_planet, resources):
         planet_resources = self.general_client.get_resources(origin_planet)
         if planet_resources.metal < resources.metal:
@@ -63,12 +69,11 @@ class Fleet:
         if planet_resources.deuterium < resources.deuterium:
             resources.deuterium = planet_resources.deuterium
 
-        resources_count = resources.total()
-        ships_count = int(math.ceil(resources_count / 25000))
-        self.logger.info("Sending %d heavy cargos" % ships_count)
+        fleet = self.get_tranport_fleet(resources)
+        self.logger.info("Fleet: %s" % fleet)
 
         self.send_fleet(origin_planet, destination_planet.coordinates,
-             self.missions["transport"], { self.ships.get('lg') : ships_count}, resources)
+             self.missions["transport"], fleet, resources)
 
     def send_fleet(self, origin_planet, coordinates, mission, ships, resources = None):
         """
@@ -122,8 +127,13 @@ class Fleet:
         self.browser["crystal"] = str(resources.crystal)
         self.browser["deuterium"] = str(resources.deuterium)
         self.browser.submit()
-        self.logger.info("Sending %s with %s from planet %s to coordinates %s" %
-            (self.get_ships_list(ships), resources, origin_planet.name, coordinates))
+        self.logger.info("Sending %s %s from planet %s to coordinates %s" %
+            (self.get_ships_list(ships), ("carrying %s" % resources) if resources != None else "", origin_planet.name, coordinates))
 
     def get_ships_list(self, ships):
         return ", ".join([ str(ships.get(ship))  + ' ' + str(ship) for ship in ships])
+
+    def get_tranport_fleet(self, resources):
+        resources_count = resources.total()
+        ships_count = int(math.ceil(resources_count / 25000))
+        return  { self.ships.get('lg') : ships_count}
