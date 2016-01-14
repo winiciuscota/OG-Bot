@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import logging
 import urlparse
+import datetime
 
 class General:
     def __init__(self, browser, universe):
@@ -16,6 +17,15 @@ class General:
         url = self.url_provider.get_page_url('overview')
         res = self.browser.open(url)
         self.logger.info(res.read())
+
+    def get_game_datetime(self):
+        url = self.url_provider.get_page_url('overview')
+        res = self.browser.open(url)
+        soup = BeautifulSoup(res.read())
+
+        datetime_data = soup.find("li", {"class": "OGameClock"}).text
+        game_datetime = datetime.datetime.strptime(datetime_data, "%d.%m.%Y %H:%M:%S")
+        return game_datetime
 
     def get_resources(self, planet):
         self.logger.info('Getting resources data for planet %s' % planet.name)
@@ -53,6 +63,7 @@ class General:
 
     def parse_coordinates(self, coords):
         return coords.replace('[', '').replace(']', '')
+
 
 
 class Resources(object):

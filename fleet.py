@@ -112,12 +112,13 @@ class Fleet:
             control_name = "am" + str(ship.id)
             control = self.browser.form.find_control(control_name)
             # If there is no available ships exit
-            if control == False:
+            if control.readonly == False:
                 self.browser[control_name] = str(amount)
             else:
                 self.logger.error("Not enough %s to send" % ship.name)
                 return
         self.browser.submit()
+
 
         # set target planet
         self.browser.select_form(name='details')

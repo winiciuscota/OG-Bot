@@ -10,7 +10,7 @@ from enum import Enum
 import urllib
 import galaxy
 import general
-import time
+import datetime
 
 class Messages:
 
@@ -111,8 +111,8 @@ class Messages:
         return percentage
 
     def parse_report_datetime(self, text):
-        datetime = time.strptime(text.strip(), "%d.%m.%Y %H:%M:%S")
-        return datetime
+        time = datetime.datetime.strptime(text.strip(), "%d.%m.%Y %H:%M:%S")
+        return time
 
 
 class MessageType(Enum):

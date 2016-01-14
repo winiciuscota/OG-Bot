@@ -7,6 +7,7 @@ import hangar
 import fleet
 import galaxy
 import messages
+import datetime
 import time
 
 class OgameBot:
@@ -68,13 +69,35 @@ class OgameBot:
 
     def attack_inactive_planets_from_spy_reports(self):
         origin_planet = self.get_target_planet()
+        game_date = self.general_client.get_game_datetime()
+        reports = self.get_spy_reports()
+        inactive_planets = [ report for report
+                                    in reports
+                                    if report.player_state == galaxy.PlayerState.Inactive
+                                    and (report.report_datetime + datetime.timedelta(minutes=20)) > game_date]
 
-        inactive_planets = [ planet for planet in self.get_spy_reports() if planet.player_state == galaxy.PlayerState.Inactive]
+        if len(inactive_planets) == 0:
+            self.logger.info("There isn't any recent spy reports of inactive players")
+            return False
+        else:
+            self.logger.info("Found %d recent spy reports of inactive players" % len(inactive_planets))
+
         targets = sorted(inactive_planets, key=self.get_target_value, reverse=True)
 
         for target in targets:
             if target.defenses == 0:
                 self.attack_inactive_planet(origin_planet, target)
+        return True
+
+    def auto_attack_inactive_planets(self):
+        result = self.attack_inactive_planets_from_spy_reports()
+        if result == False:
+            self.logger.info("Senting Spy Probes")
+            self.spy_nearest_inactive_planets()
+            self.logger.info("Waiting for probes to return")
+            time.sleep(60)
+            self.attack_inactive_planets_from_spy_reports()
+
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
@@ -126,17 +149,23 @@ class OgameBot:
 
     def log_spy_reports(self):
         spy_reports = self.get_spy_reports()
-        self.logger.info('test')
         for spy_report in spy_reports:
-            self.logger.info("Date:%s - %s" % (time.asctime(spy_report.report_datetime), spy_report))
+            self.logger.info("Date:%s - %s" % (spy_report.report_datetime, spy_report))
 
+    def log_game_datetime(self):
+        time = self.general_client.get_game_datetime()
+        # test = time - datetime.timedelta(minutes=10)
+        # self.logger.info(test)
+        self.logger.info(datetime)
 
     # Util functions
     def get_target_planet(self):
         planets = self.planets
         if self.target_planet_name == None:
             return planets[0]
-        target_planet = [planet for planet in planets if planet.name.lower() == self.target_planet_name.lower()][0]
+        target_planet = [planet for planet
+                                in planets
+                                if planet.name.lower() == self.target_planet_name.lower()][0]
         return target_planet
 
     def get_planets_in_same_system(self):
@@ -159,15 +188,20 @@ class OgameBot:
         return planets
 
     def get_nearest_inactive_planets(self, systems_count):
-        planets = [planet for planet in self.get_nearest_planets(systems_count) if planet.player_state == galaxy.PlayerState.Inactive]
+        planets = [planet for planet
+                          in self.get_nearest_planets(systems_count)
+                          if planet.player_state == galaxy.PlayerState.Inactive]
         return planets
 
     def get_spy_reports(self):
+        """Get spy reports from the messages"""
         spy_reports = self.messages_client.get_spy_reports()
         return spy_reports
 
     def get_target_value(self, target):
-        return target.resources.total()
+        """Get the value of a target by its resources"""
+        return target.resources.total() * target.loot
 
     def log_index_page(self):
+        """Log the index page"""
         self.general_client.log_index_page()

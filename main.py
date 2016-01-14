@@ -74,7 +74,9 @@ switcher = {
     'spy_nearest_inactive_planets' : bot.spy_nearest_inactive_planets,
     'log_spy_reports' : bot.log_spy_reports,
     'attack_inactive_planets_from_spy_reports' : bot.attack_inactive_planets_from_spy_reports,
-    'log_index_page' : bot.log_index_page
+    'log_index_page' : bot.log_index_page,
+    'log_game_datetime' : bot.log_game_datetime,
+    'auto_attack_inactive_planets' : bot.auto_attack_inactive_planets
 }
 
 logger.info("Bot running on %s mode" % mode)
