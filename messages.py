@@ -10,7 +10,7 @@ from enum import Enum
 import urllib
 import galaxy
 import general
-
+import time
 
 class Messages:
 
@@ -56,6 +56,7 @@ class Messages:
         spy_reports = []
         for message_box in message_boxes:
             message_title = unicode(message_box.find("span", {"class":"msg_title blue_txt"}).text)
+            message_datetime = self.parse_report_datetime(message_box.find("span", {"class":"msg_date fright"}).text)
             if self.spy_report_title in message_title:
                 planet_info = message_box.find("a", {"class":"txt_link"}).text
                 planet_name = planet_info.split('[')[0].strip()
@@ -68,7 +69,7 @@ class Messages:
                     player_name = player_node.text.strip()
                     player_state = galaxy.PlayerState.Inactive
                 else:
-                    #if the player isn't inactive i don't care about the name
+                    #if the player isn't inactive I don't care about the name
                     player_name = 'unknown'
                     player_state = galaxy.PlayerState.Active
                 message_content = message_box.findAll("div", {"class": "compacting"})
@@ -81,7 +82,9 @@ class Messages:
                     crystal = self.parse_integer(resources_data[1].text)
                     deuterium = self.parse_integer(resources_data[2].text)
                     resources = general.Resources(metal, crystal, deuterium)
-
+                loot_row = message_content[2]
+                loot_data = loot_row.find("span", {"class" : "ctn ctn4"})
+                loot = self.parse_loot_percentage(loot_data.text)
                 defense_row = message_content[3]
                 fleet_data = defense_row.find("span", {"class": "ctn ctn4 tooltipLeft"})
                 defenses_data = defense_row.find("span", {"class": "ctn ctn4 fright tooltipRight"})
@@ -93,7 +96,7 @@ class Messages:
                     fleet = None
                     defenses = None
 
-                spy_reports.append(SpyReport(str(planet_name), player_name, player_state, str(coordinates), resources, fleet, defenses))
+                spy_reports.append(SpyReport(str(planet_name), player_name, player_state, str(coordinates), resources, fleet, defenses, loot, message_datetime))
 
         return spy_reports
 
@@ -102,12 +105,21 @@ class Messages:
         value = int(text.split(':')[1].strip().replace(".", "").replace("M", "000"))
         return value
 
+    def parse_loot_percentage(self, text):
+        """Use to parse loot percentage string, ie: Roubo: 50% becomes 0.5"""
+        percentage = float(text.split(':')[1].strip("%")) / 100
+        return percentage
+
+    def parse_report_datetime(self, text):
+        datetime = time.strptime(text.strip(), "%d.%m.%Y %H:%M:%S")
+        return datetime
+
 
 class MessageType(Enum):
     SpyReport = 1
 
 class SpyReport(object):
-    def __init__(self, planet_name, player_name, player_state, coordinates, resources, defenses, fleet):
+    def __init__(self, planet_name, player_name, player_state, coordinates, resources, defenses, fleet, loot, report_datetime):
         self.planet_name = planet_name
         self.player_name = player_name
         self.player_state = player_state
@@ -115,6 +127,8 @@ class SpyReport(object):
         self.resources = resources
         self.defenses = defenses
         self.fleet = fleet
+        self.loot =  loot
+        self.report_datetime = report_datetime
 
     def __str__(self):
-        return "Planet %s,Player %s, State: %s, coordinates %s, Resouces = %s, Fleet: %s, Defenses: %s, " % (self.planet_name, self.player_name, self.player_state, self.coordinates, self.resources, self.fleet, self.defenses)
+        return "Planet %s,Player %s, State: %s, coordinates %s, Resouces = %s, Fleet: %s, Defenses: %s, Loot: %s " % (self.planet_name, self.player_name, self.player_state, self.coordinates, self.resources, self.fleet, self.defenses, self.loot)

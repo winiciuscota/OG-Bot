@@ -39,13 +39,18 @@ class Galaxy:
             player_name_node = table_row.find("span", { "class" : "status_abbr_active"})
 
             if player_name_node != None :
-                player_name = player_name_node.text
+                player_name = player_name_node.text.strip()
+                player_inactive = PlayerState.Active
+            else :
+                player_name_node = table_row.find("span", { "class" : "status_abbr_honorableTarget"})
+            if player_name_node != None:
+                player_name = player_name_node.text.strip()
                 player_inactive = PlayerState.Active
             else :
                 # then search for inactive player
                 player_name_node = table_row.find("span", { "class" : "status_abbr_longinactive"})
                 if player_name_node != None and len(player_name_node.text) > 1:
-                    player_name = player_name_node.text
+                    player_name = player_name_node.text.strip()
                     player_inactive = PlayerState.Inactive
                 else:
                     # last look for players on vacation

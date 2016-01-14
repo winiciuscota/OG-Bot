@@ -7,6 +7,7 @@ import hangar
 import fleet
 import galaxy
 import messages
+import time
 
 class OgameBot:
 
@@ -67,10 +68,13 @@ class OgameBot:
 
     def attack_inactive_planets_from_spy_reports(self):
         origin_planet = self.get_target_planet()
+
         inactive_planets = [ planet for planet in self.get_spy_reports() if planet.player_state == galaxy.PlayerState.Inactive]
-        for target_planet in inactive_planets:
-            if target_planet.defenses == 0:
-                self.attack_inactive_planet(origin_planet, target_planet)
+        targets = sorted(inactive_planets, key=self.get_target_value, reverse=True)
+
+        for target in targets:
+            if target.defenses == 0:
+                self.attack_inactive_planet(origin_planet, target)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
@@ -124,7 +128,8 @@ class OgameBot:
         spy_reports = self.get_spy_reports()
         self.logger.info('test')
         for spy_report in spy_reports:
-            self.logger.info(spy_report)
+            self.logger.info("Date:%s - %s" % (time.asctime(spy_report.report_datetime), spy_report))
+
 
     # Util functions
     def get_target_planet(self):
@@ -160,6 +165,9 @@ class OgameBot:
     def get_spy_reports(self):
         spy_reports = self.messages_client.get_spy_reports()
         return spy_reports
+
+    def get_target_value(self, target):
+        return target.resources.total()
 
     def log_index_page(self):
         self.general_client.log_index_page()

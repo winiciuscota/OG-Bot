@@ -109,7 +109,14 @@ class Fleet:
         # set ships to send
         soup = BeautifulSoup(resp.read())
         for ship, amount in ships.iteritems():
-            self.browser["am" + str(ship.id)] = str(amount)
+            control_name = "am" + str(ship.id)
+            control = self.browser.form.find_control(control_name)
+            # If there is no available ships exit
+            if control == False:
+                self.browser[control_name] = str(amount)
+            else:
+                self.logger.error("Not enough %s to send" % ship.name)
+                return
         self.browser.submit()
 
         # set target planet
@@ -135,5 +142,11 @@ class Fleet:
 
     def get_tranport_fleet(self, resources):
         resources_count = resources.total()
+        ships_count = int(math.ceil(resources_count / 25000))
+        return  { self.ships.get('lg') : ships_count}
+
+    def get_attack_fleet(self, target_planet):
+        resources = target_planet.resources.total()
+        resources_count = resources * target_planet.loot
         ships_count = int(math.ceil(resources_count / 25000))
         return  { self.ships.get('lg') : ships_count}
