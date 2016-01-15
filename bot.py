@@ -71,10 +71,15 @@ class OgameBot:
         origin_planet = self.get_target_planet()
         game_date = self.general_client.get_game_datetime()
         reports = self.get_spy_reports()
+
+        self.logger.info("Got %d reports" % len(reports))
+
         inactive_planets = [ report for report
                                     in reports
+                                    # Get reports from inactive players only
                                     if report.player_state == galaxy.PlayerState.Inactive
-                                    and (report.report_datetime + datetime.timedelta(minutes=20)) > game_date]
+                                    # Get reports from last 2 minutes
+                                    and report.report_datetime >= (game_date - datetime.timedelta(minutes=2))]
 
         if len(inactive_planets) == 0:
             self.logger.info("There isn't any recent spy reports of inactive players")

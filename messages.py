@@ -47,13 +47,16 @@ class Messages:
             data = urllib.urlencode({'messageId' : -1, 'tabid': 20, 'action' : 107, 'pagination' : page_number, 'ajax' : 1})
             res = self.browser.open(url, data=data)
             soup = BeautifulSoup(res.read())
-            spy_reports.extend(self.parse_spy_reports(soup))
+            page_reports = self.parse_spy_reports(soup)
+            spy_reports.extend(page_reports)
         return spy_reports
 
 
     def parse_spy_reports(self, soup):
         message_boxes = soup.findAll("li", { "class" : "msg " })
+        message_boxes += soup.findAll("li", { "class" : "msg msg_new" })
         spy_reports = []
+
         for message_box in message_boxes:
             message_title = unicode(message_box.find("span", {"class":"msg_title blue_txt"}).text)
             message_datetime = self.parse_report_datetime(message_box.find("span", {"class":"msg_date fright"}).text)
@@ -96,7 +99,8 @@ class Messages:
                     fleet = None
                     defenses = None
 
-                spy_reports.append(SpyReport(str(planet_name), player_name, player_state, str(coordinates), resources, fleet, defenses, loot, message_datetime))
+                report = SpyReport(str(planet_name), player_name, player_state, str(coordinates), resources, fleet, defenses, loot, message_datetime)
+                spy_reports.append(report)
 
         return spy_reports
 
