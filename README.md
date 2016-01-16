@@ -37,3 +37,10 @@ get_defenses: Display defenses for all planets <br />
 get_ships: Display all ships that are not in missions for all planets <br />
 get_planets: Display all your planets <br />
 transport_resources_to_planet: transport all resources of your planets to the target planet (from the config file) <br />
+
+#Credits:
+
+Many thanks to Rafał Furmański(http://rafal-furmanski.com/) for letting me use some snippets of his code (https://github.com/r4fek/ogame-bot).<br />
+Rafał Furmański's work was crucial for creating the functions to build defenses, send fleets and fetch galaxy's data <br/>
+
+
