@@ -55,7 +55,7 @@ class Fleet:
             self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
 
     def attack_inactive_planet(self, origin_planet, target_planet):
-        fleet = self.get_tranport_fleet(target_planet.resources)
+        fleet = self.get_attack_fleet(target_planet)
         self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
         self.send_fleet(origin_planet, target_planet.coordinates,
              self.missions["attack"], fleet)
@@ -97,7 +97,6 @@ class Fleet:
             return
 
         url = self.url_provider.get_page_url('fleet', origin_planet)
-        self.logger.info('Opening fleet url: %s ' % url )
         resp = self.browser.open(url)
 
         try:
@@ -109,6 +108,7 @@ class Fleet:
         # set ships to send
         soup = BeautifulSoup(resp.read())
         for ship, amount in ships.iteritems():
+            self.logger.info("Adding %d %s to the mission fleet" % (amount, ship.name))
             control_name = "am" + str(ship.id)
             control = self.browser.form.find_control(control_name)
             # If there is no available ships exit
@@ -142,11 +142,13 @@ class Fleet:
         return ", ".join([ str(ships.get(ship))  + ' ' + str(ship) for ship in ships])
 
     def get_tranport_fleet(self, resources):
+        """Get fleet for transport"""
         resources_count = resources.total()
         ships_count = int(math.ceil(resources_count / 25000))
         return  { self.ships.get('lg') : ships_count}
 
     def get_attack_fleet(self, target_planet):
+        """Get fleet for attack"""
         resources = target_planet.resources.total()
         resources_count = resources * target_planet.loot
         ships_count = int(math.ceil(resources_count / 25000))

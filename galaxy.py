@@ -18,7 +18,6 @@ class Galaxy:
         """
         self.logger.info('Getting data from (%s:%s)' % (galaxy, system))
         url = self.url_provider.get_page_url('galaxyContent')
-        self.logger.info('Galaxy content url is: %s' % url)
         data = urllib.urlencode({'galaxy': galaxy, 'system': system})
         res = self.browser.open(url, data=data)
         soup = BeautifulSoup(res.read())

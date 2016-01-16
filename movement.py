@@ -12,21 +12,36 @@ class Movement:
         self.browser = browser
 
     def get_fleet_movement(self):
-        raise NotImplementedError
         url = self.url_provider.get_page_url('movement')
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
         movement_nodes = soup.findAll("div", { "class" : "fleetDetails detailsOpened" })
+        fleet_movements = []
         for movement_node in movement_nodes:
-            origin_planet_coords = movement_node.find("span", {"class": "originCoords"}).text
-            origin_planet_name = movement_node.find("span", {"class": "originPlanet"}).text
-            destination_planet = movement_node.find("span", {"class" : "destinationPlanet"})
+            origin_planet_coords = self.parse_coords(movement_node.find("span", {"class": "originCoords"}).text)
+            origin_planet_name = movement_node.find("span", {"class": "originPlanet"}).text.strip()
+            destination_coords = self.parse_coords(movement_node.find("span", { "class" : "destinationCoords tooltip"}).text)
+            movement = FleetMovement(origin_planet_coords, origin_planet_name,  destination_coords)
+            fleet_movements.append(movement)
+        return fleet_movements
 
+    def parse_coords(self, text):
+        return text.replace('[', '').replace(']', '')
+
+    def get_fleet_slots_usage(self):
+        url = self.url_provider.get_page_url('movement')
+        res = self.browser.open(url)
+        soup = BeautifulSoup(res.read())
+        slots_info_node = soup.find("span", {"class", "fleetSlots"})
+        current_slots = int(slots_info_node.find("span", {"class", "current"}).text)
+        all_slots = int(slots_info_node.find("span", {"class", "all"}).text)
+        return (current_slots, all_slots)
 
 class FleetMovement(object):
-    def __init__(origin_coords, origin_name, target_coords, target_name, mission):
+    def __init__(self, origin_coords, origin_name, destination_coords):
         self.origin_coords = origin_coords
         self.origin_name = origin_name
-        self.target_coords = target_coords
-        self.target_name = target_name
-        self.mission = mission
+        self.destination_coords = destination_coords
+
+    def __str__(self):
+        return "Fleet from planet %s(%s) to planet %s" % (self.origin_name, self.origin_coords, self.destination_coords)

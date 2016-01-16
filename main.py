@@ -32,7 +32,7 @@ Alternatively you can write a cfg file, the user.cfg file should look like this:
 
     [Settings]
     Mode = transport_resources_to_planet
-    TargetPlanet = target_planet_name
+    OriginPlanet = origin_planet_name
 """
 
 if len(sys.argv) < 4 :
@@ -45,7 +45,7 @@ if len(sys.argv) < 4 :
         password = config.get('UserInfo', 'Password')
         universe = config.get('UserInfo', 'Universe')
         mode = config.get('Settings', 'Mode')
-        target_planet = config.get('Settings', 'TargetPlanet')
+        target_planet = config.get('Settings', 'OriginPlanet')
 else:
     username = sys.argv[1]
     password = sys.argv[2]
@@ -76,7 +76,9 @@ switcher = {
     'attack_inactive_planets_from_spy_reports' : bot.attack_inactive_planets_from_spy_reports,
     'log_index_page' : bot.log_index_page,
     'log_game_datetime' : bot.log_game_datetime,
-    'auto_attack_inactive_planets' : bot.auto_attack_inactive_planets
+    'auto_attack_inactive_planets' : bot.auto_attack_inactive_planets,
+    'log_fleet_movement' : bot.log_fleet_movement,
+    'auto_spy_inactive_planets' : bot.auto_spy_inactive_planets
 }
 
 logger.info("Bot running on %s mode" % mode)
