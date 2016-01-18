@@ -31,7 +31,7 @@ class AuthenticationProvider:
 
     def verify_connection(self):
         res = self.br.open(self.index_url)
-        soup = BeautifulSoup(res.get_data(), "lxml")
+        soup = BeautifulSoup(res.get_data())
         if soup.find("meta", { "name" : "ogame-player-name" }) == None:
             return False
         else:

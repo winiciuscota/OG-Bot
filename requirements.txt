@@ -1,2 +1,3 @@
 mechanize
 beautifulsoup4
+enum
