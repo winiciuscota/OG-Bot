@@ -33,8 +33,12 @@ class Movement:
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())
         slots_info_node = soup.find("span", {"class", "fleetSlots"})
-        current_slots = int(slots_info_node.find("span", {"class", "current"}).text)
-        all_slots = int(slots_info_node.find("span", {"class", "all"}).text)
+        if slots_info_node  != None:
+            current_slots = int(slots_info_node.find("span", {"class", "current"}).text)
+            all_slots = int(slots_info_node.find("span", {"class", "all"}).text)
+        else:
+            current_slots = 0
+            all_slots = 1
         return (current_slots, all_slots)
 
 class FleetMovement(object):

@@ -57,8 +57,9 @@ class Fleet:
     def attack_inactive_planet(self, origin_planet, target_planet):
         fleet = self.get_attack_fleet(target_planet)
         self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
-        self.send_fleet(origin_planet, target_planet.coordinates,
+        result = self.send_fleet(origin_planet, target_planet.coordinates,
              self.missions["attack"], fleet)
+        return result
 
     def transport_resources(self, origin_planet, destination_planet, resources):
         planet_resources = self.general_client.get_resources(origin_planet)
@@ -94,7 +95,7 @@ class Fleet:
 
         if origin_planet.coordinates == coordinates:
             self.logger.error("Origin and destination are the same")
-            return
+            return FleetResult.WrongParameters
 
         url = self.url_provider.get_page_url('fleet', origin_planet)
         resp = self.browser.open(url)
@@ -103,7 +104,7 @@ class Fleet:
             self.browser.select_form(name='shipsChosen')
         except mechanize.FormNotFoundError:
             self.logger.error('The planet has no available ships')
-            return
+            return FleetResult.NoAvailableShips
 
         # set ships to send
         soup = BeautifulSoup(resp.read())
@@ -116,7 +117,7 @@ class Fleet:
                 self.browser[control_name] = str(amount)
             else:
                 self.logger.error("Not enough %s to send" % ship.name)
-                return
+                return FleetResult.NoAvailableShips
         self.browser.submit()
 
 
@@ -137,6 +138,7 @@ class Fleet:
         self.browser.submit()
         self.logger.info("Sending %s %s from planet %s to coordinates %s" %
             (self.get_ships_list(ships), ("carrying %s" % resources) if resources != None else "", origin_planet.name, coordinates))
+        return FleetResult.Success
 
     def get_ships_list(self, ships):
         return ", ".join([ str(ships.get(ship))  + ' ' + str(ship) for ship in ships])
@@ -147,9 +149,24 @@ class Fleet:
         ships_count = int(math.ceil(resources_count / 25000))
         return  { self.ships.get('lg') : ships_count}
 
+    # def get_fleet_slots_usage(self):
+    #     url = self.url_provider.get_page_url('fleet')
+    #     res = self.browser.open(url)
+    #     soup = BeautifulSoup(res.read())
+    #     fleet_info_node = soup.findAll("div", {"class", "fleft"})
+    #     slots_data = (next(node for node in fleet_info_node if "Frotas:" in node.text)).split(':')[1]
+    #     current_slots = int(slots_data.split('/')[0])
+    #     all_slots = int(slots_data.split('/')[1])
+    #     return (current_slots, all_slots)
+
     def get_attack_fleet(self, target_planet):
         """Get fleet for attack"""
         resources = target_planet.resources.total()
         resources_count = resources * target_planet.loot
         ships_count = int(math.ceil(resources_count / 25000))
         return  { self.ships.get('lg') : ships_count}
+
+class FleetResult(Enum):
+    Success = 1
+    WrongParameters = 2
+    NoAvailableShips = 3

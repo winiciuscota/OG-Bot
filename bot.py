@@ -83,7 +83,7 @@ class OgameBot:
 
     def auto_spy_inactive_planets(self, range = 3):
         for planet in self.planets:
-            self.spy_nearest_inactive_planets(planet, range)
+            self.spy_nearest_inactive_planets(planet, 7)
 
     def attack_inactive_planets_from_spy_reports(self):
         game_date = self.general_client.get_game_datetime()
@@ -92,9 +92,8 @@ class OgameBot:
 
         # Stop if there is no fleet slot available
         slot_usage = self.movement_client.get_fleet_slots_usage()
-        available_slots = slot_usage[1] - slot_usage[0]
-        if(available_slots == 0):
-            self.logger.error("There is no fleet slot available")
+        if slot_usage[0] >= slot_usage[1]:
+            self.logger.warning("There is no fleet slot available")
             return True
 
         movements = [movement.destination_coords for movement
@@ -118,15 +117,30 @@ class OgameBot:
 
         targets = sorted(inactive_planets, key=self.get_target_value, reverse=True)
 
-        for target in targets:
+        target = targets[0]
+        origin_planet = self.get_nearest_planet_to_target(target)
+        self.attack_inactive_planet(origin_planet, target)
+        slot_usage = self.movement_client.get_fleet_slots_usage()
+        available_slots = slot_usage[1] - slot_usage[0]
+
+        for target in targets[1:]:
             if available_slots > 0:
                 if target.defenses == 0:
                     # Get the nearest planet from target
                     origin_planet = self.get_nearest_planet_to_target(target)
-                    self.attack_inactive_planet(origin_planet, target)
-                    available_slots = available_slots - 1
+                    result = self.attack_inactive_planet(origin_planet, target)
+                    if result == fleet.FleetResult.Success:
+                        available_slots = available_slots - 1
+                    # If there is no available ships, try again on the second nearest planet
+                    elif result == fleet.FleetResult.NoAvailableShips :
+                        second_nearet_planet = self.get_nearest_planet_to_target(target,
+                                    [p for p in self.planets if p.coordinates != origin_planet.coordinates])
+                        result = self.attack_inactive_planet(origin_planet, target)
+                        available_slots = available_slots - 1
+                else:
+                    self.logger.warning("target planet is defended")
             else:
-                self.logger.error("There is no fleet slot available")
+                self.logger.warning("There is no fleet slot available")
                 return True
         return True
 
@@ -134,14 +148,16 @@ class OgameBot:
         result = self.attack_inactive_planets_from_spy_reports()
         if result == False:
             self.logger.info("Sending Spy Probes")
-            self.auto_spy_inactive_planets(5)
+            self.auto_spy_inactive_planets(7)
+            # self.spy_nearest_inactive_planets(range = 50)
             self.logger.info("Waiting for probes to return")
             time.sleep(60)
             self.attack_inactive_planets_from_spy_reports()
 
 
     def attack_inactive_planet(self, origin_planet, target_planet):
-        self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
+        result = self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
+        return result
 
     # Logging functions
     def log_planets(self):
@@ -262,9 +278,11 @@ class OgameBot:
         """Get the value of a target by its resources"""
         return target.resources.total() * target.loot
 
-    def get_nearest_planet_to_target(self, target_planet):
+    def get_nearest_planet_to_target(self, target_planet, planets = None):
         """Get the nearest planet to the target planet"""
-        planets = self.planets
+
+        if planets == None:
+            planets = self.planets
         # Get planet systems
         planet_systems = [ int(planet.coordinates.split(':')[1]) for planet in planets ]
         target_system = int(target_planet.coordinates.split(':')[1])
