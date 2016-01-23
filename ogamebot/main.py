@@ -4,6 +4,7 @@ import sys
 import ConfigParser
 from bot import OgameBot
 
+
 # setting up logger
 logger = logging.getLogger('ogame-bot')
 logger.setLevel(logging.DEBUG)

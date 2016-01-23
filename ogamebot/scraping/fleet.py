@@ -118,15 +118,14 @@ class Fleet:
             else:
                 self.logger.error("Not enough %s to send" % ship.name)
                 return FleetResult.NoAvailableShips
-        self.browser.submit()
-
+        util.submit_request(self.browser)
 
         # set target planet
         self.browser.select_form(name='details')
         self.browser["galaxy"] = coordinates.split(':')[0]
         self.browser["system"] = coordinates.split(':')[1]
         self.browser["position"] = coordinates.split(':')[2]
-        self.browser.submit()
+        util.submit_request(self.browser)
 
         # set mission and resouces to send
         self.browser.select_form(name='sendForm')
@@ -135,7 +134,7 @@ class Fleet:
         self.browser["metal"] = str(resources.metal)
         self.browser["crystal"] = str(resources.crystal)
         self.browser["deuterium"] = str(resources.deuterium)
-        self.browser.submit()
+        util.submit_request(self.browser)
         self.logger.info("Sending %s %s from planet %s to coordinates %s" %
             (self.get_ships_list(ships), ("carrying %s" % resources) if resources != None else "", origin_planet.name, coordinates))
         return FleetResult.Success

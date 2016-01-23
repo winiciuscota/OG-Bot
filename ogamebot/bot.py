@@ -1,21 +1,14 @@
-from authentication import AuthenticationProvider
+from scraping import *
 import logging
-import general
-import defense
-import buildings
-import hangar
-import fleet
-import galaxy
-import messages
-import datetime
+from datetime import timedelta
+from datetime import datetime
 import time
-import movement
 
 class OgameBot:
 
     def __init__(self, username, password, universe, origin_planet_name):
         self.universe = universe
-        self.browser = AuthenticationProvider(username, password, universe).get_browser();
+        self.browser = authentication.AuthenticationProvider(username, password, universe).get_browser();
         self.general_client = general.General(self.browser, self.universe)
         self.defense_client = defense.Defense(self.browser, self.universe)
         self.hangar_client = hangar.Hangar(self.browser, self.universe)
@@ -105,7 +98,7 @@ class OgameBot:
                                     # Get reports from inactive players only
                                     if report.player_state == galaxy.PlayerState.Inactive
                                     # Get reports from last 2 minutes
-                                    and report.report_datetime >= (game_date - datetime.timedelta(minutes=5))
+                                    and report.report_datetime >= (game_date - timedelta(minutes=5))
                                     # Dont attack planets that are already being attacked
                                     and report.coordinates not in movements]
 

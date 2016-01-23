@@ -1,8 +1,11 @@
 import mechanize
+import urllib2
+import logging
 
 class UrlProvider:
     def __init__(self, universe):
         self.main_url = 'http://s' + str(universe) + '-br.ogame.gameforge.com/game/index.php'
+        self.logger = logging.getLogger('ogame-bot')
 
         self.pages = {
             'overview':         self.main_url + '?page=overview',
@@ -38,6 +41,8 @@ class UrlProvider:
         """
         return self.main_url
 
+
+
 def sanitize(t):
     for i in t:
         try:
@@ -45,10 +50,10 @@ def sanitize(t):
         except ValueError:
             yield i
 
+def open_url(browser, url):
+    res = browser.open(url)
+    return res
+
 def submit_request(browser):
-    for attempt in (1, 3):
-        try:
-            res = browser.submit()
-            return res
-        except mechanize.URLError:
-            self.error("URLError submitting form, trying again for the %sth time" % attempt)
+    res = browser.submit()
+    return res

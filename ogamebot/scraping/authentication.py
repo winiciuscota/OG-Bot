@@ -25,10 +25,11 @@ class AuthenticationProvider:
         self.br.set_cookiejar(self.cj)
         self.br.set_handle_robots(False)
         self.br.addheaders = headers
-        self.path = os.path.dirname(os.path.realpath(__file__))
+        # self.path = os.path.dirname(os.path.realpath(__file__))
         # name of the cookies file
-        self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
-
+        # self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
+        self.cookies_file_name = 'cookies.tmp'
+        
     def verify_connection(self):
         res = self.br.open(self.index_url)
         soup = BeautifulSoup(res.get_data())
