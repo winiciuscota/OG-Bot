@@ -75,8 +75,18 @@ class OgameBot:
             self.fleet_client.spy_planet(origin_planet, target_planet)
 
     def auto_spy_inactive_planets(self, range = 3):
+        target_planets = []
+        
+        self.logger.info("Getting inactive planets")
         for planet in self.planets:
-            self.spy_nearest_inactive_planets(planet, 7)
+            nearest_inactive_planets = self.get_nearest_inactive_planets(planet, range)
+            target_planets.extend(nearest_inactive_planets)
+        self.logger.info("Found %d inactive planets" % len(target_planets))
+        
+        self.logger.info("spying the nearest planets")
+        for target_planet in set(target_planets):
+            origin_planet = self.get_nearest_planet_to_target(target_planet)
+            self.fleet_client.spy_planet(origin_planet, target_planet)
 
     def attack_inactive_planets_from_spy_reports(self):
         game_date = self.general_client.get_game_datetime()
@@ -98,7 +108,7 @@ class OgameBot:
                                     # Get reports from inactive players only
                                     if report.player_state == galaxy.PlayerState.Inactive
                                     # Get reports from last 2 minutes
-                                    and report.report_datetime >= (game_date - timedelta(minutes=5))
+                                    and report.report_datetime >= (game_date - timedelta(minutes=10))
                                     # Dont attack planets that are already being attacked
                                     and report.coordinates not in movements]
 
@@ -109,10 +119,13 @@ class OgameBot:
             self.logger.info("Found %d recent spy reports of inactive players" % len(inactive_planets))
 
         targets = sorted(inactive_planets, key=self.get_target_value, reverse=True)
-
+            
         target = targets[0]
         origin_planet = self.get_nearest_planet_to_target(target)
-        self.attack_inactive_planet(origin_planet, target)
+        result = self.attack_inactive_planet(origin_planet, target)
+        predicted_loot = 0
+        if result == fleet.FleetResult.Success:
+            predicted_loot += target.get_loot()
         slot_usage = self.movement_client.get_fleet_slots_usage()
         available_slots = slot_usage[1] - slot_usage[0]
 
@@ -123,34 +136,34 @@ class OgameBot:
                     origin_planet = self.get_nearest_planet_to_target(target)
                     result = self.attack_inactive_planet(origin_planet, target)
                     if result == fleet.FleetResult.Success:
-                        available_slots = available_slots - 1
-                    # If there is no available ships, try again on the second nearest planet
-                    elif result == fleet.FleetResult.NoAvailableShips :
-                        second_nearet_planet = self.get_nearest_planet_to_target(target,
-                                    [p for p in self.planets if p.coordinates != origin_planet.coordinates])
-                        result = self.attack_inactive_planet(origin_planet, target)
+                        predicted_loot += target.get_loot()
                         available_slots = available_slots - 1
                 else:
                     self.logger.warning("target planet is defended")
             else:
                 self.logger.warning("There is no fleet slot available")
+                self.logger.info("Predicted loot is %s" % predicted_loot)
                 return True
+        self.logger.info("Predicted loot is %s" % predicted_loot)
         return True
 
     def auto_attack_inactive_planets(self):
         result = self.attack_inactive_planets_from_spy_reports()
         if result == False:
             self.logger.info("Sending Spy Probes")
-            self.auto_spy_inactive_planets(7)
-            # self.spy_nearest_inactive_planets(range = 50)
+            self.auto_spy_inactive_planets(5)
             self.logger.info("Waiting for probes to return")
             time.sleep(60)
             self.attack_inactive_planets_from_spy_reports()
+            self.clear_inbox()
 
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         result = self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
         return result
+        
+    def clear_inbox(self):
+        self.messages_client.clear_inbox()
 
     # Logging functions
     def log_planets(self):
@@ -188,12 +201,12 @@ class OgameBot:
             self.logger.info(planet)
 
     def log_nearest_planets(self):
-        planets = self.get_nearest_planets(50)
+        planets = self.get_nearest_planets(nr_range =  15)
         for planet in planets:
             self.logger.info(planet)
 
     def log_nearest_inactive_planets(self):
-        planets = self.get_nearest_inactive_planets(50)
+        planets = self.get_nearest_inactive_planets(nr_range = 15)
         for planet in planets:
             self.logger.info(planet)
 
@@ -225,15 +238,16 @@ class OgameBot:
 
     def get_planets_in_same_system(self):
         origin_planet = self.get_origin_planet()
-        planets = self.galaxy_client.get_planets(origin_planet.coordinates.split(':')[0], origin_planet.coordinates.split(':')[1])
+        planets = self.galaxy_client.get_planets(origin_planet.coordinates.split(':')[0],
+                     origin_planet.coordinates.split(':')[1])
         return planets
 
-    def get_nearest_planets(self, origin_planet = None, nr_range = 10):
+    def get_nearest_planets(self, origin_planet = None, nr_range = 3):
         """Get nearest planets from origin planet"""
 
         if origin_planet == None:
             origin_planet = self.default_origin_planet
-
+            
         self.logger.info("Getting nearest planets from %s", origin_planet.name)
 
         planets = []
@@ -249,7 +263,7 @@ class OgameBot:
             planets.extend(later_planets)
         return planets
 
-    def get_nearest_inactive_planets(self, origin_planet = None, nr_range = 10):
+    def get_nearest_inactive_planets(self, origin_planet = None, nr_range = 3):
         """Get nearest inactive planets from origin planet"""
 
         if origin_planet == None:

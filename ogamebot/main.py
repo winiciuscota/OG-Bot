@@ -79,7 +79,8 @@ switcher = {
     'log_game_datetime' : bot.log_game_datetime,
     'auto_attack_inactive_planets' : bot.auto_attack_inactive_planets,
     'log_fleet_movement' : bot.log_fleet_movement,
-    'auto_spy_inactive_planets' : bot.auto_spy_inactive_planets
+    'auto_spy_inactive_planets' : bot.auto_spy_inactive_planets,
+    'clear_inbox' : bot.clear_inbox
 }
 
 logger.info("Bot running on %s mode" % mode)

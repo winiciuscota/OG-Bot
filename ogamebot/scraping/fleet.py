@@ -71,7 +71,6 @@ class Fleet:
             resources.deuterium = planet_resources.deuterium
 
         fleet = self.get_tranport_fleet(resources)
-        self.logger.info("Fleet: %s" % fleet)
 
         self.send_fleet(origin_planet, destination_planet.coordinates,
              self.missions["transport"], fleet, resources)
@@ -116,7 +115,7 @@ class Fleet:
             if control.readonly == False:
                 self.browser[control_name] = str(amount)
             else:
-                self.logger.error("Not enough %s to send" % ship.name)
+                self.logger.warning("Not enough %s to send" % ship.name)
                 return FleetResult.NoAvailableShips
         util.submit_request(self.browser)
 

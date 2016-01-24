@@ -30,34 +30,39 @@ class Galaxy:
         player_inactive = ''
 
         for table_row in table_rows:
-            planet_name = table_row.find("td", { "class" : "planetname"}).text.strip()
-            planet_position = table_row.find("td", {"class" : "position js_no_action "}).text
+            table_data_nodes = table_row.findAll("td")
+            
+            # planet_name = table_row.find("td", { "class" : "planetname"}).text.strip()
+            # planet_position = table_row.find("td", {"class" : "position js_no_action "}).text
+            planet_position = table_data_nodes[1].text.strip()
+            planet_name = table_data_nodes[3].text.strip()
             planet_coordinates = ":".join([galaxy, system, planet_position])
-
+            
             # first we will search for active player
-            player_name_node = table_row.find("span", { "class" : "status_abbr_active"})
-
-            if player_name_node != None :
-                player_name = player_name_node.text.strip()
-                player_inactive = PlayerState.Active
-            else :
-                player_name_node = table_row.find("span", { "class" : "status_abbr_honorableTarget"})
-            if player_name_node != None:
-                player_name = player_name_node.text.strip()
-                player_inactive = PlayerState.Active
-            else :
-                # then search for inactive player
-                player_name_node = table_row.find("span", { "class" : "status_abbr_longinactive"})
-                if player_name_node != None and len(player_name_node.text) > 1:
-                    player_name = player_name_node.text.strip()
-                    player_inactive = PlayerState.Inactive
-                else:
-                    # last look for players on vacation
-                    player_name_node = table_row.find("span", { "class" : "status_abbr_vacation"})
-                    if player_name_node != None and len(player_name_node.text) > 1:
-                        player_name = player_name_node.text
-                        player_inactive = PlayerState.Vacation
-
+            # player_name_node = table_row.find("span", { "class" : "status_abbr_active"})
+            # if player_name_node != None :
+            #     player_name = player_name_node.text.strip()
+            #     player_inactive = PlayerState.Active
+            # else :
+            #     player_name_node = table_row.find("span", { "class" : "status_abbr_honorableTarget"})
+            # if player_name_node != None:
+            #     player_name = player_name_node.text.strip()
+            #     player_inactive = PlayerState.Active
+            # else :
+            #     # then search for inactive player
+            #     player_name_node = table_row.find("span", { "class" : "status_abbr_longinactive"})
+            #     if player_name_node != None and len(player_name_node.text) > 1:
+            #         player_name = player_name_node.text.strip()
+            #         player_inactive = PlayerState.Inactive
+            #     else:
+            #         # last look for players on vacation
+            #         player_name_node = table_row.find("span", { "class" : "status_abbr_vacation"})
+            #         if player_name_node != None and len(player_name_node.text) > 1:
+            #             player_name = player_name_node.text
+            #             player_inactive = PlayerState.Vacation
+            #         else:
+            #             self.logger.warning("Could not find the player name for planet %s" % planet_name)
+                        
             planets.append(Planet(planet_name.strip(), planet_coordinates, player_name, player_inactive))
 
         return planets
@@ -78,3 +83,5 @@ class Planet(object):
         str = "Planet: %s, Coordinates: %s, Player %s (%s)" % (self.name,
          self.coordinates, self.player_name, self.player_state)
         return str
+        
+    

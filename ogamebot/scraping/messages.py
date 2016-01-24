@@ -50,6 +50,13 @@ class Messages:
             page_reports = self.parse_spy_reports(soup)
             spy_reports.extend(page_reports)
         return spy_reports
+    
+    def clear_inbox(self):
+        url = self.url_provider.get_page_url('messages')
+        data = urllib.urlencode({'tab': 20, 'messageId': -1, 'action': 103, 'ajax': 1})
+        self.browser.open(url, data=data)
+        self.logger.info("Clearing messages")
+        
 
 
     def parse_spy_reports(self, soup):
@@ -59,7 +66,8 @@ class Messages:
 
         for message_box in message_boxes:
             message_title = unicode(message_box.find("span", {"class":"msg_title blue_txt"}).text)
-            message_datetime = self.parse_report_datetime(message_box.find("span", {"class":"msg_date fright"}).text)
+            msg_date_node = message_box.find("span", {"class":"msg_date fright"})
+            message_datetime = self.parse_report_datetime(msg_date_node.text if msg_date_node != None else "1.1.2016 00:00:00" )
             if self.spy_report_title in message_title:
                 planet_info = message_box.find("a", {"class":"txt_link"}).text
                 planet_name = planet_info.split('[')[0].strip()
@@ -76,29 +84,34 @@ class Messages:
                     player_name = 'unknown'
                     player_state = galaxy.PlayerState.Active
                 message_content = message_box.findAll("div", {"class": "compacting"})
+                
+                if len(message_content) > 0:
+                    resources_row = message_content[1]
+                    resources_data = resources_row.findAll("span", {"class": "resspan"})
+                    resources = None
+                    if resources_data != None:
+                        metal = self.parse_resource(resources_data[0].text)
+                        crystal = self.parse_resource(resources_data[1].text)
+                        deuterium = self.parse_resource(resources_data[2].text)
+                        resources = general.Resources(metal, crystal, deuterium)
+                    loot_row = message_content[2]
+                    loot_data = loot_row.find("span", {"class" : "ctn ctn4"})
+                    loot = self.parse_loot_percentage(loot_data.text)
+                    defense_row = message_content[3]
+                    fleet_data = defense_row.find("span", {"class": "ctn ctn4 tooltipLeft"})
+                    defenses_data = defense_row.find("span", {"class": "ctn ctn4 fright tooltipRight"})
 
-                resources_row = message_content[1]
-                resources_data = resources_row.findAll("span", {"class": "resspan"})
-                resources = None
-                if resources_data != None:
-                    metal = self.parse_resource(resources_data[0].text)
-                    crystal = self.parse_resource(resources_data[1].text)
-                    deuterium = self.parse_resource(resources_data[2].text)
-                    resources = general.Resources(metal, crystal, deuterium)
-                loot_row = message_content[2]
-                loot_data = loot_row.find("span", {"class" : "ctn ctn4"})
-                loot = self.parse_loot_percentage(loot_data.text)
-                defense_row = message_content[3]
-                fleet_data = defense_row.find("span", {"class": "ctn ctn4 tooltipLeft"})
-                defenses_data = defense_row.find("span", {"class": "ctn ctn4 fright tooltipRight"})
-
-                if fleet_data != None and defenses_data != None:
-                    fleet = self.parse_resource(fleet_data.text)
-                    defenses = self.parse_resource(defenses_data.text)
+                    if fleet_data != None and defenses_data != None:
+                        fleet = self.parse_resource(fleet_data.text)
+                        defenses = self.parse_resource(defenses_data.text)
+                    else:
+                        fleet = None
+                        defenses = None
                 else:
                     fleet = None
                     defenses = None
-
+                    resources = None
+                    loot = None
                 report = SpyReport(str(planet_name), player_name, player_state, str(coordinates), resources, fleet, defenses, loot, message_datetime)
                 spy_reports.append(report)
 
@@ -136,3 +149,6 @@ class SpyReport(object):
 
     def __str__(self):
         return "Planet %s,Player %s, State: %s, coordinates %s, Resouces = %s, Fleet: %s, Defenses: %s, Loot: %s " % (self.planet_name, self.player_name, self.player_state, self.coordinates, self.resources, self.fleet, self.defenses, self.loot)
+
+    def get_loot(self):
+        return self.resources.total() * self.loot
