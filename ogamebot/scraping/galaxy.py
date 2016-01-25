@@ -19,51 +19,41 @@ class Galaxy:
         self.logger.info('Getting data from (%s:%s)' % (galaxy, system))
         url = self.url_provider.get_page_url('galaxyContent')
         data = urllib.urlencode({'galaxy': galaxy, 'system': system})
-        res = self.browser.open(url, data=data)
-        soup = BeautifulSoup(res.read())
+        res = self.browser.open(url, data=data).read()
+        
+        soup = BeautifulSoup(res, "lxml")
 
         nodes = soup.findAll("td", {"class" : "planetname "})
         table_rows = [node.parent for node in nodes]
 
         planets = []
         player_name = ''
-        player_inactive = ''
 
         for table_row in table_rows:
             table_data_nodes = table_row.findAll("td")
-            
-            # planet_name = table_row.find("td", { "class" : "planetname"}).text.strip()
-            # planet_position = table_row.find("td", {"class" : "position js_no_action "}).text
             planet_position = table_data_nodes[1].text.strip()
             planet_name = table_data_nodes[3].text.strip()
             planet_coordinates = ":".join([galaxy, system, planet_position])
-            
-            # first we will search for active player
-            # player_name_node = table_row.find("span", { "class" : "status_abbr_active"})
-            # if player_name_node != None :
-            #     player_name = player_name_node.text.strip()
-            #     player_inactive = PlayerState.Active
-            # else :
-            #     player_name_node = table_row.find("span", { "class" : "status_abbr_honorableTarget"})
-            # if player_name_node != None:
-            #     player_name = player_name_node.text.strip()
-            #     player_inactive = PlayerState.Active
-            # else :
-            #     # then search for inactive player
-            #     player_name_node = table_row.find("span", { "class" : "status_abbr_longinactive"})
-            #     if player_name_node != None and len(player_name_node.text) > 1:
-            #         player_name = player_name_node.text.strip()
-            #         player_inactive = PlayerState.Inactive
-            #     else:
-            #         # last look for players on vacation
-            #         player_name_node = table_row.find("span", { "class" : "status_abbr_vacation"})
-            #         if player_name_node != None and len(player_name_node.text) > 1:
-            #             player_name = player_name_node.text
-            #             player_inactive = PlayerState.Vacation
-            #         else:
-            #             self.logger.warning("Could not find the player name for planet %s" % planet_name)
-                        
-            planets.append(Planet(planet_name.strip(), planet_coordinates, player_name, player_inactive))
+            try:
+                player_name_data = table_data_nodes[7].text.strip()
+                player_name_info = player_name_data.replace("\n", ',').replace(":", ",").split(',')
+                player_name = player_name_info[0].strip()
+                
+                #Set player state
+                if '(I)' in player_name_data:
+                    player_state = PlayerState.Inactive
+                elif '(m I)' in player_name_data or '(m)' in player_name_data:
+                    player_state = PlayerState.Vacation
+                else:
+                    player_state = PlayerState.Active
+                    
+            except IndexError:
+                self.logger.error("Error parsing data, writing log files")
+                self.logger.error(res)
+                # self.logger.error(soup)
+                exit()
+                
+            planets.append(Planet(planet_name.strip(), planet_coordinates, player_name, player_state))
 
         return planets
 

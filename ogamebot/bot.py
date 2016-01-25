@@ -37,7 +37,7 @@ class OgameBot:
         destination_planet = self.get_origin_planet()
         self.logger.info("Destination planet found: %s"  % destination_planet)
         for planet in [planet for planet in planets if planet != destination_planet]:
-            resources = general.Resources(1000000, 1000000, 500000)
+            resources = general.Resources(10000000, 10000000, 10000000)
             self.fleet_client.transport_resources(planet, destination_planet, resources)
 
     def auto_build_structure_to_planet(self):
