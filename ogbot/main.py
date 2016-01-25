@@ -20,43 +20,39 @@ cfg = config.read('user.cfg')
 
 WRONG_ARGUMENTS_MESSAGE = """
 You must pass at least 3 arguments:
-    username - name of the user
-    password - password of the user
-    universe - universe id (e.g. 101)
-    mode (optional) - the mode in which the bot should run, defaults to get_planets
-    target plane (optional) - target planet if the mode requires some, defaults to the first planet
-Alternatively you can write a cfg file, the user.cfg file should look like this:
+    You must have the following data on the user.cfg
+    
     [UserInfo]
     username = your_username
     password = your_password
     universe = your_universe
 
     [Settings]
-    Mode = transport_resources_to_planet
-    OriginPlanet = origin_planet_name
+    DefaultMode = transport_resources_to_planet
+    DefaultOriginPlanet = origin_planet_name
+    AttackRange = 10
+    HowLongToWaitForProbes = 60 
 """
 
-if len(sys.argv) < 4 :
-    if cfg == []:
-        print WRONG_ARGUMENTS_MESSAGE
-        exit()
-    else:
-        logger.info('Getting user info from config file')
-        username = config.get('UserInfo', 'Username')
-        password = config.get('UserInfo', 'Password')
-        universe = config.get('UserInfo', 'Universe')
-        mode = config.get('Settings', 'Mode')
-        target_planet = config.get('Settings', 'OriginPlanet')
+if cfg == []:
+    print WRONG_ARGUMENTS_MESSAGE
+    exit()
 else:
-    username = sys.argv[1]
-    password = sys.argv[2]
-    universe = sys.argv[3]
-    mode = sys.argv[4] if len(sys.argv) >= 5 else "overview"
-    target_planet = sys.argv[5] if len(sys.argv) >= 6 else None
+    logger.info('Getting user info from config file')
+    username = config.get('UserInfo', 'Username')
+    password = config.get('UserInfo', 'Password')
+    universe = config.get('UserInfo', 'Universe')
+    mode = config.get('Settings', 'DefaultMode')
+    target_planet = config.get('Settings', 'DefaultOriginPlanet')
+    attack_range = config.get('Settings', 'AttackRange')
+    time_to_wait_for_probes = config.get('Settings', 'HowLongToWaitForProbes')
+    
+if len(sys.argv) > 1 :
+    mode = sys.argv[1]
 
 logger.info("Initializing bot")
 
-bot = OgameBot(username, password, universe, target_planet)
+bot = OgameBot(username, password, universe, target_planet, attack_range, time_to_wait_for_probes)
 
 switcher = {
     'log_defenses':bot.log_defenses,

@@ -1,0 +1,1 @@
+python ogbot/main.py

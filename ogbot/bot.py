@@ -6,7 +6,8 @@ import time
 
 class OgameBot:
 
-    def __init__(self, username, password, universe, origin_planet_name):
+    def __init__(self, username, password, universe, default_origin_planet_name, 
+                    attack_range, time_to_wait_for_probes):
         self.universe = universe
         self.browser = authentication.AuthenticationProvider(username, password, universe).get_browser();
         self.general_client = general.General(self.browser, self.universe)
@@ -15,12 +16,14 @@ class OgameBot:
         self.fleet_client = fleet.Fleet(self.browser, self.universe)
         self.buildings_client = buildings.Buildings(self.browser, self.universe)
         self.logger = logging.getLogger('ogame-bot')
-        self.origin_planet_name = origin_planet_name
+        self.default_origin_planet_name = default_origin_planet_name
         self.planets = self.general_client.get_planets()
         self.default_origin_planet = self.get_origin_planet()
         self.galaxy_client = galaxy.Galaxy(self.browser, self.universe)
         self.messages_client = messages.Messages(self.browser, self.universe)
         self.movement_client = movement.Movement(self.browser, self.universe)
+        self.attack_range = attack_range
+        self.time_to_wait_for_probes = time_to_wait_for_probes
 
     # Bot functions
     def auto_build_defenses(self):
@@ -49,7 +52,7 @@ class OgameBot:
         for planet in self.planets:
             self.buildings_client.auto_build_structure(planet)
 
-    def spy_nearest_planets(self, origin_planet = None, range = 10):
+    def spy_nearest_planets(self, origin_planet = None, range = 3):
         """Spy the nearest planets from origin"""
 
         if origin_planet == None:
@@ -61,7 +64,7 @@ class OgameBot:
         for target_planet in target_planets:
             self.fleet_client.spy_planet(origin_planet, target_planet)
 
-    def spy_nearest_inactive_planets(self, origin_planet = None, range = 10):
+    def spy_nearest_inactive_planets(self, origin_planet = None, range = 3):
         """ Spy the nearest inactive planets from origin"""
 
         if origin_planet == None:
@@ -77,22 +80,14 @@ class OgameBot:
     def auto_spy_inactive_planets(self, range = 3):
         target_planets = []
         
-        self.logger.info("Getting inactive planets")
-        for planet in self.planets:
-            nearest_inactive_planets = self.get_nearest_inactive_planets(planet, range)
-            target_planets.extend(nearest_inactive_planets)
-        self.logger.info("Found %d inactive planets" % len(target_planets))
+        for origin_planet in self.planets:
+            spy_nearest_inactive_planets(origin_planet, range)
         
-        self.logger.info("spying the nearest planets")
-        for target_planet in set(target_planets):
-            origin_planet = self.get_nearest_planet_to_target(target_planet)
-            self.fleet_client.spy_planet(origin_planet, target_planet)
 
     def attack_inactive_planets_from_spy_reports(self):
         game_date = self.general_client.get_game_datetime()
         reports = self.get_spy_reports()
-        # Get planets being attacked
-
+        
         # Stop if there is no fleet slot available
         slot_usage = self.movement_client.get_fleet_slots_usage()
         if slot_usage[0] >= slot_usage[1]:
@@ -151,9 +146,9 @@ class OgameBot:
         result = self.attack_inactive_planets_from_spy_reports()
         if result == False:
             self.logger.info("Sending Spy Probes")
-            self.auto_spy_inactive_planets(5)
+            self.auto_spy_inactive_planets(self.attack_range)
             self.logger.info("Waiting for probes to return")
-            time.sleep(60)
+            time.sleep(self.time_to_wait_for_probes)
             self.attack_inactive_planets_from_spy_reports()
             self.clear_inbox()
 
@@ -217,8 +212,6 @@ class OgameBot:
 
     def log_game_datetime(self):
         time = self.general_client.get_game_datetime()
-        # test = time - datetime.timedelta(minutes=10)
-        # self.logger.info(test)
         self.logger.info(datetime)
 
     def log_fleet_movement(self):
@@ -229,8 +222,9 @@ class OgameBot:
     # Util functions
     def get_origin_planet(self):
         planets = self.planets
-        if self.origin_planet_name == None:
+        if self.default_origin_planet_name == None:
             return planets[0]
+            
         origin_planet = [planet for planet
                                 in planets
                                 if planet.name.lower() == self.origin_planet_name.lower()][0]
