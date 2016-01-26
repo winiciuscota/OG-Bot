@@ -227,7 +227,7 @@ class OgameBot:
             
         origin_planet = [planet for planet
                                 in planets
-                                if planet.name.lower() == self.origin_planet_name.lower()][0]
+                                if planet.name.lower() == self.default_origin_planet_name.lower()][0]
         return origin_planet
 
     def get_planets_in_same_system(self):
