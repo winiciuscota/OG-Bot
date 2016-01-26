@@ -14,22 +14,7 @@ I'm new to python, I'm using it because I believe is the best language for this 
 
 #Instructions on how to use:
 
-Modify the user.cfg file on the project directory.
-
-the user.cfg file should look like this:
-
-[UserInfo]
-Username = YourUsername <br />
-Password = YourPassword <br />
-Universe = YourServerId <br />
-	
-[Settings]
-DefaultMode = auto_attack_inactive_planets <br />
-DefaultOriginPlanet = PlanetName <br />
-#how much systems away the bot should be able to attack <br />
-AttackRange = 15  <br />
-#wait 60 seconds for probes to return <br />
-HowLongToWaitForProbes = 90  <br />
+Modify the user.cfg file on the project directory. Set the username, password and universe id
 
 The program also accepts two arguments. the first will override the DefaultMode
  and the second will override DefaultOriginPlanet
