@@ -19,13 +19,13 @@ Modify the user.cfg file on the project directory.
 the user.cfg file should look like this:
 
 [UserInfo]
-Username = ishak <br />
-Password = 15172114 <br />
-Universe = 114 <br />
+Username = YourUsername <br />
+Password = YourPassword <br />
+Universe = YourServerId <br />
 	
 [Settings]
 DefaultMode = auto_attack_inactive_planets <br />
-DefaultOriginPlanet = antey <br />
+DefaultOriginPlanet = PlanetName <br />
 #how much systems away the bot should be able to attack <br />
 AttackRange = 15  <br />
 #wait 60 seconds for probes to return <br />
