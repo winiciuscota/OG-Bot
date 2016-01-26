@@ -19,7 +19,7 @@ class Defense:
         url = self.url_provider.get_page_url('defense', planet)
         self.logger.info('The defense url is ' + url)
         res = self.br.open(url)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
         refs = soup.findAll("span", { "class" : "textlabel" })
 
         defenses = []

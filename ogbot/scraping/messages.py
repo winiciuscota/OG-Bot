@@ -30,7 +30,7 @@ class Messages:
 
         self.logger.info("Getting messages for first page")
         res = self.browser.open(url, data=data)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
         spy_reports = []
 
         # add messages from the first page

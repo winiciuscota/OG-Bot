@@ -22,8 +22,8 @@ class OgameBot:
         self.galaxy_client = galaxy.Galaxy(self.browser, self.universe)
         self.messages_client = messages.Messages(self.browser, self.universe)
         self.movement_client = movement.Movement(self.browser, self.universe)
-        self.attack_range = attack_range
-        self.time_to_wait_for_probes = time_to_wait_for_probes
+        self.attack_range = int(attack_range)
+        self.time_to_wait_for_probes = float(time_to_wait_for_probes)
 
     # Bot functions
     def auto_build_defenses(self):
@@ -81,7 +81,7 @@ class OgameBot:
         target_planets = []
         
         for origin_planet in self.planets:
-            spy_nearest_inactive_planets(origin_planet, range)
+            self.spy_nearest_inactive_planets(origin_planet, range)
         
 
     def attack_inactive_planets_from_spy_reports(self):
@@ -147,7 +147,7 @@ class OgameBot:
         if result == False:
             self.logger.info("Sending Spy Probes")
             self.auto_spy_inactive_planets(self.attack_range)
-            self.logger.info("Waiting for probes to return")
+            self.logger.info("Waiting %f seconds for probes to return" % self.time_to_wait_for_probes)
             time.sleep(self.time_to_wait_for_probes)
             self.attack_inactive_planets_from_spy_reports()
             self.clear_inbox()
@@ -227,7 +227,7 @@ class OgameBot:
             
         origin_planet = [planet for planet
                                 in planets
-                                if planet.name.lower() == self.origin_planet_name.lower()][0]
+                                if planet.name.lower() == self.default_origin_planet_name.lower()][0]
         return origin_planet
 
     def get_planets_in_same_system(self):

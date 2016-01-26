@@ -3,4 +3,4 @@ improve auto_build_structures
 create functions for research
 refactor get user
 refactor bot.py file
-program should only receive 1 argument: program mode
+make retrys when server fail to respond

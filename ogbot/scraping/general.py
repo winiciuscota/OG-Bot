@@ -21,7 +21,7 @@ class General:
     def get_game_datetime(self):
         url = self.url_provider.get_page_url('overview')
         res = util.open_url(self.browser, url)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
 
         datetime_data = soup.find("li", {"class": "OGameClock"}).text
         game_datetime = datetime.datetime.strptime(datetime_data, "%d.%m.%Y %H:%M:%S")

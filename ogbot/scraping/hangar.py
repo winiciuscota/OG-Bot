@@ -15,7 +15,7 @@ class Hangar:
         self.logger.info('Getting shipyard data for planet %s' % planet)
         url = self.url_provider.get_page_url('shipyard', planet)
         res = self.browser.open(url)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
         refs = soup.findAll("span", { "class" : "textlabel" })
 
         ships = []

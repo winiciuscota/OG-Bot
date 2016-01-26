@@ -14,7 +14,7 @@ class Movement:
     def get_fleet_movement(self):
         url = self.url_provider.get_page_url('movement')
         res = self.browser.open(url)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
         movement_nodes = soup.findAll("div", { "class" : "fleetDetails detailsOpened" })
         fleet_movements = []
         for movement_node in movement_nodes:

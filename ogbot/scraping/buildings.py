@@ -51,7 +51,7 @@ class Buildings:
         self.logger.info('Getting buildings data')
         url = self.url_provider.get_page_url('resources', planet)
         res = self.browser.open(url)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
         refs = soup.findAll("span", { "class" : "textlabel" })
         res = []
         for ref in refs:

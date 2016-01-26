@@ -106,7 +106,7 @@ class Fleet:
             return FleetResult.NoAvailableShips
 
         # set ships to send
-        soup = BeautifulSoup(resp.read())
+        soup = BeautifulSoup(resp.read(), "lxml")
         for ship, amount in ships.iteritems():
             self.logger.info("Adding %d %s to the mission fleet" % (amount, ship.name))
             control_name = "am" + str(ship.id)

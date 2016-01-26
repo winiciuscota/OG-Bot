@@ -43,16 +43,19 @@ else:
     password = config.get('UserInfo', 'Password')
     universe = config.get('UserInfo', 'Universe')
     mode = config.get('Settings', 'DefaultMode')
-    target_planet = config.get('Settings', 'DefaultOriginPlanet')
+    origin_planet_name = config.get('Settings', 'DefaultOriginPlanet')
     attack_range = config.get('Settings', 'AttackRange')
     time_to_wait_for_probes = config.get('Settings', 'HowLongToWaitForProbes')
     
 if len(sys.argv) > 1 :
     mode = sys.argv[1]
+    
+if len(sys.argv) > 2 :
+    origin_planet_name = sys.argv[2]
 
 logger.info("Initializing bot")
 
-bot = OgameBot(username, password, universe, target_planet, attack_range, time_to_wait_for_probes)
+bot = OgameBot(username, password, universe, origin_planet_name, attack_range, time_to_wait_for_probes)
 
 switcher = {
     'log_defenses':bot.log_defenses,
