@@ -7,7 +7,7 @@ import time
 class OgameBot:
 
     def __init__(self, username, password, universe, default_origin_planet_name, 
-                    attack_range, time_to_wait_for_probes):
+                    attack_range, time_to_wait_for_probes, spy_report_life):
         self.universe = universe
         self.browser = authentication.AuthenticationProvider(username, password, universe).get_browser();
         self.general_client = general.General(self.browser, self.universe)
@@ -24,6 +24,7 @@ class OgameBot:
         self.movement_client = movement.Movement(self.browser, self.universe)
         self.attack_range = int(attack_range)
         self.time_to_wait_for_probes = float(time_to_wait_for_probes)
+        self.spy_report_life = int(spy_report_life)
 
     # Bot functions
     def auto_build_defenses(self):
@@ -103,7 +104,7 @@ class OgameBot:
                                     # Get reports from inactive players only
                                     if report.player_state == galaxy.PlayerState.Inactive
                                     # Get reports from last 2 minutes
-                                    and report.report_datetime >= (game_date - timedelta(minutes=10))
+                                    and report.report_datetime >= (game_date - timedelta(minutes=self.spy_report_life))
                                     # Dont attack planets that are already being attacked
                                     and report.coordinates not in movements]
 

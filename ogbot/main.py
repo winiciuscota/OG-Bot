@@ -46,6 +46,7 @@ else:
     origin_planet_name = config.get('Settings', 'DefaultOriginPlanet')
     attack_range = config.get('Settings', 'AttackRange')
     time_to_wait_for_probes = config.get('Settings', 'HowLongToWaitForProbes')
+    spy_report_life = config.get('Settings', 'SpyReportLife')
     
 if len(sys.argv) > 1 :
     mode = sys.argv[1]
@@ -55,7 +56,7 @@ if len(sys.argv) > 2 :
 
 logger.info("Initializing bot")
 
-bot = OgameBot(username, password, universe, origin_planet_name, attack_range, time_to_wait_for_probes)
+bot = OgameBot(username, password, universe, origin_planet_name, attack_range, time_to_wait_for_probes, spy_report_life)
 
 switcher = {
     'log_defenses':bot.log_defenses,
