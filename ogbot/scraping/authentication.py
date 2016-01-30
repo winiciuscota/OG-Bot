@@ -29,7 +29,7 @@ class AuthenticationProvider:
         # name of the cookies file
         # self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
         self.cookies_file_name = 'cookies.tmp'
-        
+
     def verify_connection(self):
         res = self.br.open(self.index_url)
         soup = BeautifulSoup(res.get_data(), "lxml")

@@ -1,3 +1,5 @@
+check if there is available slots before sending probe, if there is none wait a bit
+fix a situation in which a planet is attacked twice by the same origin planet(maybe cuzz there is 2 spy reports)
 improve user.cfg file
 improve auto_build_structures
 create functions for research

@@ -50,9 +50,9 @@ class Fleet:
 
     def spy_planet(self, origin_planet, destination_planet):
         spy_probes_count = 5
-
-        self.send_fleet(origin_planet, destination_planet.coordinates,
-            self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
+        result = self.send_fleet(origin_planet, destination_planet.coordinates,
+                    self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
+        return result
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         fleet = self.get_attack_fleet(target_planet)
