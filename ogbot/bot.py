@@ -114,9 +114,8 @@ class OgameBot:
         else:
             self.logger.info("Found %d recent spy reports of inactive players" % len(inactive_planets))
 
-        distinct_inactive_planets = self.get_distinct_targets(inactive_planets)
-        targets = sorted(distinct_inactive_planets, key=self.get_target_value, reverse=True)
-        
+        targets = sorted(inactive_planets, key=self.get_target_value, reverse=True)
+            
         target = targets[0]
         origin_planet = self.get_nearest_planet_to_target(target)
         result = self.attack_inactive_planet(origin_planet, target)
@@ -302,15 +301,6 @@ class OgameBot:
         else:
             return planet
 
-    def get_distinct_targets(self, targets):
-        dict = {}
-        for obj in targets:
-            dict[obj.coordinates] = obj
-        distinct_targets = dict.values()
-        return distinct_targets
-
     def log_index_page(self):
         """Log the index page"""
         self.general_client.log_index_page()
-
-

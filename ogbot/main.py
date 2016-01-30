@@ -64,7 +64,7 @@ switcher = {
     'log_planets': bot.log_planets,
     'overview' : bot.log_overview,
     'auto_build_defenses': bot.auto_build_defenses,
-    'auto_build_structures' : bot.auto_attack_inactive_planets,
+    'auto_build_structures' : bot.auto_build_structures,
     'auto_build_structure_to_planet' : bot.auto_build_structure_to_planet,
     "auto_build_defenses_to_planet" : bot.auto_build_defenses_to_planet,
     'transport_resources_to_planet' : bot.transport_resources_to_planet,
