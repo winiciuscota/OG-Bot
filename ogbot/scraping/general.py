@@ -5,22 +5,19 @@ import re
 import logging
 import urlparse
 import datetime
+from scraper import Scraper
 
-class General:
-    def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
-        self.logger = logging.getLogger('ogame-bot')
-        self.browser = browser
+class General(Scraper):
 
     def log_index_page(self):
         """Logs the index page, used for test purposes"""
         url = self.url_provider.get_page_url('overview')
-        res = util.open_url(self.browser, url)
+        res = self.open_url(url)
         self.logger.info(res.read())
 
     def get_game_datetime(self):
         url = self.url_provider.get_page_url('overview')
-        res = util.open_url(self.browser, url)
+        res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
 
         datetime_data = soup.find("li", {"class": "OGameClock"}).text
@@ -30,7 +27,7 @@ class General:
     def get_resources(self, planet):
         self.logger.info('Getting resources data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('resources', planet)
-        res = util.open_url(self.browser, url)
+        res = self.open_url(url)
         soup = BeautifulSoup(res.read())
 
         resources = []
@@ -44,7 +41,7 @@ class General:
     def get_planets(self):
         self.logger.info('Getting planets')
         url = self.url_provider.get_page_url('resources')
-        res = util.open_url(self.browser, url)
+        res = self.open_url(url)
         soup = BeautifulSoup(res.read())
         planets = []
         current_planet_id = soup.find("meta", { "name" : "ogame-planet-id"})['content']

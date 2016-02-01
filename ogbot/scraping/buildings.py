@@ -6,6 +6,7 @@ import logging
 import urlparse
 from enum import Enum
 from general import General
+from scraper import Scraper
 
 
 class BuildingTypes(Enum):
@@ -32,11 +33,9 @@ class Building(object):
         self.name = name
         self.level = level
 
-class Buildings:
+class Buildings(Scraper):
     def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
-        self.logger = logging.getLogger('ogame-bot')
-        self.browser = browser
+        super(Buildings, self).__init__(browser, universe)
         self.general_client = General(browser, universe)
 
     def parse_buildings(self, buildings):
@@ -58,7 +57,7 @@ class Buildings:
             if ref.parent['class'] == ['level']:
                 aux = ref.parent.text.replace('\t','')
                 shipData = re.sub('  +', '', aux).encode('utf8')
-                res.append( tuple(shipData.split('\n')))
+                res.append(tuple(shipData.split('\n')))
 
         parsed_res = map(tuple, map(util.sanitize, [filter(None, i) for i in res]))
         buildings = self.parse_buildings(parsed_res)
@@ -106,8 +105,8 @@ class Buildings:
         else:
             self.build_structure_item(type.value, planet)
 
-    def build_structure_item(self, type, planet = None):
-        self.logger.info('Building %s on planet %s' %(type, planet.name))
+    def build_structure_item(self, type, planet=None):
+        self.logger.info('Building %s on planet %s' % (type, planet.name))
         self.browser.select_form(name='form')
         self.browser.form.new_control('text','menge',{'value':'1'})
         self.browser.form.fixup()
@@ -124,10 +123,11 @@ class Buildings:
         self.logger.info("Submitting form")
         self.browser.submit()
 
-    def construction_mode(self, planet = None):
+    def construction_mode(self, planet=None):
         url = self.url_provider.get_page_url('resources', planet)
         self.logger.info('Opening url %s' % url)
         resp = self.browser.open(url)
         soup = BeautifulSoup(resp.read())
-        # if the planet is in construction mode there shoud be a div with the class construction
+        # if the planet is in construction mode there shoud be a div with the
+        # class construction
         return soup.find("div", {"class" : "construction"}) != None

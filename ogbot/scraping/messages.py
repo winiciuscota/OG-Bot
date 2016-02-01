@@ -11,13 +11,12 @@ import urllib
 import galaxy
 import general
 import datetime
+from scraper import Scraper
 
-class Messages:
+class Messages(Scraper):
 
     def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
-        self.logger = logging.getLogger('ogame-bot')
-        self.browser = browser
+        super(Messages, self).__init__(browser, universe)
         self.spy_report_title = u'Relatório de espionagem'
 
     def get_messages(self):
@@ -112,6 +111,7 @@ class Messages:
                     defenses = None
                     resources = None
                     loot = None
+
                 report = SpyReport(str(planet_name), player_name, player_state, str(coordinates), resources, fleet, defenses, loot, message_datetime)
                 spy_reports.append(report)
 
@@ -136,7 +136,7 @@ class MessageType(Enum):
     SpyReport = 1
 
 class SpyReport(object):
-    def __init__(self, planet_name, player_name, player_state, coordinates, resources, defenses, fleet, loot, report_datetime):
+    def __init__(self, planet_name, player_name, player_state, coordinates, resources, fleet, defenses, loot, report_datetime):
         self.planet_name = planet_name
         self.player_name = player_name
         self.player_state = player_state

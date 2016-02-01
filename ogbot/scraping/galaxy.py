@@ -5,12 +5,9 @@ import re
 import logging
 import urllib
 from enum import Enum
+from scraper import Scraper
 
-class Galaxy:
-    def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
-        self.logger = logging.getLogger('ogame-bot')
-        self.browser = browser
+class Galaxy(Scraper):
 
     def get_planets(self, galaxy, system):
         """
@@ -19,7 +16,7 @@ class Galaxy:
         self.logger.info('Getting data from (%s:%s)' % (galaxy, system))
         url = self.url_provider.get_page_url('galaxyContent')
         data = urllib.urlencode({'galaxy': galaxy, 'system': system})
-        res = self.browser.open(url, data=data).read()
+        res = self.open_url(url, data).read()
         
         soup = BeautifulSoup(res, "lxml")
 
@@ -46,10 +43,26 @@ class Galaxy:
                 player_state = PlayerState.Vacation
             else:
                 player_state = PlayerState.Active
-                
-            planets.append(Planet(planet_name.strip(), planet_coordinates, player_name, player_state))
+            
+            player_rank = self.get_rank(soup, player_name)
+            planets.append(Planet(planet_name.strip(), planet_coordinates, player_name, player_state, player_rank))
 
         return planets
+
+    def get_rank(self, soup, player_name):
+        rank_nodes = soup.findAll("li", {"class" : "rank"})
+
+        player_rank_node_match = [rank_node 
+                                 for rank_node 
+                                 in rank_nodes 
+                                 if player_name in rank_node.parent.parent.text]
+
+        if len(player_rank_node_match) == 0:
+            return 0
+        else:
+            player_rank_node = player_rank_node_match[0]
+            player_rank = int(player_rank_node.find("a").text.strip())
+            return player_rank
 
 class PlayerState(Enum):
     Active = 1
@@ -57,15 +70,16 @@ class PlayerState(Enum):
     Vacation = 3
 
 class Planet(object):
-    def __init__(self, name, coordinates, player_name, player_state):
+    def __init__(self, name, coordinates, player_name, player_state, player_rank):
         self.name = name
         self.coordinates = coordinates
         self.player_name = player_name
         self.player_state = player_state
+        self.player_rank = player_rank
 
     def __str__(self):
-        str = "Planet: %s, Coordinates: %s, Player %s (%s)" % (self.name,
-         self.coordinates, self.player_name, self.player_state)
+        str = "Planet: %s, Coordinates: %s, Player %s (%s)(%d)" % (self.name,
+         self.coordinates, self.player_name, self.player_state, self.player_rank)
         return str
         
     

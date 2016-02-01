@@ -3,13 +3,10 @@ from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
 import logging
+from scraper import Scraper
 
 
-class Defense:
-    def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
-        self.logger = logging.getLogger('ogame-bot')
-        self.br = browser
+class Defense(Scraper):
 
     def get_defenses(self, planet = None):
         """

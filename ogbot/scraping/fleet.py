@@ -9,6 +9,7 @@ import urlparse
 from enum import Enum
 import general
 import math
+from scraper import Scraper
 
 class Ship(object):
     def __init__(self, id, name):
@@ -18,12 +19,11 @@ class Ship(object):
     def __str__(self):
         return self.name
 
-class Fleet:
+class Fleet(Scraper):
     def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
-        self.logger = logging.getLogger('ogame-bot')
+        super(Fleet, self).__init__(browser, universe)
+
         self.general_client = general.General(browser, universe)
-        self.browser = browser
         self.missions = {
             "expedition" : 15,
             "colonization" : 7,
@@ -47,6 +47,7 @@ class Fleet:
             "lg" : Ship(203, "Large Cargo Ship"),
             "ep" : Ship(210, "Espionage Probe")
         }
+
 
     def spy_planet(self, origin_planet, destination_planet):
         spy_probes_count = 5
@@ -117,14 +118,14 @@ class Fleet:
             else:
                 self.logger.warning("Not enough %s to send" % ship.name)
                 return FleetResult.NoAvailableShips
-        util.submit_request(self.browser)
+        self.submit_request()
 
         # set target planet
         self.browser.select_form(name='details')
         self.browser["galaxy"] = coordinates.split(':')[0]
         self.browser["system"] = coordinates.split(':')[1]
         self.browser["position"] = coordinates.split(':')[2]
-        util.submit_request(self.browser)
+        self.submit_request()
 
         # set mission and resouces to send
         self.browser.select_form(name='sendForm')
@@ -133,7 +134,7 @@ class Fleet:
         self.browser["metal"] = str(resources.metal)
         self.browser["crystal"] = str(resources.crystal)
         self.browser["deuterium"] = str(resources.deuterium)
-        util.submit_request(self.browser)
+        self.submit_request()
         self.logger.info("Sending %s %s from planet %s to coordinates %s" %
             (self.get_ships_list(ships), ("carrying %s" % resources) if resources != None else "", origin_planet.name, coordinates))
         return FleetResult.Success
@@ -147,15 +148,16 @@ class Fleet:
         ships_count = int(math.ceil(resources_count / 25000))
         return  { self.ships.get('lg') : ships_count}
 
-    # def get_fleet_slots_usage(self):
-    #     url = self.url_provider.get_page_url('fleet')
-    #     res = self.browser.open(url)
-    #     soup = BeautifulSoup(res.read())
-    #     fleet_info_node = soup.findAll("div", {"class", "fleft"})
-    #     slots_data = (next(node for node in fleet_info_node if "Frotas:" in node.text)).split(':')[1]
-    #     current_slots = int(slots_data.split('/')[0])
-    #     all_slots = int(slots_data.split('/')[1])
-    #     return (current_slots, all_slots)
+    def get_fleet_slots_usage(self):
+        raise NotImplementedError("Use the get get_fleet_slots_usage function from movement")
+        url = self.url_provider.get_page_url('fleet')
+        res = self.browser.open(url)
+        soup = BeautifulSoup(res.read())
+        fleet_info_node = soup.findAll("div", {"class", "fleft"})
+        slots_data = (next(node for node in fleet_info_node if "Frotas:" in node.text)).split(':')[1]
+        current_slots = int(slots_data.split('/')[0])
+        all_slots = int(slots_data.split('/')[1])
+        return (current_slots, all_slots)
 
     def get_attack_fleet(self, target_planet):
         """Get fleet for attack"""

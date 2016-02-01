@@ -3,8 +3,10 @@ from mechanize import Browser
 from bs4 import BeautifulSoup
 import cookielib
 import os
+import util
+from scraper import Scraper
 
-class AuthenticationProvider:
+class AuthenticationProvider(Scraper):
 
     def __init__(self, username, password, universe):
         self.login_url = 'http://br.ogame.gameforge.com/'
@@ -21,17 +23,18 @@ class AuthenticationProvider:
         # Preparando o browser
         self.cj = cookielib.LWPCookieJar()
 
-        self.br = Browser()
-        self.br.set_cookiejar(self.cj)
-        self.br.set_handle_robots(False)
-        self.br.addheaders = headers
+        br = Browser()
+        br.set_cookiejar(self.cj)
+        br.set_handle_robots(False)
+        br.addheaders = headers
         # self.path = os.path.dirname(os.path.realpath(__file__))
         # name of the cookies file
         # self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
         self.cookies_file_name = 'cookies.tmp'
+        super(AuthenticationProvider, self).__init__(br, universe)
         
     def verify_connection(self):
-        res = self.br.open(self.index_url)
+        res = self.open_url(self.index_url)
         soup = BeautifulSoup(res.get_data(), "lxml")
         if soup.find("meta", { "name" : "ogame-player-name" }) == None:
             return False
@@ -45,15 +48,15 @@ class AuthenticationProvider:
     def connect(self):
         self.logger.info('Opening login page ' + self.login_url)
         # Open login page
-        self.br.open(self.login_url)
-        self.br.select_form(name="loginForm")
+        self.browser.open(self.login_url)
+        self.browser.select_form(name="loginForm")
 
         # enter Username and password
-        self.br['login'] = self.username
-        self.br['pass'] = self.password
-        self.br['uni'] = ['s%s-br.ogame.gameforge.com' % self.universe]
-        self.logger.info('Logging in to server: %s' % self.br['uni']  )
-        self.br.submit()
+        self.browser['login'] = self.username
+        self.browser['pass'] = self.password
+        self.browser['uni'] = ['s%s-br.ogame.gameforge.com' % self.universe]
+        self.logger.info('Logging in to server: %s' % self.browser['uni'])
+        self.submit_request()
         self.logger.info('Saving authentication data')
         self.cj.save(self.cookies_file_name)
 
@@ -63,10 +66,16 @@ class AuthenticationProvider:
             self.logger.info('Found stored cookies')
             self.cj.load(self.cookies_file_name, ignore_discard=True)
             if self.verify_connection():
-                return self.br
+                return self.browser
             else:
                 self.logger.info('Could not restore session from cookies file')
+
         self.connect()
-        self.verify_connection()
+        connection = self.verify_connection()
+
+        if connection != True:
+            self.logger.error("Unable to connect, check your username and password")
+            exit()
+
         self.cj.save(self.cookies_file_name, ignore_discard=True)
-        return self.br
+        return self.browser

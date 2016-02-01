@@ -3,13 +3,11 @@ from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
 import logging
+from scraper import Scraper
 
 
-class Hangar:
-    def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
-        self.logger = logging.getLogger('ogame-bot')
-        self.browser = browser
+class Hangar(Scraper):
+   
 
     def get_ships(self, planet):
         self.logger.info('Getting shipyard data for planet %s' % planet)

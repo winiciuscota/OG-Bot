@@ -3,6 +3,7 @@ import logging
 import sys
 import ConfigParser
 from bot import OgameBot
+from logger import LoggerBot
 
 
 # setting up logger
@@ -47,6 +48,9 @@ else:
     attack_range = config.get('Settings', 'AttackRange')
     time_to_wait_for_probes = config.get('Settings', 'HowLongToWaitForProbes')
     spy_report_life = config.get('Settings', 'SpyReportLife')
+
+    if config.has_option('Settings', 'MinimunInactiveTargetRank'):
+        minimun_inactive_target_rank = config.get('Settings', 'MinimunInactiveTargetRank')
     
 if len(sys.argv) > 1 :
     mode = sys.argv[1]
@@ -56,29 +60,37 @@ if len(sys.argv) > 2 :
 
 logger.info("Initializing bot")
 
-bot = OgameBot(username, password, universe, origin_planet_name, attack_range, time_to_wait_for_probes, spy_report_life)
+bot = OgameBot(username, password, universe, origin_planet_name, 
+               attack_range, time_to_wait_for_probes, spy_report_life, minimun_inactive_target_rank)
+logger_bot = LoggerBot(username, password, universe, origin_planet_name,
+                       attack_range, time_to_wait_for_probes, spy_report_life, minimun_inactive_target_rank)
 
 switcher = {
-    'log_defenses':bot.log_defenses,
-    'log_ships': bot.log_ships,
-    'log_planets': bot.log_planets,
-    'overview' : bot.log_overview,
+    #Log functions
+    'log_defenses':logger_bot.log_defenses,
+    'log_ships': logger_bot.log_ships,
+    'log_planets': logger_bot.log_planets,
+    'log_index_page' : logger_bot.log_index_page,
+    'log_game_datetime' : logger_bot.log_game_datetime,
+    'log_planets_in_same_system' : logger_bot.log_planets_in_same_system,
+    'log_nearest_planets' : logger_bot.log_nearest_planets,
+    'log_nearest_inactive_planets' : logger_bot.log_nearest_inactive_planets,
+    'log_spy_reports' : logger_bot.log_spy_reports,
+    'log_fleet_movement' : logger_bot.log_fleet_movement,
+    'log_fleet_slot_usage' : logger_bot.log_fleet_slot_usage,
+    'overview' : logger_bot.log_overview,
+
     'auto_build_defenses': bot.auto_build_defenses,
     'auto_build_structures' : bot.auto_attack_inactive_planets,
     'auto_build_structure_to_planet' : bot.auto_build_structure_to_planet,
     "auto_build_defenses_to_planet" : bot.auto_build_defenses_to_planet,
-    'transport_resources_to_planet' : bot.transport_resources_to_planet,
-    'log_planets_in_same_system' : bot.log_planets_in_same_system,
-    'log_nearest_planets' : bot.log_nearest_planets,
-    'log_nearest_inactive_planets' : bot.log_nearest_inactive_planets,
+
     'spy_nearest_planets' : bot.spy_nearest_planets,
+   
+    'transport_resources_to_planet' : bot.transport_resources_to_planet,
     'spy_nearest_inactive_planets' : bot.spy_nearest_inactive_planets,
-    'log_spy_reports' : bot.log_spy_reports,
     'attack_inactive_planets_from_spy_reports' : bot.attack_inactive_planets_from_spy_reports,
-    'log_index_page' : bot.log_index_page,
-    'log_game_datetime' : bot.log_game_datetime,
     'auto_attack_inactive_planets' : bot.auto_attack_inactive_planets,
-    'log_fleet_movement' : bot.log_fleet_movement,
     'auto_spy_inactive_planets' : bot.auto_spy_inactive_planets,
     'clear_inbox' : bot.clear_inbox
 }

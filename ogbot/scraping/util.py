@@ -42,7 +42,6 @@ class UrlProvider:
         return self.main_url
 
 
-
 def sanitize(t):
     for i in t:
         try:
@@ -50,10 +49,4 @@ def sanitize(t):
         except ValueError:
             yield i
 
-def open_url(browser, url):
-    res = browser.open(url)
-    return res
 
-def submit_request(browser):
-    res = browser.submit()
-    return res

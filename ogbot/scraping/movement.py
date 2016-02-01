@@ -3,13 +3,10 @@ from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
 import logging
+from scraper import Scraper
 
 
-class Movement:
-    def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
-        self.logger = logging.getLogger('ogame-bot')
-        self.browser = browser
+class Movement(Scraper):
 
     def get_fleet_movement(self):
         url = self.url_provider.get_page_url('movement')
