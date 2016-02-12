@@ -55,24 +55,6 @@ class Fleet(Scraper):
         self.send_fleet(origin_planet, destination_planet.coordinates,
             self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
 
-
-    def send_expedition(self, origin_planet):
-        fleet = { 
-            self.ships.get('sg') : 1,
-            self.ships.get('lf') : 2,
-            self.ships.get('ep') : 1
-            }
-
-        galaxy = origin_planet.coordinates.split(':')[0]
-        system = origin_planet.coordinates.split(':')[1]
-        position = "16"
-        coordinates = ":".join([galaxy, system, position])
-
-        self.logger.info("Sending expedition from planet: %s", origin_planet.name)
-
-        self.send_fleet(origin_planet, coordinates, self.missions.get("expedition"), fleet)
-
-
     def attack_inactive_planet(self, origin_planet, target_planet):
         fleet = self.get_attack_fleet(target_planet)
         self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
@@ -94,7 +76,7 @@ class Fleet(Scraper):
         self.send_fleet(origin_planet, destination_planet.coordinates,
              self.missions["transport"], fleet, resources)
 
-    def send_fleet(self, origin_planet, coordinates, mission, ships, resources=None):
+    def send_fleet(self, origin_planet, coordinates, mission, ships, resources = None):
         """
         Missions:
             15 - Expedition,
@@ -153,11 +135,12 @@ class Fleet(Scraper):
         self.browser["crystal"] = str(resources.crystal)
         self.browser["deuterium"] = str(resources.deuterium)
         self.submit_request()
-        self.logger.info("Sending %s %s from planet %s to coordinates %s" % (self.get_ships_list(ships), ("carrying %s" % resources) if resources != None else "", origin_planet.name, coordinates))
+        self.logger.info("Sending %s %s from planet %s to coordinates %s" %
+            (self.get_ships_list(ships), ("carrying %s" % resources) if resources != None else "", origin_planet.name, coordinates))
         return FleetResult.Success
 
     def get_ships_list(self, ships):
-        return ", ".join([ str(ships.get(ship)) + ' ' + str(ship) for ship in ships])
+        return ", ".join([ str(ships.get(ship))  + ' ' + str(ship) for ship in ships])
 
     def get_tranport_fleet(self, resources):
         """Get fleet for transport"""

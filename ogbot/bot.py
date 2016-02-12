@@ -7,7 +7,7 @@ import time
 class OgameBot:
 
     def __init__(self, username, password, universe, default_origin_planet_name, 
-                    attack_range, time_to_wait_for_probes, spy_report_life, minimun_target_rank, planet_name):
+                    attack_range, time_to_wait_for_probes, spy_report_life, minimun_target_rank):
 
         self.universe = universe
 
@@ -25,7 +25,7 @@ class OgameBot:
         self.buildings_client = buildings.Buildings(self.browser, self.universe)
 
         #Get logger
-        self.logger = logging.getLogger('OGBot')
+        self.logger = logging.getLogger('ogame-bot')
         self.planets = self.general_client.get_planets()
        
         #Set user variables
@@ -36,8 +36,8 @@ class OgameBot:
         self.minimun_inactive_target_rank = int(minimun_target_rank)
 
         #Set Default origin planet
-        self.default_origin_planet = self.get_player_planet_by_name(default_origin_planet_name)
-        self.planet = self.get_player_planet_by_name(planet_name)
+        self.default_origin_planet = self.get_origin_planet()
+
 
     # Bot functions
     def auto_build_defenses(self):
@@ -46,19 +46,19 @@ class OgameBot:
             self.defense_client.auto_build_defenses(planet)
 
     def auto_build_defenses_to_planet(self):
-        origin_planet = self.default_origin_planet
+        origin_planet = self.get_origin_planet()
         self.defense_client.auto_build_defenses(origin_planet)
 
     def transport_resources_to_planet(self):
         planets = self.planets
-        destination_planet = self.default_origin_planet
+        destination_planet = self.get_origin_planet()
         self.logger.info("Destination planet found: %s"  % destination_planet)
         for planet in [planet for planet in planets if planet != destination_planet]:
             resources = general.Resources(20000000, 20000000, 20000000)
             self.fleet_client.transport_resources(planet, destination_planet, resources)
 
     def auto_build_structure_to_planet(self):
-        origin_planet = self.default_origin_planet
+        origin_planet = self.get_origin_planet()
         self.buildings_client.auto_build_structure(origin_planet)
 
 
@@ -91,18 +91,11 @@ class OgameBot:
         for target_planet in target_planets:
             self.fleet_client.spy_planet(origin_planet, target_planet)
 
-    def auto_spy_inactive_planets(self, range = None):
-
-        if range == None:
-            range = self.attack_range
-
+    def auto_spy_inactive_planets(self, range = 3):
         target_planets = []
         
-        if self.planet == None:
-            for origin_planet in self.planets:
-                self.spy_nearest_inactive_planets(origin_planet, range)
-        else:
-            self.spy_nearest_inactive_planets(self.planet, range)
+        for origin_planet in self.planets:
+            self.spy_nearest_inactive_planets(origin_planet, range)
         
 
     def attack_inactive_planets_from_spy_reports(self):
@@ -150,10 +143,7 @@ class OgameBot:
             if available_slots > 0:
                 if target.defenses == 0 and target.fleet == 0:
                     # Get the nearest planet from target
-                    if self.planet == None:
-                        origin_planet = self.get_nearest_planet_to_target(target)
-                    else:
-                        origin_planet = self.planet  
+                    origin_planet = self.get_nearest_planet_to_target(target)
                     result = self.attack_inactive_planet(origin_planet, target)
                     if result == fleet.FleetResult.Success:
                         predicted_loot += target.get_loot()
@@ -179,35 +169,29 @@ class OgameBot:
             self.attack_inactive_planets_from_spy_reports()
             self.clear_inbox()
 
-    def auto_send_expeditions(self):
-        for i in range(3):
-            self.fleet_client.send_expedition(self.default_origin_planet)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         result = self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
         return result
-    
-    def explore(self):
-        self.auto_send_expeditions()
-        self.auto_attack_inactive_planets()
         
-
     def clear_inbox(self):
         self.messages_client.clear_inbox()
 
+    
+
     # Util functions
-    def get_player_planet_by_name(self, planet_name):
+    def get_origin_planet(self):
         planets = self.planets
-        if planet_name == None:
+        if self.default_origin_planet_name == None:
             return planets[0]
             
-        planet = [planet for planet
+        origin_planet = [planet for planet
                                 in planets
-                                if planet.name.lower() == planet_name.lower()][0]
-        return planet
+                                if planet.name.lower() == self.default_origin_planet_name.lower()][0]
+        return origin_planet
 
     def get_planets_in_same_system(self):
-        origin_planet = self.default_origin_planet
+        origin_planet = self.get_origin_planet()
         planets = self.galaxy_client.get_planets(origin_planet.coordinates.split(':')[0],
                      origin_planet.coordinates.split(':')[1])
         return planets

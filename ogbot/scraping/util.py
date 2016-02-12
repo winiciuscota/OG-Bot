@@ -17,8 +17,7 @@ class UrlProvider:
             'galaxy':       self.main_url + '?page=galaxy',
             'galaxyContent':    self.main_url + '?page=galaxyContent',
             'messages':    self.main_url + '?page=messages',
-            'movement':    self.main_url + '?page=movement',
-            'missileAtack' : self.main_url + '?page=missileattacklayer'
+            'movement':    self.main_url + '?page=movement'
         }
 
     def get_pages(self):
@@ -43,5 +42,11 @@ class UrlProvider:
         return self.main_url
 
 
+def sanitize(t):
+    for i in t:
+        try:
+            yield int(i)
+        except ValueError:
+            yield i
 
 
