@@ -7,7 +7,7 @@ from logger import LoggerBot
 
 
 # setting up logger
-logger = logging.getLogger('ogame-bot')
+logger = logging.getLogger('OGBot')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -55,15 +55,16 @@ else:
 if len(sys.argv) > 1 :
     mode = sys.argv[1]
     
+planet = None
 if len(sys.argv) > 2 :
-    origin_planet_name = sys.argv[2]
+    planet = sys.argv[2]
 
 logger.info("Initializing bot")
 
 bot = OgameBot(username, password, universe, origin_planet_name, 
-               attack_range, time_to_wait_for_probes, spy_report_life, minimun_inactive_target_rank)
+               attack_range, time_to_wait_for_probes, spy_report_life, minimun_inactive_target_rank, planet)
 logger_bot = LoggerBot(username, password, universe, origin_planet_name,
-                       attack_range, time_to_wait_for_probes, spy_report_life, minimun_inactive_target_rank)
+                       attack_range, time_to_wait_for_probes, spy_report_life, minimun_inactive_target_rank, planet)
 
 switcher = {
     #Log functions
@@ -92,6 +93,8 @@ switcher = {
     'attack_inactive_planets_from_spy_reports' : bot.attack_inactive_planets_from_spy_reports,
     'auto_attack_inactive_planets' : bot.auto_attack_inactive_planets,
     'auto_spy_inactive_planets' : bot.auto_spy_inactive_planets,
+    'auto_send_expeditions' : bot.auto_send_expeditions,
+    'explore' : bot.explore,
     'clear_inbox' : bot.clear_inbox
 }
 
