@@ -6,47 +6,15 @@ from bs4 import BeautifulSoup
 import re
 import logging
 import urlparse
-from enum import Enum
 import general
 import math
-from scraper import Scraper
-
-class Ship(object):
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
-
-    def __str__(self):
-        return self.name
+from scraper import *
 
 class Fleet(Scraper):
     def __init__(self, browser, universe):
         super(Fleet, self).__init__(browser, universe)
 
         self.general_client = general.General(browser, universe)
-        self.missions = {
-            "expedition" : 15,
-            "colonization" : 7,
-            "recycle" : 8,
-            "transport" : 3,
-            "transfer" : 4,
-            "spy" : 6,
-            "defend" : 5,
-            "attack" : 1,
-            "allianceAttack" : 2,
-            "destroyStar" : 9
-        }
-
-        self.ships = {
-            "lf" : Ship(204, "Light Fighter"),
-            "hf" : Ship(205, "Heavy Fighter"),
-            "cr" : Ship(206, "Cruiser"),
-            "bs" : Ship(207, "Battle Ship"),
-            "cs" : Ship(207, "Colony Ship"),
-            "sg" : Ship(202, "Small Cargo Ship"),
-            "lg" : Ship(203, "Large Cargo Ship"),
-            "ep" : Ship(210, "Espionage Probe")
-        }
 
 
     def spy_planet(self, origin_planet, destination_planet):
@@ -116,7 +84,7 @@ class Fleet(Scraper):
             return FleetResult.WrongParameters
 
         url = self.url_provider.get_page_url('fleet', origin_planet)
-        resp = self.browser.open(url)
+        resp = self.open_url(url)
 
         try:
             self.browser.select_form(name='shipsChosen')
@@ -153,11 +121,15 @@ class Fleet(Scraper):
         self.browser["crystal"] = str(resources.crystal)
         self.browser["deuterium"] = str(resources.deuterium)
         self.submit_request()
-        self.logger.info("Sending %s %s from planet %s to coordinates %s" % (self.get_ships_list(ships), ("carrying %s" % resources) if resources != None else "", origin_planet.name, coordinates))
+        self.logger.info("Sending %s from planet %s to coordinates %s" % (
+            self.get_ships_list(ships), origin_planet.name, coordinates))
+        if resources.empty() != True:
+            self.logger.info("The fleet is transporting %s " % resources)
+
         return FleetResult.Success
 
     def get_ships_list(self, ships):
-        return ", ".join([ str(ships.get(ship)) + ' ' + str(ship) for ship in ships])
+        return ", ".join([ str(ships.get(ship)) + ' ' + ship.name for ship in ships])
 
     def get_tranport_fleet(self, resources):
         """Get fleet for transport"""
@@ -183,7 +155,4 @@ class Fleet(Scraper):
         ships_count = int(math.ceil(resources_count / 25000))
         return  { self.ships.get('lg') : ships_count}
 
-class FleetResult(Enum):
-    Success = 1
-    WrongParameters = 2
-    NoAvailableShips = 3
+

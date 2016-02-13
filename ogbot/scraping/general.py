@@ -5,7 +5,8 @@ import re
 import logging
 import urlparse
 import datetime
-from scraper import Scraper
+from scraper import *
+
 
 class General(Scraper):
 
@@ -62,34 +63,3 @@ class General(Scraper):
         return coords.replace('[', '').replace(']', '')
 
 
-
-class Resources(object):
-    def __init__(self, metal, crystal, deuterium = 0, energy = 0):
-        self.metal = metal
-        self.crystal = crystal
-        self.deuterium = deuterium
-        self.energy = energy
-
-    def __str__(self):
-        result = []
-        if self.metal != 0:
-            result.append("Metal: %s" % self.metal)
-        if self.crystal != 0:
-            result.append("Crystal: %s" % self.crystal)
-        if self.deuterium != 0:
-            result.append("Deuterium: %s" % self.deuterium)
-        if self.energy != 0:
-            result.append("Energy: %s" % self.energy)
-        return ', '.join(result)
-
-    def total(self):
-        return self.metal + self.crystal + self.deuterium
-
-class Planet(object):
-    def __init__(self, name, link, coordinates):
-        self.name = name
-        self.link = link
-        self.coordinates = coordinates
-
-    def __str__(self):
-        return "[Planet: %s, Link: %s, Coordinates: %s]" % (self.name, self.link, self.coordinates)

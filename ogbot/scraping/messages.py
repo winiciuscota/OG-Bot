@@ -28,7 +28,7 @@ class Messages(Scraper):
         data = urllib.urlencode({'tab': 20, 'ajax' : 1})
 
         self.logger.info("Getting messages for first page")
-        res = self.browser.open(url, data=data)
+        res = self.open_url(url, data)
         soup = BeautifulSoup(res.read(), "lxml")
         spy_reports = []
 
@@ -36,15 +36,15 @@ class Messages(Scraper):
         spy_reports.extend(self.parse_spy_reports(soup))
 
         pagination_info = soup.find('li', {"class" : "curPage"}).text
-
         page_count = int(pagination_info.split('/')[1])
+
 
         # add messages from the other pages
         for page in range(1, page_count):
             page_number = page + 1
             self.logger.info("Getting messages for page %d" % page_number)
             data = urllib.urlencode({'messageId' : -1, 'tabid': 20, 'action' : 107, 'pagination' : page_number, 'ajax' : 1})
-            res = self.browser.open(url, data=data)
+            res = self.open_url(url, data)
             soup = BeautifulSoup(res.read())
             page_reports = self.parse_spy_reports(soup)
             spy_reports.extend(page_reports)
@@ -53,7 +53,7 @@ class Messages(Scraper):
     def clear_inbox(self):
         url = self.url_provider.get_page_url('messages')
         data = urllib.urlencode({'tab': 20, 'messageId': -1, 'action': 103, 'ajax': 1})
-        self.browser.open(url, data=data)
+        self.open_url(url, data)
         self.logger.info("Clearing messages")
         
 

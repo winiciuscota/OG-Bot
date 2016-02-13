@@ -30,11 +30,4 @@ class Hangar(Scraper):
         return [Ship(ship[0], ship[2], ship[1]) for ship in ships]
 
 
-class Ship(object):
-    def __init__(self, name, id, amount):
-        self.name = name
-        self.id = id
-        self.amount = amount
 
-    def __str__(self):
-        return "[Description: %s, Id: %s, Amount: %s ]" % (self.name, self.id, self.amount)

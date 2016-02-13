@@ -36,7 +36,7 @@ class OgameBot:
         self.minimun_inactive_target_rank = int(minimun_target_rank)
 
         #Set Default origin planet
-        self.default_origin_planet = self.get_player_planet_by_name(default_origin_planet_name)
+        self.default_origin_planet = self.get_default_origin_planet(default_origin_planet_name)
         self.planet = self.get_player_planet_by_name(planet_name)
 
     # Bot functions
@@ -96,13 +96,11 @@ class OgameBot:
         if range == None:
             range = self.attack_range
 
-        target_planets = []
-        
-        if self.planet == None:
+        if self.planet != None:
+            self.spy_nearest_inactive_planets(self.planet, range)
+        else:
             for origin_planet in self.planets:
                 self.spy_nearest_inactive_planets(origin_planet, range)
-        else:
-            self.spy_nearest_inactive_planets(self.planet, range)
         
 
     def attack_inactive_planets_from_spy_reports(self):
@@ -181,6 +179,7 @@ class OgameBot:
 
     def auto_send_expeditions(self):
         for i in range(3):
+            self.logger.info("Launching %dth expedition" % i)
             self.fleet_client.send_expedition(self.default_origin_planet)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
@@ -199,12 +198,19 @@ class OgameBot:
     def get_player_planet_by_name(self, planet_name):
         planets = self.planets
         if planet_name == None:
-            return planets[0]
+            return None
             
         planet = [planet for planet
                                 in planets
                                 if planet.name.lower() == planet_name.lower()][0]
         return planet
+
+    def get_default_origin_planet(self, planet_name):
+        if planet_name == None:
+            return self.planets[0]
+        else:
+            return self.get_player_planet_by_name(planet_name)
+
 
     def get_planets_in_same_system(self):
         origin_planet = self.default_origin_planet
@@ -261,6 +267,7 @@ class OgameBot:
 
         if planets == None:
             planets = self.planets
+
         # Get planet systems
         planet_systems = [ int(planet.coordinates.split(':')[1]) for planet in planets ]
         target_system = int(target_planet.coordinates.split(':')[1])
