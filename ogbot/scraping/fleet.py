@@ -24,19 +24,16 @@ class Fleet(Scraper):
             self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
 
 
-    def send_expedition(self, origin_planet):
+    def send_expedition(self, origin_planet, coordinates):
         fleet = { 
             self.ships.get('sg') : 1,
             self.ships.get('lf') : 2,
             self.ships.get('ep') : 1
             }
 
-        galaxy = origin_planet.coordinates.split(':')[0]
-        system = origin_planet.coordinates.split(':')[1]
-        position = "16"
-        coordinates = ":".join([galaxy, system, position])
+        
 
-        self.logger.info("Sending expedition from planet: %s", origin_planet.name)
+        self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.name, coordinates)
 
         self.send_fleet(origin_planet, coordinates, self.missions.get("expedition"), fleet)
 

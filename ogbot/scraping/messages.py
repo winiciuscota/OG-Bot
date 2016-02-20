@@ -119,7 +119,7 @@ class Messages(Scraper):
 
     def parse_resource(self, text):
         """Use to parse resources values to int, ex: metal: 2.492M becomes 2492000"""
-        value = int(text.split(':')[1].strip().replace(".", "").replace("M", "000"))
+        value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("M", "000"))
         return value
 
     def parse_loot_percentage(self, text):

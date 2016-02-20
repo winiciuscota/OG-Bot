@@ -3,6 +3,7 @@ import logging
 from datetime import timedelta
 from datetime import datetime
 import time
+import random
 
 class OgameBot:
 
@@ -34,10 +35,13 @@ class OgameBot:
         self.time_to_wait_for_probes = float(time_to_wait_for_probes)
         self.spy_report_life = int(spy_report_life)
         self.minimun_inactive_target_rank = int(minimun_target_rank)
+        self.expedition_range = 5
+
 
         #Set Default origin planet
         self.default_origin_planet = self.get_default_origin_planet(default_origin_planet_name)
         self.planet = self.get_player_planet_by_name(planet_name)
+
 
     # Bot functions
     def auto_build_defenses(self):
@@ -50,8 +54,15 @@ class OgameBot:
         self.defense_client.auto_build_defenses(origin_planet)
 
     def transport_resources_to_planet(self):
+        """transport resources to the planet, if there is not planet especified the function will chose the default origin planet"""
         planets = self.planets
-        destination_planet = self.default_origin_planet
+
+        if self.planet != None:
+            destination_planet = self.planet
+        else:
+            self.logger.info("there is no specified target planet, using default origin planet instead")
+            destination_planet = self.default_origin_planet
+
         self.logger.info("Destination planet found: %s"  % destination_planet)
         for planet in [planet for planet in planets if planet != destination_planet]:
             resources = general.Resources(20000000, 20000000, 20000000)
@@ -66,19 +77,19 @@ class OgameBot:
         for planet in self.planets:
             self.buildings_client.auto_build_structure(planet)
 
-    def spy_nearest_planets(self, origin_planet = None, range = 3):
+    def spy_nearest_planets(self, origin_planet = None, nr_range = 3):
         """Spy the nearest planets from origin"""
 
         if origin_planet == None:
             origin_planet = self.default_origin_planet
 
         self.logger.info("Getting nearest planets from %s", origin_planet.name)
-        target_planets = self.get_nearest_planets(origin_planet, range)
+        target_planets = self.get_nearest_planets(origin_planet, nr_range)
 
         for target_planet in target_planets:
             self.fleet_client.spy_planet(origin_planet, target_planet)
 
-    def spy_nearest_inactive_planets(self, origin_planet = None, range = 3):
+    def spy_nearest_inactive_planets(self, origin_planet = None, nr_range = 3):
         """ Spy the nearest inactive planets from origin"""
 
         if origin_planet == None:
@@ -86,21 +97,21 @@ class OgameBot:
 
         self.logger.info("Spying nearest inactive planets from %s", origin_planet.name)
 
-        target_planets = self.get_nearest_inactive_planets(origin_planet, range)
+        target_planets = self.get_nearest_inactive_planets(origin_planet, nr_range)
 
         for target_planet in target_planets:
             self.fleet_client.spy_planet(origin_planet, target_planet)
 
-    def auto_spy_inactive_planets(self, range = None):
+    def auto_spy_inactive_planets(self, nr_range = None):
 
-        if range == None:
-            range = self.attack_range
+        if nr_range == None:
+            nr_range = self.attack_range
 
         if self.planet != None:
-            self.spy_nearest_inactive_planets(self.planet, range)
+            self.spy_nearest_inactive_planets(self.planet, nr_range)
         else:
             for origin_planet in self.planets:
-                self.spy_nearest_inactive_planets(origin_planet, range)
+                self.spy_nearest_inactive_planets(origin_planet, nr_range)
         
 
     def attack_inactive_planets_from_spy_reports(self):
@@ -179,8 +190,32 @@ class OgameBot:
 
     def auto_send_expeditions(self):
         for i in range(3):
-            self.logger.info("Launching %dth expedition" % i)
-            self.fleet_client.send_expedition(self.default_origin_planet)
+            target_planet = self.planets[random.randint(0, len(self.planets) - 1)]
+            res = self.send_expedition(target_planet)
+            if res != fleet.FleetResult.Success:
+                self.logger.warning("Error launching expedition, retrying...")
+                #Retry 3 times
+                for j in range(3):
+                    target_planet = self.planets[random.randint(0, len(self.planets))]
+                    res = self.send_expedition(target_planet)
+                    break
+
+    def send_expedition(self, target_planet):
+        coordinates = self.get_expedition_coordinates(target_planet)
+        res = self.fleet_client.send_expedition(target_planet, coordinates)
+        return res
+
+
+                
+
+    def get_expedition_coordinates(self, planet):
+        galaxy = self.default_origin_planet.coordinates.split(':')[0]
+        planet_system = self.default_origin_planet.coordinates.split(':')[1]
+        system = str(int(planet_system) + random.randint(-self.expedition_range, self.expedition_range))
+
+        coordinates = ":".join([galaxy, system, "16"])
+        return coordinates
+        
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         result = self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
@@ -196,13 +231,14 @@ class OgameBot:
 
     # Util functions
     def get_player_planet_by_name(self, planet_name):
+        """Get player planet by name. If there is no match returns None"""
         planets = self.planets
         if planet_name == None:
             return None
             
-        planet = [planet for planet
+        planet = next(iter([planet for planet
                                 in planets
-                                if planet.name.lower() == planet_name.lower()][0]
+                                if planet.name.lower() == planet_name.lower()]), None)
         return planet
 
     def get_default_origin_planet(self, planet_name):
