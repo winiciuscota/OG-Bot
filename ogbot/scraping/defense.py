@@ -3,7 +3,7 @@ from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
 import logging
-from scraper import Scraper
+from scraper import *
 
 
 class Defense(Scraper):
@@ -26,7 +26,7 @@ class Defense(Scraper):
                 shipData = re.sub('  +', '', aux).encode('utf8')
                 defenses.append( tuple(shipData.split('\n')) )
 
-        defenses = map(tuple, map(util.sanitize, [filter(None, i) for i in defenses]))
+        defenses = map(tuple, map(scraper.sanitize, [filter(None, i) for i in defenses]))
         return defenses
 
     def auto_build_defenses(self, planet = None):

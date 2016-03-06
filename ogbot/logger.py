@@ -61,7 +61,7 @@ class LoggerBot(OgameBot):
             self.logger.info("Date:%s - %s" % (spy_report.report_datetime, spy_report))
 
     def log_game_datetime(self):
-        time = self.general_client.get_game_datetime()
+        datetime = self.general_client.get_game_datetime()
         self.logger.info(datetime)
 
     def log_fleet_movement(self):

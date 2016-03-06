@@ -6,7 +6,7 @@ import logging
 import urlparse
 from enum import Enum
 from general import General
-from scraper import Scraper
+from scraper import *
 
 
 class BuildingTypes(Enum):
@@ -34,9 +34,9 @@ class Building(object):
         self.level = level
 
 class Buildings(Scraper):
-    def __init__(self, browser, universe):
-        super(Buildings, self).__init__(browser, universe)
-        self.general_client = General(browser, universe)
+    def __init__(self, browser, config):
+        super(Buildings, self).__init__(browser, config)
+        self.general_client = General(browser, config)
 
     def parse_buildings(self, buildings):
         planet_buildings = {}
@@ -59,7 +59,7 @@ class Buildings(Scraper):
                 shipData = re.sub('  +', '', aux).encode('utf8')
                 res.append(tuple(shipData.split('\n')))
 
-        parsed_res = map(tuple, map(util.sanitize, [filter(None, i) for i in res]))
+        parsed_res = map(tuple, map(scraper.sanitize, [filter(None, i) for i in res]))
         buildings = self.parse_buildings(parsed_res)
         return buildings
 
@@ -98,23 +98,23 @@ class Buildings(Scraper):
                         else:
                             self.build_structure_item(BuildingTypes.MetalMine, planet)
 
-    def build_structure(self, type, planet):
+    def build_structure(self, building_type, planet):
         if self.construction_mode(planet):
             self.logger.info('Planet is already in construction mode')
             return
         else:
-            self.build_structure_item(type.value, planet)
+            self.build_structure_item(building_type.value, planet)
 
-    def build_structure_item(self, type, planet=None):
+    def build_structure_item(self, building_type, planet = None):
         self.logger.info('Building %s on planet %s' % (type, planet.name))
         self.browser.select_form(name='form')
         self.browser.form.new_control('text','menge',{'value':'1'})
         self.browser.form.fixup()
         self.browser['menge'] = '1'
 
-        self.browser.form.new_control('text','type',{'value': str(type)})
+        self.browser.form.new_control('text','type',{'value': str(building_type)})
         self.browser.form.fixup()
-        self.browser['type'] = str(type)
+        self.browser['type'] = str(building_type)
 
         self.browser.form.new_control('text','modus',{'value':'1'})
         self.browser.form.fixup()
@@ -123,7 +123,7 @@ class Buildings(Scraper):
         self.logger.info("Submitting form")
         self.browser.submit()
 
-    def construction_mode(self, planet=None):
+    def construction_mode(self, planet = None):
         url = self.url_provider.get_page_url('resources', planet)
         self.logger.info('Opening url %s' % url)
         resp = self.browser.open(url)

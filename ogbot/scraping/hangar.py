@@ -3,12 +3,10 @@ from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
 import logging
-from scraper import Scraper
+from scraper import *
 
 
 class Hangar(Scraper):
-   
-
     def get_ships(self, planet):
         self.logger.info('Getting shipyard data for planet %s' % planet)
         url = self.url_provider.get_page_url('shipyard', planet)
@@ -26,7 +24,7 @@ class Hangar(Scraper):
                 ship_data.append(ship_id)
                 ships.append( tuple(ship_data) )
 
-        ships = map(tuple, map(util.sanitize, [filter(None, i) for i in ships]))
+        ships = map(tuple, map(scraper.sanitize, [filter(None, i) for i in ships]))
         return [Ship(ship[0], ship[2], ship[1]) for ship in ships]
 
 

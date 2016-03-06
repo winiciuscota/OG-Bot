@@ -6,10 +6,14 @@ from enum import Enum
 class Scraper(object):
     """Base class for scraper classes"""
 
-    def __init__(self, browser, universe):
-        self.url_provider = util.UrlProvider(universe)
+    def __init__(self, browser, config):
+        self.config = config
+        self.url_provider = util.UrlProvider(self.config.universe)
         self.logger = logging.getLogger('OGBot')
         self.browser = browser
+
+        self.attempts = 3
+        self.timeout = 30.0
         self.ships = {
             "lf" : Ship(204, "Light Fighter"),
             "hf" : Ship(205, "Heavy Fighter"),
@@ -35,29 +39,36 @@ class Scraper(object):
 
     def open_url(self, url, data = None):
         """Open url, make up to 3 retrys"""
-        for attempt in (0, 3):
+        for attempt in range(0, self.attempts):
             try:
-                res = self.browser.open(url, data = data)
+                res = self.browser.open(url, data, self.timeout)
                 return res
             except mechanize.URLError:
                 self.logger.warning("URLError opening url, trying again for the %dth time" % (attempt + 1))
+        
+        #If is unable to connect quit the bot
+        self.logger.error("Unable to comunicate with the server, exiting the bot")
+        exit()
 
     def submit_request(self):
         """Submit browser, make up to 3 retrys"""
-        for attempt in (0, 3):
+        for attempt in range(0, self.attempts):
             try:
                 res = self.browser.submit()
                 return res
             except mechanize.URLError:
                 self.logger.warning("URLError submitting form, trying again for the %dth time" % (attempt + 1))
+        
+        #If is unable to connect quit the bot
+        self.logger.error("Unable to comunicate with the server, exiting the bot")
+        exit()
 
-    def sanitize(self, t):
-        for i in t:
-            try:
-                yield int(i)
-            except ValueError:
-                yield i
-
+def sanitize(t):
+    for i in t:
+        try:
+            yield int(i)
+        except ValueError:
+            yield i
 
 class Resources(object):
     def __init__(self, metal, crystal, deuterium = 0, energy = 0):

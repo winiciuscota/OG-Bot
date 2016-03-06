@@ -1,13 +1,9 @@
-import util
 from mechanize import Browser
 from bs4 import BeautifulSoup
-import re
-import logging
 from scraper import Scraper
 
 
 class Movement(Scraper):
-
     def get_fleet_movement(self):
         url = self.url_provider.get_page_url('movement')
         res = self.browser.open(url)
@@ -26,6 +22,10 @@ class Movement(Scraper):
         return text.replace('[', '').replace(']', '')
 
     def get_fleet_slots_usage(self):
+        """
+            Get fleet slot usage data. Only works if there is at least 1 fleet in movement
+        """
+
         url = self.url_provider.get_page_url('movement')
         res = self.browser.open(url)
         soup = BeautifulSoup(res.read())

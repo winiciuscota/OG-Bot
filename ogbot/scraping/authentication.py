@@ -8,16 +8,16 @@ from scraper import Scraper
 
 class AuthenticationProvider(Scraper):
 
-    def __init__(self, username, password, universe):
+    def __init__(self, config):
         self.login_url = 'http://br.ogame.gameforge.com/'
                         # http://s114-br.ogame.gameforge.com/game/index.php?page=overview
-        self.index_url = 'http://s%s-br.ogame.gameforge.com' % universe + '/game/index.php'
+        self.index_url = 'http://s%s-br.ogame.gameforge.com' % config.universe + '/game/index.php'
         headers = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) \
         AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36')]
         # Dados de autenticacao
-        self.username = username
-        self.password = password
-        self.universe = universe
+        self.username = config.username
+        self.password = config.password
+        self.universe = config.universe
 
         self.logger = logging.getLogger('ogame-bot')
         # Preparando o browser
@@ -31,7 +31,7 @@ class AuthenticationProvider(Scraper):
         # name of the cookies file
         # self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
         self.cookies_file_name = 'cookies.tmp'
-        super(AuthenticationProvider, self).__init__(br, universe)
+        super(AuthenticationProvider, self).__init__(br, config)
         
     def verify_connection(self):
         res = self.open_url(self.index_url)
@@ -48,7 +48,7 @@ class AuthenticationProvider(Scraper):
     def connect(self):
         self.logger.info('Opening login page ' + self.login_url)
         # Open login page
-        self.browser.open(self.login_url)
+        self.open_url(self.login_url)
         self.browser.select_form(name="loginForm")
 
         # enter Username and password

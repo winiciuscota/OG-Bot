@@ -1,9 +1,10 @@
 import re
 import logging
 import sys
-import ConfigParser
+
 from bot import OgameBot
 from logger import LoggerBot
+from config import Config
 
 
 # setting up logger
@@ -16,55 +17,9 @@ logger.addHandler(ch)
 
 logger.info('Starting the bot')
 
-config = ConfigParser.ConfigParser()
-cfg = config.read('user.cfg')
-
-WRONG_ARGUMENTS_MESSAGE = """
-You must pass at least 3 arguments:
-    You must have the following data on the user.cfg
-    
-    [UserInfo]
-    username = your_username
-    password = your_password
-    universe = your_universe
-
-    [Settings]
-    DefaultMode = transport_resources_to_planet
-    DefaultOriginPlanet = origin_planet_name
-    AttackRange = 10
-    HowLongToWaitForProbes = 60 
-"""
-
-if cfg == []:
-    print WRONG_ARGUMENTS_MESSAGE
-    exit()
-else:
-    logger.info('Getting user info from config file')
-    username = config.get('UserInfo', 'Username')
-    password = config.get('UserInfo', 'Password')
-    universe = config.get('UserInfo', 'Universe')
-    mode = config.get('Settings', 'DefaultMode')
-    origin_planet_name = config.get('Settings', 'DefaultOriginPlanet')
-    attack_range = config.get('Settings', 'AttackRange')
-    time_to_wait_for_probes = config.get('Settings', 'HowLongToWaitForProbes')
-    spy_report_life = config.get('Settings', 'SpyReportLife')
-
-    if config.has_option('Settings', 'MinimunInactiveTargetRank'):
-        minimun_inactive_target_rank = config.get('Settings', 'MinimunInactiveTargetRank')
-    
-if len(sys.argv) > 1 :
-    mode = sys.argv[1]
-    
-planet = None
-if len(sys.argv) > 2 :
-    planet = sys.argv[2]
-
-logger.info("Initializing bot")
-
-bot = OgameBot(username, password, universe, origin_planet_name, 
-               attack_range, time_to_wait_for_probes, spy_report_life, minimun_inactive_target_rank, planet)
-logger_bot = LoggerBot(username, password, universe, origin_planet_name,
-                       attack_range, time_to_wait_for_probes, spy_report_life, minimun_inactive_target_rank, planet)
+config = Config(sys.argv)
+bot = OgameBot(config)
+logger_bot = LoggerBot(config)
 
 switcher = {
     #Log functions
@@ -98,6 +53,6 @@ switcher = {
     'clear_inbox' : bot.clear_inbox
 }
 
-logger.info("Bot running on %s mode" % mode)
-switcher.get(mode)()
+logger.info("Bot running on %s mode" % config.mode)
+switcher.get(config.mode)()
 logger.info("Quiting bot")

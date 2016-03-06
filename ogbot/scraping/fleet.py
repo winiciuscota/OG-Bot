@@ -9,16 +9,20 @@ import urlparse
 import general
 import math
 from scraper import *
+import time
+import random
 
 class Fleet(Scraper):
-    def __init__(self, browser, universe):
-        super(Fleet, self).__init__(browser, universe)
-
-        self.general_client = general.General(browser, universe)
+    def __init__(self, browser, config):
+        super(Fleet, self).__init__(browser, config)
+        
+        self.general_client = general.General(browser, config)
 
 
     def spy_planet(self, origin_planet, destination_planet):
-        spy_probes_count = 5
+        spy_probes_count = self.config.spy_probes_count
+
+        self.logger.info("Spying planet %s (%s)", destination_planet.name, destination_planet.coordinates)
 
         self.send_fleet(origin_planet, destination_planet.coordinates,
             self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
@@ -31,8 +35,10 @@ class Fleet(Scraper):
             self.ships.get('ep') : 1
             }
 
-        
-
+        #Delay - wait a random time before sending fleet, this makes the bot less detectable
+        delay = random.randint(self.config.expedition_fleet_min_delay, self.config.expedition_fleet_max_delay)
+        self.logger.info("Waiting for %s seconds" % delay)
+        time.sleep(delay)
         self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.name, coordinates)
 
         self.send_fleet(origin_planet, coordinates, self.missions.get("expedition"), fleet)
@@ -40,7 +46,14 @@ class Fleet(Scraper):
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         fleet = self.get_attack_fleet(target_planet)
+
+        #Delay - wait a random time before sending fleet, this makes the bot less detectable
+        delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
+        self.logger.info("Waiting for %s seconds" % delay)
+        time.sleep(delay)
+
         self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
+
         result = self.send_fleet(origin_planet, target_planet.coordinates,
              self.missions["attack"], fleet)
         return result
@@ -134,7 +147,12 @@ class Fleet(Scraper):
         ships_count = int(math.ceil(resources_count / 25000))
         return  { self.ships.get('lg') : ships_count}
 
+
+    # todo fix this method
     def get_fleet_slots_usage(self):
+        """
+            Get fleet slot usage data.
+        """
         raise NotImplementedError("Use the get get_fleet_slots_usage function from movement")
         url = self.url_provider.get_page_url('fleet')
         res = self.browser.open(url)

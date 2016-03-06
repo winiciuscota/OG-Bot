@@ -15,9 +15,8 @@ from scraper import Scraper
 
 class Messages(Scraper):
 
-    def __init__(self, browser, universe):
-        super(Messages, self).__init__(browser, universe)
-        self.spy_report_title = u'Relatório de espionagem'
+    def __init__(self, browser, config):
+        super(Messages, self).__init__(browser, config)
 
     def get_messages(self):
         raise NotImplementedError
@@ -59,15 +58,22 @@ class Messages(Scraper):
 
 
     def parse_spy_reports(self, soup):
+        """parse spy reports for an individual page"""
         message_boxes = soup.findAll("li", { "class" : "msg " })
         message_boxes += soup.findAll("li", { "class" : "msg msg_new" })
         spy_reports = []
 
         for message_box in message_boxes:
-            message_title = unicode(message_box.find("span", {"class":"msg_title blue_txt"}).text)
+
+            # We already are in the spionage tab, there is only spy reports and reports from other
+            # players spying on us here. If the report is from other player spying on us the message div
+            # should contain an span with the class espionageDefText
+            is_spy_report = True if message_box.find("span", {"class":"espionageDefText"}) == None else False
+
             msg_date_node = message_box.find("span", {"class":"msg_date fright"})
             message_datetime = self.parse_report_datetime(msg_date_node.text if msg_date_node != None else "1.1.2016 00:00:00" )
-            if self.spy_report_title in message_title:
+
+            if is_spy_report:
                 planet_info = message_box.find("a", {"class":"txt_link"}).text
                 planet_name = planet_info.split('[')[0].strip()
                 coordinates = planet_info.split('[')[1].replace(']','').strip()

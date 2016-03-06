@@ -42,8 +42,9 @@ class General(Scraper):
     def get_planets(self):
         self.logger.info('Getting planets')
         url = self.url_provider.get_page_url('resources')
+
         res = self.open_url(url)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
         planets = []
         current_planet_id = soup.find("meta", { "name" : "ogame-planet-id"})['content']
         current_planet_name = soup.find("meta", { "name" : "ogame-planet-name"})['content']
