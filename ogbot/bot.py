@@ -75,7 +75,7 @@ class OgameBot:
         target_planets = self.get_nearest_planets(origin_planet, nr_range)
 
         for target_planet in target_planets:
-            self.fleet_client.spy_planet(origin_planet, target_planet)
+            self.fleet_client.spy_planet(origin_planet, target_planet, self.config.spy_probes_count)
 
     def spy_nearest_inactive_planets(self, origin_planet = None, nr_range = 3):
         """ Spy the nearest inactive planets from origin"""
@@ -88,7 +88,7 @@ class OgameBot:
         target_planets = self.get_nearest_inactive_planets(origin_planet, nr_range)
 
         for target_planet in target_planets:
-            self.fleet_client.spy_planet(origin_planet, target_planet)
+            self.fleet_client.spy_planet(origin_planet, target_planet, self.config.spy_probes_count)
 
     def auto_spy_inactive_planets(self, nr_range = None):
 
@@ -115,7 +115,7 @@ class OgameBot:
                         self.logger.info("Waiting for %s seconds" % delay)
                         time.sleep(delay)
 
-                    self.fleet_client.spy_planet(planet, target_planet)
+                    self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
 
 
 
@@ -190,9 +190,12 @@ class OgameBot:
         if result == fleet.FleetResult.Success:
             predicted_loot += target.get_loot()
         slot_usage = self.movement_client.get_fleet_slots_usage()
+
+
         available_slots = slot_usage[1] - slot_usage[0]
 
         for target in targets[1:]:
+            self.logger.info("Slot usage: %d/%d" % (slot_usage[1] - available_slots, slot_usage[1]))
             if available_slots > 0:
                 if target.defenses == 0 and target.fleet == 0:
                     # Get the nearest planet from target
@@ -200,10 +203,16 @@ class OgameBot:
                         origin_planet = self.get_nearest_planet_to_target(target)
                     else:
                         origin_planet = self.planet  
+
+                    #Delay - wait a random time before sending fleet, this makes the bot less detectable
+                    delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
+                    self.logger.info("Waiting for %s seconds" % delay)
+                    time.sleep(delay)
+
                     result = self.attack_inactive_planet(origin_planet, target)
                     if result == fleet.FleetResult.Success:
                         predicted_loot += target.get_loot()
-                        available_slots = available_slots - 1
+                        available_slots -= 1
                 elif target.defenses != 0:
                     self.logger.warning("target planet is defended (%s), maybe you should send some missiles first?" % target.defenses)
                 elif target.fleet != 0:
@@ -223,19 +232,29 @@ class OgameBot:
             self.logger.info("Waiting %f seconds for probes to return" % self.config.time_to_wait_for_probes)
             time.sleep(self.config.time_to_wait_for_probes)
             self.attack_inactive_planets_from_spy_reports()
-            self.clear_inbox()
+            self.clear_spy_reports()
 
     def auto_send_expeditions(self):
-        for i in range(3):
-            target_planet = self.planets[random.randint(0, len(self.planets) - 1)]
+        for index, _ in enumerate(range(3)):
+
+            if index > 1:
+                #Delay - wait a random time before sending fleet, this makes the bot less detectable
+                delay = random.randint(self.config.expedition_fleet_min_delay, self.config.expedition_fleet_max_delay)
+                self.logger.info("Waiting for %s seconds" % delay)
+                time.sleep(delay)
+
+            target_planet = self.get_random_player_planet()
             res = self.send_expedition(target_planet)
             if res != fleet.FleetResult.Success:
                 self.logger.warning("Error launching expedition, retrying...")
                 #Retry 3 times
                 for j in range(3):
-                    target_planet = self.planets[random.randint(0, len(self.planets))]
+                    target_planet = self.get_random_player_planet()
                     res = self.send_expedition(target_planet)
                     break
+
+    def get_random_player_planet(self):
+        return self.planets[random.randint(0, len(self.planets) - 1)]
 
     def send_expedition(self, target_planet):
         coordinates = self.get_expedition_coordinates(target_planet)
@@ -259,8 +278,8 @@ class OgameBot:
         self.auto_attack_inactive_planets()
         
 
-    def clear_inbox(self):
-        self.messages_client.clear_inbox()
+    def clear_spy_reports(self):
+        self.messages_client.clear_spy_reports()
 
     # Util functions
     def get_player_planet_by_name(self, planet_name):

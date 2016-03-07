@@ -19,8 +19,7 @@ class Fleet(Scraper):
         self.general_client = general.General(browser, config)
 
 
-    def spy_planet(self, origin_planet, destination_planet):
-        spy_probes_count = self.config.spy_probes_count
+    def spy_planet(self, origin_planet, destination_planet, spy_probes_count):
 
         self.logger.info("Spying planet %s (%s)", destination_planet.name, destination_planet.coordinates)
 
@@ -35,22 +34,13 @@ class Fleet(Scraper):
             self.ships.get('ep') : 1
             }
 
-        #Delay - wait a random time before sending fleet, this makes the bot less detectable
-        delay = random.randint(self.config.expedition_fleet_min_delay, self.config.expedition_fleet_max_delay)
-        self.logger.info("Waiting for %s seconds" % delay)
-        time.sleep(delay)
         self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.name, coordinates)
 
         self.send_fleet(origin_planet, coordinates, self.missions.get("expedition"), fleet)
 
 
     def attack_inactive_planet(self, origin_planet, target_planet):
-        fleet = self.get_attack_fleet(target_planet)
-
-        #Delay - wait a random time before sending fleet, this makes the bot less detectable
-        delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
-        self.logger.info("Waiting for %s seconds" % delay)
-        time.sleep(delay)
+        fleet = self.get_attack_fleet(target_planet)    
 
         self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
 

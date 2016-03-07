@@ -2,6 +2,7 @@ import re
 import logging
 import sys
 
+
 from bot import OgameBot
 from logger import LoggerBot
 from config import Config
@@ -42,15 +43,14 @@ switcher = {
     "auto_build_defenses_to_planet" : bot.auto_build_defenses_to_planet,
 
     'spy_nearest_planets' : bot.spy_nearest_planets,
-   
+
     'transport_resources_to_planet' : bot.transport_resources_to_planet,
     'spy_nearest_inactive_planets' : bot.spy_nearest_inactive_planets,
     'attack_inactive_planets_from_spy_reports' : bot.attack_inactive_planets_from_spy_reports,
     'auto_attack_inactive_planets' : bot.auto_attack_inactive_planets,
     'auto_spy_inactive_planets' : bot.auto_spy_inactive_planets,
     'auto_send_expeditions' : bot.auto_send_expeditions,
-    'explore' : bot.explore,
-    'clear_inbox' : bot.clear_inbox
+    'explore' : bot.explore
 }
 
 logger.info("Bot running on %s mode" % config.mode)

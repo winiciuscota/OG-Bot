@@ -9,16 +9,16 @@ class UrlProvider:
 
         self.pages = {
             'overview':         self.main_url + '?page=overview',
-            'resources':    self.main_url + '?page=resources',
-            'research':     self.main_url + '?page=research',
-            'shipyard':     self.main_url + '?page=shipyard',
-            'defense':      self.main_url + '?page=defense',
-            'fleet':        self.main_url + '?page=fleet1',
-            'galaxy':       self.main_url + '?page=galaxy',
+            'resources':        self.main_url + '?page=resources',
+            'research':         self.main_url + '?page=research',
+            'shipyard':         self.main_url + '?page=shipyard',
+            'defense':          self.main_url + '?page=defense',
+            'fleet':            self.main_url + '?page=fleet1',
+            'galaxy':           self.main_url + '?page=galaxy',
             'galaxyContent':    self.main_url + '?page=galaxyContent',
-            'messages':    self.main_url + '?page=messages',
-            'movement':    self.main_url + '?page=movement',
-            'missileAtack' : self.main_url + '?page=missileattacklayer'
+            'messages':         self.main_url + '?page=messages',
+            'movement':         self.main_url + '?page=movement',
+            'missileAtack' :    self.main_url + '?page=missileattacklayer'
         }
 
     def get_pages(self):
