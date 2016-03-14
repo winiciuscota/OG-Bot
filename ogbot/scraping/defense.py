@@ -15,7 +15,7 @@ class Defense(Scraper):
         self.logger.info('Getting defense data')
         url = self.url_provider.get_page_url('defense', planet)
         self.logger.info('The defense url is ' + url)
-        res = self.br.open(url)
+        res = self.browser.open(url)
         soup = BeautifulSoup(res.read(), "lxml")
         refs = soup.findAll("span", { "class" : "textlabel" })
 
@@ -45,7 +45,7 @@ class Defense(Scraper):
         """
         url = self.url_provider.get_page_url('defense', planet)
         self.logger.info("Redirecting to page %s" % url)
-        self.br.open(url)
+        self.browser.open(url)
 
     def build_defense(self, defense, planet = None):
         """
@@ -70,15 +70,15 @@ class Defense(Scraper):
     def build_defense_item(self, defense, planet = None):
         self.logger.info("building %s %s on planet %s" % (defense[1], defense[0], planet.name))
         self.logger.info("Writing data to form")
-        self.br.select_form(name='form')
-        self.br.form.new_control('text','menge',{'value': defense[1]})
-        self.br.form.fixup()
-        self.br['menge'] = defense[1]
-        self.br.form.new_control('text','type',{'value':defense[0]})
-        self.br.form.fixup()
-        self.br['type'] = defense[0]
-        self.br.form.new_control('text','modus',{'value':'1'})
-        self.br.form.fixup()
-        self.br['modus'] = '1'
+        self.browser.select_form(name='form')
+        self.browser.form.new_control('text','menge',{'value': defense[1]})
+        self.browser.form.fixup()
+        self.browser['menge'] = defense[1]
+        self.browser.form.new_control('text','type',{'value':defense[0]})
+        self.browser.form.fixup()
+        self.browser['type'] = defense[0]
+        self.browser.form.new_control('text','modus',{'value':'1'})
+        self.browser.form.fixup()
+        self.browser['modus'] = '1'
         self.logger.info("Submitting build defense request")
-        util.submit_request(self.br)
+        self.submit_request()
