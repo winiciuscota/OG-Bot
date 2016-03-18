@@ -7,10 +7,9 @@ import random
 
 class OgameBot:
 
-    def __init__(self, config):
+    def __init__(self, config, browser):
         #Authenticate and get browser instance
-        auth_client = authentication.AuthenticationProvider(config)
-        self.browser = auth_client.get_browser();
+        self.browser = browser
         self.config = config
         #Initialize scrapers
         self.general_client = general.General(self.browser, self.config)
@@ -32,6 +31,8 @@ class OgameBot:
         #self.planet will be None if the user doesn't species a valid planet name
         self.planet = self.get_player_planet_by_name(config.planet_name)
 
+
+
     # Bot functions
     def auto_build_defenses(self):
         planets = self.planets
@@ -39,7 +40,7 @@ class OgameBot:
             self.defense_client.auto_build_defenses(planet)
 
     def auto_build_defenses_to_planet(self):
-        origin_planet = self.default_origin_planet
+        origin_planet = self.planet
         self.defense_client.auto_build_defenses(origin_planet)
 
     def transport_resources_to_planet(self):
@@ -94,7 +95,7 @@ class OgameBot:
 
         if nr_range == None:
             nr_range = self.config.attack_range
-        
+
         self.logger.info("Getting systems in range")
         systems = self.get_systems_in_range(nr_range, self.planet)
         self.logger.info("there is a total of %d systems in range" % len(systems))
@@ -146,7 +147,7 @@ class OgameBot:
                 later_system = int(p.coordinates.split(":")[1]) - i
                 systems.append("%s:%s" % (p.coordinates.split(":")[0], str(previous_system)))
                 systems.append("%s:%s" % (p.coordinates.split(":")[0], str(later_system)))
-        
+
         # Return the list without duplicate systems
         return list(set(systems))
 
@@ -154,7 +155,7 @@ class OgameBot:
     def attack_inactive_planets_from_spy_reports(self):
         game_date = self.general_client.get_game_datetime()
         reports = self.get_spy_reports()
-        
+
         # Stop if there is no fleet slot available
         slot_usage = self.movement_client.get_fleet_slots_usage()
         if slot_usage[0] >= slot_usage[1]:
@@ -182,7 +183,7 @@ class OgameBot:
 
         distinct_inactive_planets = get_distinct_targets(inactive_planets)
         targets = sorted(distinct_inactive_planets, key=self.get_target_value, reverse=True)
-        
+
         target = targets[0]
         origin_planet = self.get_nearest_planet_to_target(target)
         result = self.attack_inactive_planet(origin_planet, target)
@@ -202,7 +203,7 @@ class OgameBot:
                     if self.planet == None:
                         origin_planet = self.get_nearest_planet_to_target(target)
                     else:
-                        origin_planet = self.planet  
+                        origin_planet = self.planet
 
                     #Delay - wait a random time before sending fleet, this makes the bot less detectable
                     delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
@@ -259,7 +260,7 @@ class OgameBot:
     def send_expedition(self, target_planet):
         coordinates = self.get_expedition_coordinates(target_planet)
         res = self.fleet_client.send_expedition(target_planet, coordinates)
-        return res           
+        return res
 
     def get_expedition_coordinates(self, planet):
         galaxy = self.default_origin_planet.coordinates.split(':')[0]
@@ -267,16 +268,16 @@ class OgameBot:
         system = str(int(planet_system) + random.randint(-self.config.expedition_range, self.config.expedition_range))
 
         coordinates = ":".join([galaxy, system, "16"])
-        return coordinates       
+        return coordinates
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         result = self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
         return result
-    
+
     def explore(self):
         self.auto_send_expeditions()
         self.auto_attack_inactive_planets()
-        
+
 
     def clear_spy_reports(self):
         self.messages_client.clear_spy_reports()
@@ -287,7 +288,7 @@ class OgameBot:
         planets = self.planets
         if planet_name == None:
             return None
-            
+
         planet = next(iter([planet for planet
                                 in planets
                                 if planet.name.lower() == planet_name.lower()]), None)
@@ -329,7 +330,7 @@ class OgameBot:
 
         if origin_planet == None:
             origin_planet = self.default_origin_planet
-            
+
         self.logger.info("Getting nearest planets from %s", origin_planet.name)
 
         planets = []
@@ -373,7 +374,7 @@ class OgameBot:
 
         return self.get_nearest_planet_to_coordinates(target_planet.coordinates)
 
-        
+
 
     def get_nearest_planet_to_coordinates(self, coordinates, planets = None):
         """Get the nearest planet to the target coordinates"""
@@ -407,4 +408,3 @@ def get_distinct_targets(targets):
         dict[obj.coordinates] = obj
     distinct_targets = dict.values()
     return distinct_targets
-

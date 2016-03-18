@@ -7,6 +7,7 @@ from bot import OgameBot
 from logger import LoggerBot
 from config import Config
 
+from scraping import authentication
 
 # setting up logger
 logger = logging.getLogger('OGBot')
@@ -19,8 +20,12 @@ logger.addHandler(ch)
 logger.info('Starting the bot')
 
 config = Config(sys.argv)
-bot = OgameBot(config)
-logger_bot = LoggerBot(config)
+
+auth_client = authentication.AuthenticationProvider(config)
+browser = auth_client.get_browser()
+
+bot = OgameBot(config, browser)
+logger_bot = LoggerBot(config, browser)
 
 switcher = {
     #Log functions
