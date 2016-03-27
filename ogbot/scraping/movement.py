@@ -1,4 +1,4 @@
-from mechanize import Browser
+﻿from mechanize import Browser
 from bs4 import BeautifulSoup
 from scraper import Scraper
 
@@ -6,7 +6,7 @@ from scraper import Scraper
 class Movement(Scraper):
     def get_fleet_movement(self):
         url = self.url_provider.get_page_url('movement')
-        res = self.browser.open(url)
+        res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
         movement_nodes = soup.findAll("div", { "class" : "fleetDetails detailsOpened" })
         fleet_movements = []
@@ -27,7 +27,7 @@ class Movement(Scraper):
         """
 
         url = self.url_provider.get_page_url('movement')
-        res = self.browser.open(url)
+        res = self.open_url(url)
         soup = BeautifulSoup(res.read())
         slots_info_node = soup.find("span", {"class", "fleetSlots"})
         if slots_info_node  != None:

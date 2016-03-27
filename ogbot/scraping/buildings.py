@@ -1,4 +1,4 @@
-import util
+﻿import util
 from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
@@ -49,7 +49,7 @@ class Buildings(Scraper):
     def get_buildings(self, planet):
         self.logger.info('Getting buildings data')
         url = self.url_provider.get_page_url('resources', planet)
-        res = self.browser.open(url)
+        res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
         refs = soup.findAll("span", { "class" : "textlabel" })
         res = []
@@ -121,12 +121,12 @@ class Buildings(Scraper):
         self.browser['modus'] = '1'
 
         self.logger.info("Submitting form")
-        self.browser.submit()
+        self.submit_request()
 
     def construction_mode(self, planet = None):
         url = self.url_provider.get_page_url('resources', planet)
         self.logger.info('Opening url %s' % url)
-        resp = self.browser.open(url)
+        resp = self.open_url(url)
         soup = BeautifulSoup(resp.read())
         # if the planet is in construction mode there shoud be a div with the
         # class construction

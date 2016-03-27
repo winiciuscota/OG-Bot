@@ -263,8 +263,8 @@ class OgameBot:
         return res
 
     def get_expedition_coordinates(self, planet):
-        galaxy = self.default_origin_planet.coordinates.split(':')[0]
-        planet_system = self.default_origin_planet.coordinates.split(':')[1]
+        galaxy = planet.coordinates.split(':')[0]
+        planet_system = planet.coordinates.split(':')[1]
         system = str(int(planet_system) + random.randint(-self.config.expedition_range, self.config.expedition_range))
 
         coordinates = ":".join([galaxy, system, "16"])

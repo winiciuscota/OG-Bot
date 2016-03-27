@@ -52,7 +52,7 @@ class General(Scraper):
         current_planet = Planet(current_planet_name, current_planet_id, current_planet_koords)
         planets.append(current_planet)
 
-        links = soup.findAll("a", { "class" : "planetlink tooltipRight tooltipClose js_hideTipOnMobile" })
+        links = soup.findAll("a", { "class" : "planetlink  tooltipRight tooltipClose js_hideTipOnMobile" })
         other_planets = [ Planet((str(link.find("span", {"class" : "planet-name  "}).contents[0])),
                             urlparse.parse_qs(link['href'])['cp'][0],
                             self.parse_coordinates(str(link.find("span", {"class" : "planet-koords  "}).contents[0])))

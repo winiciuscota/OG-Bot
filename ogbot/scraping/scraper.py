@@ -1,4 +1,4 @@
-import util
+﻿import util
 import logging
 import mechanize
 from enum import Enum

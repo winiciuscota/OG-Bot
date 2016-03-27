@@ -1,4 +1,4 @@
-import util
+﻿import util
 from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
@@ -15,7 +15,7 @@ class Defense(Scraper):
         self.logger.info('Getting defense data')
         url = self.url_provider.get_page_url('defense', planet)
         self.logger.info('The defense url is ' + url)
-        res = self.browser.open(url)
+        res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
         refs = soup.findAll("span", { "class" : "textlabel" })
 
@@ -33,7 +33,7 @@ class Defense(Scraper):
         """
         Build some defenses for the given planet
         """
-        defense_types = [('406', '100'), ('404', '100'), ('402', '1500'), ('401', '3000')]
+        defense_types = [('406', '20'), ('404', '100'), ('402', '6000'), ('401', '3000')]
         self.logger.info('Auto building defenses')
         self.redirect_to_page(planet)
         for defense in defense_types:
@@ -45,7 +45,7 @@ class Defense(Scraper):
         """
         url = self.url_provider.get_page_url('defense', planet)
         self.logger.info("Redirecting to page %s" % url)
-        self.browser.open(url)
+        self.open_url(url)
 
     def build_defense(self, defense, planet = None):
         """

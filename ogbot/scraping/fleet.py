@@ -1,4 +1,4 @@
-from __future__ import division
+﻿from __future__ import division
 import util
 from mechanize import Browser
 import mechanize
@@ -145,7 +145,7 @@ class Fleet(Scraper):
         """
         raise NotImplementedError("Use the get get_fleet_slots_usage function from movement")
         url = self.url_provider.get_page_url('fleet')
-        res = self.browser.open(url)
+        res = self.open_url(url)
         soup = BeautifulSoup(res.read())
         fleet_info_node = soup.findAll("div", {"class", "fleft"})
         slots_data = (next(node for node in fleet_info_node if "Frotas:" in node.text)).split(':')[1]
