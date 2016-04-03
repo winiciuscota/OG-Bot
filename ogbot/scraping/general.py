@@ -29,7 +29,7 @@ class General(Scraper):
         self.logger.info('Getting resources data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('resources', planet)
         res = self.open_url(url)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
 
         resources = []
         metal = int(soup.find(id='resources_metal').text.replace('.',''))
@@ -45,22 +45,22 @@ class General(Scraper):
 
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
-        planets = []
-        current_planet_id = soup.find("meta", { "name" : "ogame-planet-id"})['content']
-        current_planet_name = soup.find("meta", { "name" : "ogame-planet-name"})['content']
-        current_planet_koords = soup.find("meta", { "name" : "ogame-planet-coordinates"})['content']
-        current_planet = Planet(current_planet_name, current_planet_id, current_planet_koords)
-        planets.append(current_planet)
 
-        links = soup.findAll("a", { "class" : "planetlink  tooltipRight tooltipClose js_hideTipOnMobile" })
-        other_planets = [ Planet((str(link.find("span", {"class" : "planet-name  "}).contents[0])),
+        links = soup(attrs={'class' : "planetlink"})
+        
+        planets = [ Planet((str(link(attrs={'class' : "planet-name"})[0].contents[0])),
                             urlparse.parse_qs(link['href'])['cp'][0],
-                            self.parse_coordinates(str(link.find("span", {"class" : "planet-koords  "}).contents[0])))
+                            parse_coordinates(str(link(attrs={'class' : "planet-koords"})[0].contents[0])))
                             for link in links]
-        if len(other_planets) > 1:
-            planets.extend(other_planets)
-
+                            
+        return planets
+        
+    def get_planets_overview(self):
+        planets = self.get_planets()
+        for planet in planets:
+            planet.resources = self.get_resources(planet)
+        
         return planets
 
-    def parse_coordinates(self, coords):
-        return coords.replace('[', '').replace(']', '')
+def parse_coordinates(coords):
+    return coords.replace('[', '').replace(']', '')

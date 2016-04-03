@@ -34,6 +34,7 @@ class Defense(Scraper):
         Build some defenses for the given planet
         """
         defense_types = [('406', '20'), ('404', '100'), ('402', '6000'), ('401', '3000')]
+
         self.logger.info('Auto building defenses')
         self.redirect_to_page(planet)
         for defense in defense_types:

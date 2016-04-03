@@ -71,7 +71,7 @@ class Messages(Scraper):
             is_spy_report = True if message_box.find("span", {"class":"espionageDefText"}) == None else False
 
             msg_date_node = message_box.find("span", {"class":"msg_date fright"})
-            message_datetime = self.parse_report_datetime(msg_date_node.text if msg_date_node != None else "1.1.2016 00:00:00" )
+            message_datetime = parse_report_datetime(msg_date_node.text if msg_date_node != None else "1.1.2016 00:00:00" )
 
             if is_spy_report:
                 planet_info = message_box.find("a", {"class":"txt_link"}).text
@@ -95,20 +95,20 @@ class Messages(Scraper):
                     resources_data = resources_row.findAll("span", {"class": "resspan"})
                     resources = None
                     if resources_data != None:
-                        metal = self.parse_resource(resources_data[0].text)
-                        crystal = self.parse_resource(resources_data[1].text)
-                        deuterium = self.parse_resource(resources_data[2].text)
+                        metal = parse_resource(resources_data[0].text)
+                        crystal = parse_resource(resources_data[1].text)
+                        deuterium = parse_resource(resources_data[2].text)
                         resources = general.Resources(metal, crystal, deuterium)
                     loot_row = message_content[2]
                     loot_data = loot_row.find("span", {"class" : "ctn ctn4"})
-                    loot = self.parse_loot_percentage(loot_data.text)
+                    loot = parse_loot_percentage(loot_data.text)
                     defense_row = message_content[3]
                     fleet_data = defense_row.find("span", {"class": "ctn ctn4 tooltipLeft"})
                     defenses_data = defense_row.find("span", {"class": "ctn ctn4 fright tooltipRight"})
 
                     if fleet_data != None and defenses_data != None:
-                        fleet = self.parse_resource(fleet_data.text)
-                        defenses = self.parse_resource(defenses_data.text)
+                        fleet = parse_resource(fleet_data.text)
+                        defenses = parse_resource(defenses_data.text)
                     else:
                         fleet = None
                         defenses = None
@@ -123,19 +123,19 @@ class Messages(Scraper):
 
         return spy_reports
 
-    def parse_resource(self, text):
-        """Use to parse resources values to int, ex: metal: 2.492M becomes 2492000"""
-        value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("M", "000"))
-        return value
+def parse_resource(text):
+    """Use to parse resources values to int, ex: metal: 2.492M becomes 2492000"""
+    value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("M", "000"))
+    return value
 
-    def parse_loot_percentage(self, text):
-        """Use to parse loot percentage string, ie: Roubo: 50% becomes 0.5"""
-        percentage = float(text.split(':')[1].strip("%")) / 100
-        return percentage
+def parse_loot_percentage(text):
+    """Use to parse loot percentage string, ie: Roubo: 50% becomes 0.5"""
+    percentage = float(text.split(':')[1].strip("%")) / 100
+    return percentage
 
-    def parse_report_datetime(self, text):
-        time = datetime.datetime.strptime(text.strip(), "%d.%m.%Y %H:%M:%S")
-        return time
+def parse_report_datetime(text):
+    time = datetime.datetime.strptime(text.strip(), "%d.%m.%Y %H:%M:%S")
+    return time
 
 
 class MessageType(Enum):

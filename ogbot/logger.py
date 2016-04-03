@@ -30,13 +30,18 @@ class LoggerBot(OgameBot):
     def log_overview(self):
         """Log planets overview"""
 
-        results = []
-        for planet in self.planets:
-            resources = self.general_client.get_resources(planet)
-            results.append((planet, resources))
-        for res in results:
-            self.logger.info("Planet %s:", res[0])
-            self.logger.info("Resources: [%s]", res[1])
+        planets = self.general_client.get_planets_overview();
+        
+        # results = []
+        # for planet in self.planets:
+        #     resources = self.general_client.get_resources(planet)
+        #     results.append((planet, resources))
+        
+        for planet in planets:
+            self.logger.info("Planet %s:", planet)
+            self.logger.info("Resources: [%s]", planet.resources)
+        
+        
 
     def log_planets_in_same_system(self):
         """Log planets on same system"""

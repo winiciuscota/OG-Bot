@@ -3,6 +3,15 @@ import logging
 import mechanize
 from enum import Enum
 
+# DEFENSES = {
+#             "rl" : Defense(401, "Rocket Launcher"),
+#             "ll" : Defense(402, "Light Laser"),
+#             "hl" : Defense(403, "Heavy Laser"),
+#             "gc" : Defense(404, "Gauss Cannon"),
+#             "ic" : Defense(405, "Ion Cannon"),
+#             "pt" : Defense(406, "Plasma Turret")
+#         }
+
 class Scraper(object):
     """Base class for scraper classes"""
 
@@ -24,6 +33,7 @@ class Scraper(object):
             "lg" : Ship(203, "Large Cargo Ship"),
             "ep" : Ship(210, "Espionage Probe")
         }
+
         self.missions = {
             "expedition" : 15,
             "colonization" : 7,
@@ -45,7 +55,7 @@ class Scraper(object):
                 return res
             except mechanize.URLError:
                 self.logger.warning("URLError opening url, trying again for the %dth time" % (attempt + 1))
-        
+
         #If is unable to connect quit the bot
         self.logger.error("Unable to comunicate with the server, exiting the bot")
         exit()
@@ -58,7 +68,7 @@ class Scraper(object):
                 return res
             except mechanize.URLError:
                 self.logger.warning("URLError submitting form, trying again for the %dth time" % (attempt + 1))
-        
+
         #If is unable to connect quit the bot
         self.logger.error("Unable to comunicate with the server, exiting the bot")
         exit()
@@ -96,10 +106,11 @@ class Resources(object):
         return self.metal == 0 and self.crystal == 0 and self.deuterium == 0
 
 class Planet(object):
-    def __init__(self, name, link, coordinates):
+    def __init__(self, name, link, coordinates, resources = None):
         self.name = name
         self.link = link
         self.coordinates = coordinates
+        self.resources = resources
 
     def __str__(self):
         return "[Planet: %s, Link: %s, Coordinates: %s]" % (self.name, self.link, self.coordinates)
@@ -109,14 +120,34 @@ class FleetResult(Enum):
     WrongParameters = 2
     NoAvailableShips = 3
 
-class Ship(object):
+class Item(object):
     def __init__(self, id, name, amount = None):
         self.name = name
         self.id = id
-        self.amount = amount
 
     def __str__(self):
         return "[Description: %s, Id: %s%s ]" % (
-            self.name, self.id, ", Amount: %s" if self.amount != None else "")
+            self.name, self.id)
+
+class ItemAction(object):
+    def __init__(self, item, amont = 1):
+        self.item = item
+        self.amont = amont
+
+    def __str__(self):
+        return "[Description: %s, Id: %s%s ]" % (
+            self.item.name, self.item.id, ", Amount: %s" if self.amount != None else "")
 
 
+class Ship(Item): pass
+class Defense(Item): pass
+
+
+class FleetMovement(object):
+    def __init__(self, origin_coords, origin_name, destination_coords):
+        self.origin_coords = origin_coords
+        self.origin_name = origin_name
+        self.destination_coords = destination_coords
+
+    def __str__(self):
+        return "Fleet from planet %s(%s) to planet %s" % (self.origin_name, self.origin_coords, self.destination_coords)

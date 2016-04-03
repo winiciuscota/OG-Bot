@@ -166,15 +166,32 @@ class OgameBot:
                                                  in self.movement_client.get_fleet_movement()]
 
         self.logger.info("Got %d reports" % len(reports))
+        
         inactive_planets = [ report for report
                                     in set(reports)
                                     # Get reports from inactive players only
                                     if report.player_state == galaxy.PlayerState.Inactive
                                     # Get reports from last 2 minutes
                                     and report.report_datetime >= (game_date - timedelta(minutes=self.config.spy_report_life))
-                                    # Dont attack planets that are already being attacked
-                                    and report.coordinates not in movements]
-
+                                    # Don't attack planets that are already being attacked
+                                    and report.coordinates not in movements
+                                    # Don't attack defended planets
+                                    and report.defenses == 0
+                                    and report.fleet == 0
+                                    ]
+        
+        defended_planets = len([ report for report
+                                    in set(reports)
+                                    # Get reports from inactive players only
+                                    if report.player_state == galaxy.PlayerState.Inactive
+                                    # Get reports from last 2 minutes
+                                    and report.report_datetime >= (game_date - timedelta(minutes=self.config.spy_report_life))
+                                    # Don't attack planets that are already being attacked
+                                    and (report.defenses != 0 or report.fleet != 0)])
+                                    
+        if defended_planets > 0:
+            self.logger.warning("Found %d defended planets" % defended_planets)
+            
         if len(inactive_planets) == 0:
             self.logger.info("There isn't any recent spy reports of inactive players")
             return False
@@ -198,26 +215,21 @@ class OgameBot:
         for target in targets[1:]:
             self.logger.info("Slot usage: %d/%d" % (slot_usage[1] - available_slots, slot_usage[1]))
             if available_slots > 0:
-                if target.defenses == 0 and target.fleet == 0:
-                    # Get the nearest planet from target
-                    if self.planet == None:
-                        origin_planet = self.get_nearest_planet_to_target(target)
-                    else:
-                        origin_planet = self.planet
+                # Get the nearest planet from target
+                if self.planet == None:
+                    origin_planet = self.get_nearest_planet_to_target(target)
+                else:
+                    origin_planet = self.planet
 
-                    #Delay - wait a random time before sending fleet, this makes the bot less detectable
-                    delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
-                    self.logger.info("Waiting for %s seconds" % delay)
-                    time.sleep(delay)
+                #Delay - wait a random time before sending fleet, this makes the bot less detectable
+                delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
+                self.logger.info("Waiting for %s seconds" % delay)
+                time.sleep(delay)
 
-                    result = self.attack_inactive_planet(origin_planet, target)
-                    if result == fleet.FleetResult.Success:
-                        predicted_loot += target.get_loot()
-                        available_slots -= 1
-                elif target.defenses != 0:
-                    self.logger.warning("target planet is defended (%s), maybe you should send some missiles first?" % target.defenses)
-                elif target.fleet != 0:
-                    self.logger.warning("target planet has fleet (%s)" % target.fleet)
+                result = self.attack_inactive_planet(origin_planet, target)
+                if result == fleet.FleetResult.Success:
+                    predicted_loot += target.get_loot()
+                    available_slots -= 1
             else:
                 self.logger.warning("There is no fleet slot available")
                 self.logger.info("Predicted loot is %s" % predicted_loot)

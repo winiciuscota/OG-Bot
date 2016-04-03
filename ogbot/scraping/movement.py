@@ -1,6 +1,6 @@
 ﻿from mechanize import Browser
 from bs4 import BeautifulSoup
-from scraper import Scraper
+from scraper import *
 
 
 class Movement(Scraper):
@@ -37,12 +37,3 @@ class Movement(Scraper):
             current_slots = 0
             all_slots = 1
         return (current_slots, all_slots)
-
-class FleetMovement(object):
-    def __init__(self, origin_coords, origin_name, destination_coords):
-        self.origin_coords = origin_coords
-        self.origin_name = origin_name
-        self.destination_coords = destination_coords
-
-    def __str__(self):
-        return "Fleet from planet %s(%s) to planet %s" % (self.origin_name, self.origin_coords, self.destination_coords)
