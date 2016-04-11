@@ -3,15 +3,6 @@ import logging
 import mechanize
 from enum import Enum
 
-# DEFENSES = {
-#             "rl" : Defense(401, "Rocket Launcher"),
-#             "ll" : Defense(402, "Light Laser"),
-#             "hl" : Defense(403, "Heavy Laser"),
-#             "gc" : Defense(404, "Gauss Cannon"),
-#             "ic" : Defense(405, "Ion Cannon"),
-#             "pt" : Defense(406, "Plasma Turret")
-#         }
-
 class Scraper(object):
     """Base class for scraper classes"""
 
@@ -23,15 +14,37 @@ class Scraper(object):
 
         self.attempts = 3
         self.timeout = 30.0
-        self.ships = {
-            "lf" : Ship(204, "Light Fighter"),
-            "hf" : Ship(205, "Heavy Fighter"),
-            "cr" : Ship(206, "Cruiser"),
-            "bs" : Ship(207, "Battle Ship"),
-            "cs" : Ship(207, "Colony Ship"),
-            "sg" : Ship(202, "Small Cargo Ship"),
-            "lg" : Ship(203, "Large Cargo Ship"),
-            "ep" : Ship(210, "Espionage Probe")
+        self.SHIPS_DATA = {
+            "lf" : ShipItem(204, "Light Fighter"),
+            "hf" : ShipItem(205, "Heavy Fighter"),
+            "cr" : ShipItem(206, "Cruiser"),
+            "bs" : ShipItem(207, "Battle Ship"),
+            "cs" : ShipItem(208, "Colony Ship"),
+            "sg" : ShipItem(202, "Small Cargo Ship"),
+            "lg" : ShipItem(203, "Large Cargo Ship"),
+            "ep" : ShipItem(210, "Espionage Probe"),
+            "bc" : ShipItem(215, "Battlecruiser"),
+            "b" : ShipItem(211, "Bomber"),
+            "d" : ShipItem(213, "Destroyer"),
+            "ds" : ShipItem(214, "Deathstar"),
+            "r" : ShipItem(209, "Recycler"),
+            "ss" : ShipItem(212, "Solar Satelellite"),
+            
+            "204" : ShipItem(204, "Light Fighter"),
+            "205" : ShipItem(205, "Heavy Fighter"),
+            "206" : ShipItem(206, "Cruiser"),
+            "207" : ShipItem(207, "Battle Ship"),
+            "208" : ShipItem(208, "Colony Ship"),
+            "202" : ShipItem(202, "Small Cargo Ship"),
+            "203" : ShipItem(203, "Large Cargo Ship"),
+            "210" : ShipItem(210, "Espionage Probe"),
+            "215" : ShipItem(215, "Battlecruiser"),
+            "211" : ShipItem(211, "Bomber"),
+            "213" : ShipItem(213, "Destroyer"),
+            "214" : ShipItem(214, "Deathstar"),
+            "209" : ShipItem(209, "Recycler"),
+            "212" : ShipItem(212, "Solar Satelellite"),
+            
         }
 
         self.missions = {
@@ -106,11 +119,13 @@ class Resources(object):
         return self.metal == 0 and self.crystal == 0 and self.deuterium == 0
 
 class Planet(object):
-    def __init__(self, name, link, coordinates, resources = None):
+    def __init__(self, name, link, coordinates, resources = None, defenses = None, fleet = None):
         self.name = name
         self.link = link
         self.coordinates = coordinates
         self.resources = resources
+        self.defenses = defenses
+        self.fleet = fleet
 
     def __str__(self):
         return "[Planet: %s, Link: %s, Coordinates: %s]" % (self.name, self.link, self.coordinates)
@@ -121,27 +136,25 @@ class FleetResult(Enum):
     NoAvailableShips = 3
 
 class Item(object):
-    def __init__(self, id, name, amount = None):
+    def __init__(self, id, name):
         self.name = name
         self.id = id
-
+        
     def __str__(self):
         return "[Description: %s, Id: %s%s ]" % (
             self.name, self.id)
-
+            
 class ItemAction(object):
-    def __init__(self, item, amont = 1):
+    def __init__(self, item, amount):
         self.item = item
-        self.amont = amont
+        self.amount = amount
 
     def __str__(self):
-        return "[Description: %s, Id: %s%s ]" % (
-            self.item.name, self.item.id, ", Amount: %s" if self.amount != None else "")
-
-
-class Ship(Item): pass
-class Defense(Item): pass
-
+        return "[Description: %s, Id: %s, Amount: %s  ]" % (
+            self.item.name, self.item.id, self.amount)
+            
+class ShipItem(Item): pass
+class DefenseItem(Item): pass
 
 class FleetMovement(object):
     def __init__(self, origin_coords, origin_name, destination_coords):

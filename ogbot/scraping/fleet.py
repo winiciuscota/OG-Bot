@@ -15,23 +15,23 @@ import random
 class Fleet(Scraper):
     def __init__(self, browser, config):
         super(Fleet, self).__init__(browser, config)
-        
-        self.general_client = general.General(browser, config)
 
+        self.general_client = general.General(browser, config)
 
     def spy_planet(self, origin_planet, destination_planet, spy_probes_count):
 
         self.logger.info("Spying planet %s (%s)", destination_planet.name, destination_planet.coordinates)
 
         self.send_fleet(origin_planet, destination_planet.coordinates,
-            self.missions["spy"], { self.ships.get('ep') : spy_probes_count})
+            self.missions["spy"], { self.SHIPS_DATA.get('ep') : spy_probes_count})
 
 
     def send_expedition(self, origin_planet, coordinates):
-        fleet = { 
-            self.ships.get('sg') : 1,
-            self.ships.get('lf') : 2,
-            self.ships.get('ep') : 1
+        fleet = {
+            self.SHIPS_DATA.get('sg') : 1,
+            self.SHIPS_DATA.get('lf') : 5,
+            self.SHIPS_DATA.get('cr') : 2,
+            self.SHIPS_DATA.get('ep') : 1
             }
 
         self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.name, coordinates)
@@ -40,7 +40,7 @@ class Fleet(Scraper):
 
 
     def attack_inactive_planet(self, origin_planet, target_planet):
-        fleet = self.get_attack_fleet(target_planet)    
+        fleet = self.get_attack_fleet(target_planet)
 
         self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
 
@@ -93,7 +93,6 @@ class Fleet(Scraper):
             return FleetResult.NoAvailableShips
 
         # set ships to send
-        soup = BeautifulSoup(resp.read(), "lxml")
         for ship, amount in ships.iteritems():
             self.logger.info("Adding %d %s to the mission fleet" % (amount, ship.name))
             control_name = "am" + str(ship.id)
@@ -107,14 +106,22 @@ class Fleet(Scraper):
         self.submit_request()
 
         # set target planet
-        self.browser.select_form(name='details')
+        try:
+            self.browser.select_form(name='details')
+        except mechanize.FormNotFoundError:
+            self.logger.error('Error sending ships')
+            return FleetResult.NoAvailableShips
         self.browser["galaxy"] = coordinates.split(':')[0]
         self.browser["system"] = coordinates.split(':')[1]
         self.browser["position"] = coordinates.split(':')[2]
         self.submit_request()
 
         # set mission and resouces to send
-        self.browser.select_form(name='sendForm')
+        try:
+            self.browser.select_form(name='sendForm')
+        except mechanize.FormNotFoundError:
+            self.logger.error('Error sending ships')
+            return FleetResult.NoAvailableShips
         self.browser.form.find_control('mission').readonly = False
         self.browser["mission"] = str(mission)
         self.browser["metal"] = str(resources.metal)
@@ -122,20 +129,19 @@ class Fleet(Scraper):
         self.browser["deuterium"] = str(resources.deuterium)
         self.submit_request()
         self.logger.info("Sending %s from planet %s to coordinates %s" % (
-            self.get_ships_list(ships), origin_planet.name, coordinates))
+            get_ships_list(ships), origin_planet.name, coordinates))
         if resources.empty() != True:
             self.logger.info("The fleet is transporting %s " % resources)
 
         return FleetResult.Success
 
-    def get_ships_list(self, ships):
-        return ", ".join([ str(ships.get(ship)) + ' ' + ship.name for ship in ships])
+
 
     def get_tranport_fleet(self, resources):
         """Get fleet for transport"""
         resources_count = resources.total()
         ships_count = int(math.ceil(resources_count / 25000))
-        return  { self.ships.get('lg') : ships_count}
+        return  { self.SHIPS_DATA.get('lg') : ships_count}
 
 
     # todo fix this method
@@ -158,6 +164,7 @@ class Fleet(Scraper):
         resources = target_planet.resources.total()
         resources_count = resources * target_planet.loot
         ships_count = int(math.ceil(resources_count / 25000))
-        return  { self.ships.get('lg') : ships_count}
+        return  { self.SHIPS_DATA.get('lg') : ships_count}
 
-
+def get_ships_list(ships):
+    return ", ".join([ str(ships.get(ship)) + ' ' + ship.name for ship in ships])

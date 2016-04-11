@@ -5,5 +5,5 @@ no response
 
 - improve auto_build_structures
 - create functions for research
-- refactor bot.py file
+- refactor bot.py file - done
 - launch missile if planet is inactive and has defenses

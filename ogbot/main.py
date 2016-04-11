@@ -2,9 +2,7 @@ import re
 import logging
 import sys
 
-
 from bot import OgameBot
-from logger import LoggerBot
 from config import Config
 
 from scraping import authentication
@@ -24,38 +22,15 @@ config = Config(sys.argv)
 auth_client = authentication.AuthenticationProvider(config)
 browser = auth_client.get_browser()
 
-bot = OgameBot(config, browser)
-logger_bot = LoggerBot(config, browser)
+bot = OgameBot(browser, config)
 
 switcher = {
-    #Log functions
-    'log_defenses':logger_bot.log_defenses,
-    'log_ships': logger_bot.log_ships,
-    'log_planets': logger_bot.log_planets,
-    'log_index_page' : logger_bot.log_index_page,
-    'log_game_datetime' : logger_bot.log_game_datetime,
-    'log_planets_in_same_system' : logger_bot.log_planets_in_same_system,
-    'log_nearest_planets' : logger_bot.log_nearest_planets,
-    'log_nearest_inactive_planets' : logger_bot.log_nearest_inactive_planets,
-    'log_spy_reports' : logger_bot.log_spy_reports,
-    'log_fleet_movement' : logger_bot.log_fleet_movement,
-    'log_fleet_slot_usage' : logger_bot.log_fleet_slot_usage,
-    'overview' : logger_bot.log_overview,
-
-    'auto_build_defenses': bot.auto_build_defenses,
-    'auto_build_structures' : bot.auto_attack_inactive_planets,
-    'auto_build_structure_to_planet' : bot.auto_build_structure_to_planet,
-    "auto_build_defenses_to_planet" : bot.auto_build_defenses_to_planet,
-
-    'spy_nearest_planets' : bot.spy_nearest_planets,
-
-    'transport_resources_to_planet' : bot.transport_resources_to_planet,
-    'spy_nearest_inactive_planets' : bot.spy_nearest_inactive_planets,
-    'attack_inactive_planets_from_spy_reports' : bot.attack_inactive_planets_from_spy_reports,
-    'auto_attack_inactive_planets' : bot.auto_attack_inactive_planets,
-    'auto_spy_inactive_planets' : bot.auto_spy_inactive_planets,
-    'auto_send_expeditions' : bot.auto_send_expeditions,
-    'explore' : bot.explore
+    'overview' : bot.overview,
+    'explore' : bot.explore,
+    'attack_inactive_planets' : bot.attack_inactive_planets,
+    'auto_build_defenses' : bot.auto_build_defenses,
+    'auto_build_defenses_to_planet' : bot.auto_build_defenses_to_planet,
+    'transport_resources_to_planet' : bot.transport_resources_to_planet
 }
 
 logger.info("Bot running on %s mode" % config.mode)
