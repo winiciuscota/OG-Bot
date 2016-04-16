@@ -152,7 +152,7 @@ class Fleet(Scraper):
         raise NotImplementedError("Use the get get_fleet_slots_usage function from movement")
         url = self.url_provider.get_page_url('fleet')
         res = self.open_url(url)
-        soup = BeautifulSoup(res.read())
+        soup = BeautifulSoup(res.read(), "lxml")
         fleet_info_node = soup.findAll("div", {"class", "fleft"})
         slots_data = (next(node for node in fleet_info_node if "Frotas:" in node.text)).split(':')[1]
         current_slots = int(slots_data.split('/')[0])

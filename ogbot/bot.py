@@ -35,12 +35,13 @@ class OgameBot(object):
             self.spy_bot.auto_spy_inactive_planets(self.config.attack_range)
             self.logger.info("Waiting %f seconds for probes to return" % self.config.time_to_wait_for_probes)
             time.sleep(self.config.time_to_wait_for_probes)
-            self.attacker_bot.attack_inactive_planets_from_spy_reports()
+            reports = self.messages_bot.get_valid_spy_reports_from_inactive_targets()
+            self.attacker_bot.attack_inactive_planets_from_spy_reports(reports)
         else:
+
             self.attacker_bot.attack_inactive_planets_from_spy_reports(reports)
 
         self.messages_bot.clear_spy_reports()
-
 
     def overview(self):
         self.logger_bot.log_overview()

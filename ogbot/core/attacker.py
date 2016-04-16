@@ -43,8 +43,7 @@ class AttackerBot(BaseBot):
                                     and report.coordinates not in movements
                                     # Don't attack defended planets
                                     and report.defenses == 0
-                                    and report.fleet == 0
-                                    ]
+                                    and report.fleet == 0]
 
         self.logger.info("Found %d recent spy reports of inactive players" % len(inactive_planets))
 
@@ -58,7 +57,6 @@ class AttackerBot(BaseBot):
         if result == fleet.FleetResult.Success:
             predicted_loot += target.get_loot()
         slot_usage = self.movement_client.get_fleet_slots_usage()
-
 
         available_slots = slot_usage[1] - slot_usage[0]
 
