@@ -18,9 +18,9 @@ DEFENSES_DATA = {
         "pt" : DefenseItem(406, "Plasma Turret"),
         "ssd" : DefenseItem(407, "Small Shield Dome"),
         "lsd" : DefenseItem(408, "Large Shield Dome"),
-        "im" : DefenseItem(502, "Interplanetary Missile"),
-        "abm" : DefenseItem(503, "Anti-Ballistic Missile"),
-        
+        "abm": DefenseItem(502, "Anti-Ballistic Missile"),
+        "im" : DefenseItem(503, "Interplanetary Missile"),
+
         "401" : DefenseItem(401, "Rocket Launcher"),
         "402" : DefenseItem(402, "Light Laser"),
         "403" : DefenseItem(403, "Heavy Laser"),
@@ -29,9 +29,9 @@ DEFENSES_DATA = {
         "406" : DefenseItem(406, "Plasma Turret"),
         "407" : DefenseItem(407, "Small Shield Dome"),
         "408" : DefenseItem(408, "Large Shield Dome"),
-        "502" : DefenseItem(502, "Interplanetary Missile"),
-        "503" : DefenseItem(503, "Anti-Ballistic Missile")
-        
+        "502": DefenseItem(502, "Anti-Ballistic Missile"),
+        "503" : DefenseItem(503, "Interplanetary Missile")
+
     }
 
 class Defenses(Enum):
@@ -47,7 +47,7 @@ class Defense(Scraper):
         """
         Get defenses for the given planet
         """
-        self.logger.info('Getting defense data')
+        self.logger.info('Getting defense data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('defense', planet)
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
@@ -57,11 +57,14 @@ class Defense(Scraper):
         for def_button in defense_buttons:
             id = def_button['ref']
             defense_data = DEFENSES_DATA.get(id)
-            amount_info = "".join(def_button.find("span", {"class" : "level"})
-                            .findAll(text=True, recursive=False)[1])
-            amount = int(re.sub("[^0-9]", "", amount_info))
-            item = DefenseItem(defense_data.id, defense_data.name)
-            defenses.append(ItemAction(item, amount))
+
+            # ensures that execution will not break if there is a new item
+            if defense_data != None:
+                amount_info = "".join(def_button.find("span", {"class" : "level"})
+                                .findAll(text=True, recursive=False)[1])
+                amount = int(re.sub("[^0-9]", "", amount_info))
+                item = DefenseItem(defense_data.id, defense_data.name)
+                defenses.append(ItemAction(item, amount))
 
         return defenses
 

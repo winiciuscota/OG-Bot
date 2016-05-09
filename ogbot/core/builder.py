@@ -2,12 +2,14 @@ from base import BaseBot
 
 from scraping import buildings, defense
 
+
+
 class BuilderBot(BaseBot):
     """Logging functions for the bot"""
 
     def __init__(self, browser, config, planets):
         self.defense_client = defense.Defense(browser, config)
-        self.buildings_client = buildings.Building(browser, config)
+        self.buildings_client = buildings.Buildings(browser, config)
 
         super(BuilderBot, self).__init__(browser, config, planets)
 
@@ -37,3 +39,7 @@ class BuilderBot(BaseBot):
     def auto_build_structures(self):
         for planet in self.planets:
             self.buildings_client.auto_build_structure(planet)
+
+    def get_weaker_planet(self):
+        weaker_planet = self.buildings_client.get_weaker_planet()
+        return weaker_planet

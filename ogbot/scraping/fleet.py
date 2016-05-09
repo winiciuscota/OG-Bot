@@ -86,6 +86,13 @@ class Fleet(Scraper):
         url = self.url_provider.get_page_url('fleet', origin_planet)
         resp = self.open_url(url)
 
+        soup = BeautifulSoup(resp.read(), "lxml")
+        fleet_slots = self.get_fleet_slots_usage(mission, soup)
+
+        if fleet_slots[0] >= fleet_slots[1]:
+            self.logger.error('No available slots')
+            return FleetResult.NoAvailableSlots
+
         try:
             self.browser.select_form(name='shipsChosen')
         except mechanize.FormNotFoundError:
@@ -144,20 +151,35 @@ class Fleet(Scraper):
         return  { self.SHIPS_DATA.get('lg') : ships_count}
 
 
-    # todo fix this method
-    def get_fleet_slots_usage(self):
+    def get_fleet_slots_usage(self, mission = None, soup = None):
         """
             Get fleet slot usage data.
         """
-        raise NotImplementedError("Use the get get_fleet_slots_usage function from movement")
-        url = self.url_provider.get_page_url('fleet')
-        res = self.open_url(url)
-        soup = BeautifulSoup(res.read(), "lxml")
-        fleet_info_node = soup.findAll("div", {"class", "fleft"})
-        slots_data = (next(node for node in fleet_info_node if "Frotas:" in node.text)).split(':')[1]
-        current_slots = int(slots_data.split('/')[0])
-        all_slots = int(slots_data.split('/')[1])
-        return (current_slots, all_slots)
+        # raise NotImplementedError("Use the get get_fleet_slots_usage function from movement")
+
+        if soup == None:
+            url = self.url_provider.get_page_url('fleet')
+            res = self.open_url(url)
+            soup = BeautifulSoup(res.read(), "lxml")
+
+        slots_info = soup.find("div", {"id": "slots"})
+        flefts = slots_info.findAll("div", {"class": "fleft"})
+
+        if mission == self.missions.get("expedition"):
+            node = flefts[1].findAll("span", {"class": "tooltip advice"})
+        else:
+            node = flefts[0].findAll("span", {"class": "tooltip advice"})
+
+        slot_usage = "".join(node[0].findAll(text=True, recursive=False))
+
+        try:
+            result = (int(slot_usage.split('/')[0].strip()), int(slot_usage.split('/')[1].strip()))
+        except ValueError:
+            slot_usage = "".join(node[0].find("span", {"class" : "overmark"}).findAll(text=True, recursive=False))
+            result = (int(slot_usage.split('/')[0].strip()), int(slot_usage.split('/')[1].strip()))
+
+        return result
+
 
     def get_attack_fleet(self, target_planet):
         """Get fleet for attack"""

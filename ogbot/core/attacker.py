@@ -25,7 +25,7 @@ class AttackerBot(BaseBot):
     def attack_inactive_planets_from_spy_reports(self, reports):
 
         # Stop if there is no fleet slot available
-        slot_usage = self.movement_client.get_fleet_slots_usage()
+        slot_usage = self.fleet_client.get_fleet_slots_usage()
         if slot_usage[0] >= slot_usage[1]:
             self.logger.warning("There is no fleet slot available")
             return True
@@ -50,39 +50,31 @@ class AttackerBot(BaseBot):
         distinct_inactive_planets = get_distinct_targets(inactive_planets)
         targets = sorted(distinct_inactive_planets, key=get_target_value, reverse=True)
 
-        target = targets[0]
-        origin_planet = self.get_nearest_planet_to_target(target)
-        result = self.attack_inactive_planet(origin_planet, target)
         predicted_loot = 0
-        if result == fleet.FleetResult.Success:
-            predicted_loot += target.get_loot()
-        slot_usage = self.movement_client.get_fleet_slots_usage()
+        used_slots = slot_usage[0]
 
-        available_slots = slot_usage[1] - slot_usage[0]
-
-        for target in targets[1:]:
-            self.logger.info("Slot usage: %d/%d" % (slot_usage[1] - available_slots, slot_usage[1]))
-            if available_slots > 0:
+        for target in targets:
+            self.logger.info("Slot usage: %d/%d" % (used_slots, slot_usage[1]))
                 # Get the nearest planet from target
-                if self.planet == None:
-                    origin_planet = self.get_nearest_planet_to_target(target)
-                else:
-                    origin_planet = self.planet
-
-                #Delay - wait a random time before sending fleet, this makes the bot less detectable
-                delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
-                self.logger.info("Waiting for %s seconds" % delay)
-                time.sleep(delay)
-
-                result = self.attack_inactive_planet(origin_planet, target)
-                if result == fleet.FleetResult.Success:
-                    predicted_loot += target.get_loot()
-                    available_slots -= 1
+            if self.planet == None:
+                origin_planet = self.get_nearest_planet_to_target(target)
             else:
+                origin_planet = self.planet
+
+            #Delay - wait a random time before sending fleet, this makes the bot less detectable
+            delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
+            self.logger.info("Waiting for %s seconds" % delay)
+            time.sleep(delay)
+
+            result = self.attack_inactive_planet(origin_planet, target)
+            if result == fleet.FleetResult.Success:
+                predicted_loot += target.get_loot()
+                used_slots += 1
+            if result == fleet.FleetResult.NoAvailableSlots:
                 self.logger.warning("There is no fleet slot available")
                 self.logger.info("Predicted loot is %s" % predicted_loot)
                 return True
-        self.logger.info("Predicted loot is %s" % predicted_loot)
+        self.logger.info("Predicted loot is %s" % int(predicted_loot))
         return True
 
     def auto_attack_inactive_planets(self):

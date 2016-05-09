@@ -8,7 +8,6 @@ from enum import Enum
 from general import General
 from scraper import *
 
-
 class BuildingTypes(Enum):
     """
     1. Mina de metal
@@ -28,9 +27,34 @@ class BuildingTypes(Enum):
     CrystalStorage = "23"
     DeuteriumTank = "24"
 
-class Building(object):
-    def __init__(self, name, level):
-        self.name = name
+
+BUILDINGS_DATA = {
+
+    "mm": BuildingItem(1, "Metal Mine"),
+    "cm": BuildingItem(2, "Crystal Mine"),
+    "ds": BuildingItem(3, "Deuterium Synthesizer"),
+    "sp": BuildingItem(4, "Solar Plant"),
+    "fr": BuildingItem(12, "Fusion Reactor"),
+    "ms": BuildingItem(102, "Metal Storage"),
+    "cm": BuildingItem(22, "Crystal Storage"),
+    "dt": BuildingItem(23, "Deuterium Tank"),
+
+    "1": BuildingItem(1, "Metal Mine"),
+    "2": BuildingItem(2, "Crystal Mine"),
+    "3": BuildingItem(3, "Deuterium Synthesizer"),
+    "4": BuildingItem(4, "Solar Plant"),
+    "12": BuildingItem(12, "Fusion Reactor"),
+    "102": BuildingItem(102, "Metal Storage"),
+    "22": BuildingItem(22, "Crystal Storage"),
+    "23": BuildingItem(23, "Deuterium Tank")
+
+}
+
+class BuildingItem(Item): pass
+
+class BuildingData(object):
+    def __init__(self, building, level):
+        self.building = building
         self.level = level
 
 class Buildings(Scraper):
@@ -42,7 +66,7 @@ class Buildings(Scraper):
         planet_buildings = {}
         count = 0
         for building_type in BuildingTypes:
-            planet_buildings[building_type] = Building(buildings[count][0], buildings[count][1])
+            planet_buildings[building_type] = BuildingItem(buildings[count][0], buildings[count][1])
             count += 1
         return planet_buildings
 
@@ -51,17 +75,42 @@ class Buildings(Scraper):
         url = self.url_provider.get_page_url('resources', planet)
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
-        refs = soup.findAll("span", { "class" : "textlabel" })
-        res = []
-        for ref in refs:
-            if ref.parent['class'] == ['level']:
-                aux = ref.parent.text.replace('\t','')
-                shipData = re.sub('  +', '', aux).encode('utf8')
-                res.append(tuple(shipData.split('\n')))
+        building_buttons = soup(attrs={'class': "detail_button"})
 
-        parsed_res = map(tuple, map(scraper.sanitize, [filter(None, i) for i in res]))
-        buildings = self.parse_buildings(parsed_res)
+        buildings = []
+        for building_button in building_buttons:
+            id = building_button['ref']
+            building_data = BUILDINGS_DATA.get(id)
+
+            # ensures that execution will not break if there is a new item
+            if building_data != None:
+                try:
+                    building_info = "".join(building_button.find("span", {"class": "level"})
+                                          .findAll(text=True, recursive=False)[1])
+                # If we get an exception here it means the building is in construction mode, so we
+                # the info we need will be at index 0
+                except IndexError:
+                    building_info = "".join(building_button.find("span", {"class": "level"})
+                                          .findAll(text=True, recursive=False)[0])
+
+                level = int(re.sub("[^0-9]", "", building_info))
+                buildings.append(ItemAction(BuildingItem(building_data.id, building_data.name), level))
         return buildings
+
+
+    def get_weaker_planet(self):
+        planets = self.general_client.get_planets()
+        planet_sum_buildings = []
+        totals = []
+
+        for planet in planets:
+            buildings_sum = sum([bld.amount for bld in self.get_buildings(planet)])
+            planet_sum_buildings.append((planet, buildings_sum))
+            totals.append(buildings_sum)
+
+        weaker_planets = [planet_sum[0] for planet_sum in planet_sum_buildings if planet_sum[1] == min(totals)]
+        weaker_planet = next(iter(weaker_planets), None)
+        return weaker_planet
 
     def auto_build_structure(self, planet):
         if self.construction_mode(planet):
@@ -105,16 +154,16 @@ class Buildings(Scraper):
         else:
             self.build_structure_item(building_type.value, planet)
 
-    def build_structure_item(self, building_type, planet = None):
-        self.logger.info('Building %s on planet %s' % (type, planet.name))
+    def build_structure_item(self, building_data, planet = None):
+        self.logger.info('Building %s on planet %s' % (type, building_data.item.data))
         self.browser.select_form(name='form')
         self.browser.form.new_control('text','menge',{'value':'1'})
         self.browser.form.fixup()
         self.browser['menge'] = '1'
 
-        self.browser.form.new_control('text','type',{'value': str(building_type)})
+        self.browser.form.new_control('text','type',{'value': str(building_data)})
         self.browser.form.fixup()
-        self.browser['type'] = str(building_type)
+        self.browser['type'] = str(building_data)
 
         self.browser.form.new_control('text','modus',{'value':'1'})
         self.browser.form.fixup()

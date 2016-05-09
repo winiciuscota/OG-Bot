@@ -44,7 +44,6 @@ class Scraper(object):
             "214" : ShipItem(214, "Deathstar"),
             "209" : ShipItem(209, "Recycler"),
             "212" : ShipItem(212, "Solar Satelellite"),
-            
         }
 
         self.missions = {
@@ -134,6 +133,7 @@ class FleetResult(Enum):
     Success = 1
     WrongParameters = 2
     NoAvailableShips = 3
+    NoAvailableSlots = 4
 
 class Item(object):
     def __init__(self, id, name):
@@ -155,6 +155,7 @@ class ItemAction(object):
             
 class ShipItem(Item): pass
 class DefenseItem(Item): pass
+class BuildingItem(Item) : pass
 
 class FleetMovement(object):
     def __init__(self, origin_coords, origin_name, destination_coords):

@@ -45,6 +45,7 @@ class Config(object):
             self.time_to_wait_for_probes = config.getint('Settings', 'HowLongToWaitForProbes')
             self.spy_report_life = config.getint('Settings', 'SpyReportLife') #Time in which spy report is valid
             self.minimun_inactive_target_rank = config.getint('Settings', 'MinimunInactiveTargetRank')
+            self.maximun_inactive_target_rank = config.getint('Settings', 'MaximunInactiveTargetRank')
             self.spy_fleet_min_delay = config.getint('Settings', 'SpyFleetMinDelay') #Minimum time between sending next spy
             self.spy_fleet_max_delay = config.getint('Settings', 'SpyFleetMaxDelay') #maximum time between sending next spy
             self.attack_fleet_min_delay = config.getint('Settings', 'AttackFleetMinDelay') #Minimum time between sending next attack

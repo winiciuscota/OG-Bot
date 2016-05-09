@@ -6,8 +6,7 @@ import logging
 import urlparse
 import datetime
 from scraper import *
-from defense import Defense
-from hangar import Hangar
+
 
 class General(Scraper):
 
@@ -56,17 +55,19 @@ class General(Scraper):
                             
         return planets
         
-    def get_planets_overview(self):
-        planets = self.get_planets()
-        defense_client = Defense(self.browser, self.config)
-        hangar_client = Hangar(self.browser, self.config)
-        
-        for planet in planets:
-            planet.resources = self.get_resources(planet)
-            planet.defenses = defense_client.get_defenses(planet)
-            planet.fleet = hangar_client.get_ships(planet)
-            
-        return planets
+    # def get_planets_overview(self):
+    #     planets = self.get_planets()
+    #     defense_client = Defense(self.browser, self.config)
+    #     hangar_client = Hangar(self.browser, self.config)
+    #     buildings_client = Buildings(self.browser, self.config)
+    #
+    #     for planet in planets:
+    #         planet.resources = self.get_resources(planet)
+    #         planet.defenses = defense_client.get_defenses(planet)
+    #         planet.fleet = hangar_client.get_ships(planet)
+    #         planet.buildings = buildings_client.get_buildings(planet)
+    #
+    #     return planets
     
 def parse_coordinates(coords):
     return coords.replace('[', '').replace(']', '')

@@ -1,9 +1,11 @@
-- refactor get_available ships data (shoul get the data from the fleet page)
+- refactor get_available ships data (shoul get the data from the fleet page) - done
 - refactor scraping classes, there should functions for opening and submitting 
 pages in a base class, these functions should retry the request if there is
-no response
+no response - done
 
 - improve auto_build_structures
 - create functions for research
 - refactor bot.py file - done
 - launch missile if planet is inactive and has defenses
+- use light cargos on attacks if the origin planet has enough of them
+

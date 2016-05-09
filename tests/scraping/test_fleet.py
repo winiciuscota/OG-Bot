@@ -6,10 +6,9 @@ sys.path.append('../..')
 
 from ogbot.scraping import fleet
 
-class MessagesTest(unittest.TestCase):
+# class MessagesTest(unittest.TestCase):
 
-    def test_get_ships_list(self):
-    
-        self.assertEquals()
-    
-    
+#     def test_get_ships_list(self):
+
+#         self.assertEquals()
+

@@ -11,7 +11,7 @@ class LoggerBot(BaseBot):
         self.defense_client = defense.Defense(browser, config)
         self.hangar_client = hangar.Hangar(browser, config)
         self.general_client = general.General(browser, config)
-        
+        self.buildings_client = buildings.Buildings(browser, config)
         super(LoggerBot, self).__init__(browser, config, planets)
         
     def log_planets(self):
@@ -41,18 +41,32 @@ class LoggerBot(BaseBot):
     def log_overview(self):
         """Log planets overview"""
         
-        planets = self.general_client.get_planets_overview()
+        planets = self.general_client.get_planets()
+
+        for planet in planets:
+            planet.resources = self.general_client.get_resources(planet)
+            planet.defenses = self.defense_client.get_defenses(planet)
+            planet.fleet = self.hangar_client.get_ships(planet)
+            planet.buildings = self.buildings_client.get_buildings(planet)
+
         for planet in planets:
             self.logger.info("Planet %s:", planet)
             self.logger.info("Resources: [%s]", planet.resources)
-            
+
             self.logger.info("Defenses: ")
             for defense in planet.defenses:
-                self.logger.info("\t%s", defense)
-                
+                self.print_item_order(defense)
+
             self.logger.info("Fleet: ")
             for ship in planet.fleet:
-                self.logger.info("\t%s", ship)
+                self.print_item_order(ship)
+
+            self.logger.info("Buildings: ")
+            for buildings in planet.buildings:
+                self.print_building_item_order(buildings)
+
+
+        self.log_fleet_movement()
                 
 
     def log_planets_in_same_system(self):
@@ -95,3 +109,10 @@ class LoggerBot(BaseBot):
         self.general_client.log_index_page()
 
 
+    def print_item_order(self, item_order):
+        if item_order.amount > 0:
+            self.logger.info("\t%d %s(s)" % (item_order.amount, item_order.item.name))
+
+    def print_building_item_order(self, item_order):
+        if item_order.amount > 0:
+            self.logger.info("\t%s - level %d" % (item_order.item.name, item_order.amount))

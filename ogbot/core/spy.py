@@ -26,7 +26,9 @@ class SpyBot(BaseBot):
         planets = [planet for planet
                         in self.get_planets_in_systems(systems)
                         if planet.player_state == galaxy.PlayerState.Inactive
-                        if planet.player_rank >= self.config.minimun_inactive_target_rank]
+                        if planet.player_rank >= self.config.minimun_inactive_target_rank
+                        if planet.player_rank <= self.config.maximun_inactive_target_rank
+                   ]
         return planets
 
 
