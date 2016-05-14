@@ -1,5 +1,6 @@
 import ConfigParser
 import logging
+import os
 
 
 class Config(object):
@@ -10,6 +11,10 @@ class Config(object):
     def __init__(self, argv):
         self.argv = argv
         config = ConfigParser.ConfigParser()
+
+        current_file = os.path.abspath(os.path.dirname(__file__))
+        path = os.path.join(current_file, '../')
+        os.chdir(path)
         cfg = config.read('user.cfg')
         self.logger = logging.getLogger('OGBot')
         self.WRONG_ARGUMENTS_MESSAGE = """

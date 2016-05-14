@@ -22,25 +22,24 @@ class Fleet(Scraper):
 
         self.logger.info("Spying planet %s (%s)", destination_planet.name, destination_planet.coordinates)
 
-        self.send_fleet(origin_planet, destination_planet.coordinates,
+        result = self.send_fleet(origin_planet, destination_planet.coordinates,
             self.missions["spy"], { self.SHIPS_DATA.get('ep') : spy_probes_count})
 
+        return result
 
     def send_expedition(self, origin_planet, coordinates):
         fleet = {
+            # Small expeditino fleet
             self.SHIPS_DATA.get('sg') : 1,
-            self.SHIPS_DATA.get('lf') : 5,
-            self.SHIPS_DATA.get('cr') : 2,
+            self.SHIPS_DATA.get('lf') : 2,
             self.SHIPS_DATA.get('ep') : 1
             }
 
         self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.name, coordinates)
-
         self.send_fleet(origin_planet, coordinates, self.missions.get("expedition"), fleet)
 
-
     def attack_inactive_planet(self, origin_planet, target_planet):
-        fleet = self.get_attack_fleet(target_planet)
+        fleet = self.get_attack_fleet(origin_planet, target_planet)
 
         self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
 
@@ -57,7 +56,7 @@ class Fleet(Scraper):
         if planet_resources.deuterium < resources.deuterium:
             resources.deuterium = planet_resources.deuterium
 
-        fleet = self.get_tranport_fleet(resources)
+        fleet = self.get_tranport_fleet(resources, origin_planet)
 
         self.send_fleet(origin_planet, destination_planet.coordinates,
              self.missions["transport"], fleet, resources)
@@ -142,20 +141,10 @@ class Fleet(Scraper):
 
         return FleetResult.Success
 
-
-
-    def get_tranport_fleet(self, resources):
-        """Get fleet for transport"""
-        resources_count = resources.total()
-        ships_count = int(math.ceil(resources_count / 25000))
-        return  { self.SHIPS_DATA.get('lg') : ships_count}
-
-
     def get_fleet_slots_usage(self, mission = None, soup = None):
         """
             Get fleet slot usage data.
         """
-        # raise NotImplementedError("Use the get get_fleet_slots_usage function from movement")
 
         if soup == None:
             url = self.url_provider.get_page_url('fleet')
@@ -180,13 +169,57 @@ class Fleet(Scraper):
 
         return result
 
+    def get_tranport_fleet(self, resources, origin_planet = None):
+        """
+            Get fleet for transporting resources,
+            Will use small cargos if there is enough of them.
+        """
 
-    def get_attack_fleet(self, target_planet):
-        """Get fleet for attack"""
+        resources_count = resources.total()
+
+        if origin_planet != None:
+            small_cargos = self.get_small_cargos(origin_planet)
+            self.logger.info("Checking if there is enough small cargos for the mission")
+            if (small_cargos.amount * 5000) > (resources_count):
+                self.logger.info("Using small cargos")
+                ships_count = int(math.ceil(resources_count / 5000))
+                return {self.SHIPS_DATA.get('sg'): ships_count}
+
+        self.logger.info("Not enough Small Cargos, using Largos instead")
+        ships_count = int(math.ceil(resources_count / 25000))
+        fleet = {self.SHIPS_DATA.get('lg'): ships_count}
+        return fleet
+
+    def get_attack_fleet(self, origin_planet, target_planet):
+        """
+            Get fleet for attacks to inactive targets.
+            Will use small cargos if there is enough of them.
+        """
+
         resources = target_planet.resources.total()
         resources_count = resources * target_planet.loot
+
+        small_cargos = self.get_small_cargos(origin_planet)
+        self.logger.info("Checking if there is enough small cargos for the mission")
+        if (small_cargos.amount * 5000) > (resources_count):
+
+            self.logger.info("Using small cargos")
+            ships_count = int(math.ceil(resources_count / 5000))
+            return {self.SHIPS_DATA.get('sg'): ships_count}
+
+        self.logger.info("Not enough Small Cargos for this target, using Large Cargos instead")
         ships_count = int(math.ceil(resources_count / 25000))
         return  { self.SHIPS_DATA.get('lg') : ships_count}
+
+
+    def get_small_cargos(self, origin_planet):
+        small_cargos_aux = [item_order for item_order
+                            in origin_planet.ships
+                            if item_order.item.id == self.SHIPS_DATA.get("sg").id]
+
+        small_cargos = next(iter(small_cargos_aux), None)
+
+        return small_cargos
 
 def get_ships_list(ships):
     return ", ".join([ str(ships.get(ship)) + ' ' + ship.name for ship in ships])

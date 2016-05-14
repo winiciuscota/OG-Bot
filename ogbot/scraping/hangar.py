@@ -21,8 +21,13 @@ class Hangar(Scraper):
 
             # ensures that execution will not break if there is a new item
             if ship_data != None:
-                amount_info = "".join(ship_button.find("span", {"class" : "level"})
+
+                try:
+                    amount_info = "".join(ship_button.find("span", {"class" : "level"})
                                 .findAll(text=True, recursive=False)[1])
+                except IndexError:
+                    amount_info = "".join(ship_button.find("span", {"class": "level"})
+                                          .findAll(text=True, recursive=False)[0])
                 amount = int(re.sub("[^0-9]", "", amount_info))
                 ships.append(ItemAction(ShipItem(ship_data.id, ship_data.name), amount))
 

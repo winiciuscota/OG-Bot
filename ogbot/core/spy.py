@@ -1,4 +1,3 @@
-
 from base import *
 from scraping import galaxy, fleet
 
@@ -27,8 +26,7 @@ class SpyBot(BaseBot):
                         in self.get_planets_in_systems(systems)
                         if planet.player_state == galaxy.PlayerState.Inactive
                         if planet.player_rank >= self.config.minimun_inactive_target_rank
-                        if planet.player_rank <= self.config.maximun_inactive_target_rank
-                   ]
+                        if planet.player_rank <= self.config.maximun_inactive_target_rank]
         return planets
 
 
@@ -61,8 +59,9 @@ class SpyBot(BaseBot):
 
         self.logger.info("Getting nearest inactive planets from %s", origin_planet.name)
 
+        nearest_planets = self.get_nearest_planets(origin_planet, nr_range)
         planets = [planet for planet
-                        in get_nearest_planets(origin_planet, nr_range)
+                        in nearest_planets
                         if planet.player_state == galaxy.PlayerState.Inactive
                         if planet.player_rank >= self.config.minimun_inactive_target_rank]
         return planets
@@ -74,7 +73,7 @@ class SpyBot(BaseBot):
             origin_planet = self.default_origin_planet
 
         self.logger.info("Getting nearest planets from %s", origin_planet.name)
-        target_planets = get_nearest_planets(origin_planet, nr_range)
+        target_planets = self.get_nearest_planets(origin_planet, nr_range)
 
         for target_planet in target_planets:
             self.fleet_client.spy_planet(origin_planet, target_planet, self.config.spy_probes_count)
@@ -150,8 +149,11 @@ class SpyBot(BaseBot):
                         self.logger.info("Waiting for %s seconds" % delay)
                         time.sleep(delay)
 
-                    self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
-    
-    
-   
-    
+                    result = self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
+                    if result == fleet.FleetResult.NoAvailableSlots:
+                        delay = self.config.time_to_wait_for_probes / 4
+                        self.logger.info("Waiting %d seconds for spy probes to return and free some slots" % delay)
+                        time.sleep(delay)
+                        self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
+
+

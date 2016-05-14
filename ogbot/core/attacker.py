@@ -8,6 +8,7 @@ class AttackerBot(BaseBot):
         self.fleet_client = fleet.Fleet(browser, config)
         self.general_client = general.General(browser, config)
         self.movement_client = movement.Movement(browser, config)
+        self.hangar_client = hangar.Hangar(browser, config)
 
         super(AttackerBot, self).__init__(browser, config, planets)
 
@@ -19,6 +20,8 @@ class AttackerBot(BaseBot):
 
 
     def attack_inactive_planet(self, origin_planet, target_planet):
+        ships = self.hangar_client.get_ships(origin_planet)
+        origin_planet.ships = ships
         result = self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
         return result
 
@@ -61,15 +64,17 @@ class AttackerBot(BaseBot):
             else:
                 origin_planet = self.planet
 
-            #Delay - wait a random time before sending fleet, this makes the bot less detectable
-            delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
-            self.logger.info("Waiting for %s seconds" % delay)
-            time.sleep(delay)
+
 
             result = self.attack_inactive_planet(origin_planet, target)
             if result == fleet.FleetResult.Success:
                 predicted_loot += target.get_loot()
                 used_slots += 1
+
+                # Delay - wait a random time before sending fleet, this makes the bot less detectable
+                delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
+                self.logger.info("Waiting for %s seconds" % delay)
+                time.sleep(delay)
             if result == fleet.FleetResult.NoAvailableSlots:
                 self.logger.warning("There is no fleet slot available")
                 self.logger.info("Predicted loot is %s" % predicted_loot)
