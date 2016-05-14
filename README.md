@@ -1,51 +1,46 @@
 #Ogame-bot
 
-This bot is intended to provide automation for simple tasks in Ogame. At the moment the bot only works on the brazilian server and the only useful thing it can do is to spend all resources on defenses.
+This bot is intended to provide automation for simple tasks in Ogame. At this point the bot should be able to work in all servers.
+At the beginning the bot could only build defenses, now it can do a variety of tasks<br />
 
-In the future I intend to have the following features:
+#Usage:
 
-Spend all resources on defenses. -Done<br />
-Auto build structures. - Done<br />
-Auto attack inactive players. - Done<br />
-Fleet save.<br />
-Alert when being atacked(through email).<br />
+1 - Install the requirements: <br />
+pip install requirements.txt <br />
 
-I'm new to python, I'm using it because I believe is the best language for this kind of job, I also want to learn more about it. Any criticism is very much appreciated.
+2 - Modify the user-sample.cfg file and rename it to user.cfg <br />
 
-#Instructions on how to use:
-
-Modify the user.cfg file on the project directory. Set the username, password and universe id
-
-The program also accepts two arguments. the first will override the DefaultMode
- and the second will override DefaultOriginPlanet
+3 - The program also accepts two arguments. the first will override the DefaultMode and the second will override DefaultOriginPlanet <br />
 
 The currently supported modes are: <br />
-    log_defenses <br /> 
-    log_ships <br />
-    log_planets <br />
-    overview <br />
-    auto_build_defenses <br />
-    auto_build_structures <br />
-    auto_build_structure_to_planet <br />
-    auto_build_defenses_to_planet <br />
-    transport_resources_to_planet <br />
-    log_planets_in_same_system <br />
-    log_nearest_planets <br />
-    log_nearest_inactive_planets <br />
-    spy_nearest_planets <br />
-    spy_nearest_inactive_planets <br />
-    log_spy_reports <br />
-    attack_inactive_planets_from_spy_reports <br />
-    log_index_page <br />
-    log_game_datetime <br />
-    auto_attack_inactive_planets <br />
-    log_fleet_movement <br />
-    auto_spy_inactive_planets <br />
-    clear_inbox <br />
+    overview - logs overview data <br />
+    explore - send expeditions and attack nearby inactive players <br />
+    attack_inactive_planets - attack nearby inactive players <br />
+    auto_build_defenses - build defenses <br />
+    auto_build_defenses_to_planet - build defenses to planet x(must be one of your planets) <br />
+    transport_resources_to_planet - transport resources from all of your planets to planet x(must be one of your planets) <br />
+    transport_resources_to_weaker_planet - transport resources from all of your planets to the planet that has less buldings <br />
+
+eg: <br />
+
+python main.py explore - will run the bot on the explorer mode (send expeditions and attack inactive targets) <br />
+
+python main.py transport_resources_to_planet planet_name - will transport all resources to the planet_name planet (must be one of your planets) <br />
+
+
+4 - Have a nice day while the bot takes care of the boring parts =]<br />
+
+#Features:
+
+- Spend Resources on defenses<br />
+- transport resources from all of your planets into one of your planets<br />
+- Auto spy inactive players nearby<br />
+- Auto attack inactive players nearby<br />
+- Send Expeditons<br />
+- overview player info<br />
     
 #Credits:
 
 Many thanks to Rafał Furmański(http://rafal-furmanski.com/) for letting me use some snippets of his code (https://github.com/r4fek/ogame-bot).<br />
 Rafał Furmański's work was crucial for creating the functions to build defenses, send fleets and fetch galaxy's data <br/>
-
 

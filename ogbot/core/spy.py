@@ -120,8 +120,7 @@ class SpyBot(BaseBot):
             origin_planet = get_nearest_planet_to_coordinates(system + ":1", self.planets)
             associated_systems.append((system, origin_planet))
 
-        return associated_systems;
-
+        return associated_systems
     
 
     def auto_spy_inactive_planets(self, nr_range = None):
@@ -148,11 +147,10 @@ class SpyBot(BaseBot):
                         delay = random.randint(self.config.spy_fleet_min_delay, self.config.spy_fleet_max_delay)
                         self.logger.info("Waiting for %s seconds" % delay)
                         time.sleep(delay)
-
                     result = self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
                     if result == fleet.FleetResult.NoAvailableSlots:
-                        delay = self.config.time_to_wait_for_probes / 4
-                        self.logger.info("Waiting %d seconds for spy probes to return and free some slots" % delay)
+                        delay = int(self.config.time_to_wait_for_probes / 10)
+                        self.logger.info("Waiting %d seconds for spy probes to return and free up some slots" % delay)
                         time.sleep(delay)
                         self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
 
