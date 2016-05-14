@@ -13,15 +13,15 @@ pip install requirements.txt <br />
 3 - The program also accepts two arguments. the first will override the DefaultMode and the second will override DefaultOriginPlanet <br />
 
 The currently supported modes are: <br />
-    overview - logs overview data <br />
-    explore - send expeditions and attack nearby inactive players <br />
-    attack_inactive_planets - attack nearby inactive players <br />
-    auto_build_defenses - build defenses <br />
-    auto_build_defenses_to_planet - build defenses to planet x(must be one of your planets) <br />
-    transport_resources_to_planet - transport resources from all of your planets to planet x(must be one of your planets) <br />
-    transport_resources_to_weaker_planet - transport resources from all of your planets to the planet that has less buldings <br />
+- overview - logs overview data <br />
+- explore - send expeditions and attack nearby inactive players <br />
+- attack_inactive_planets - attack nearby inactive players <br />
+- auto_build_defenses - build defenses <br />
+- auto_build_defenses_to_planet - build defenses to planet x(must be one of your planets) <br />
+- transport_resources_to_planet - transport resources from all of your planets to planet x(must be one of your planets) <br />
+- transport_resources_to_weaker_planet - transport resources from all of your planets to the planet that has less buldings <br />
 
-eg: <br />
+e.g.: <br />
 
 python main.py explore - will run the bot on the explorer mode (send expeditions and attack inactive targets) <br />
 
@@ -33,11 +33,11 @@ python main.py transport_resources_to_planet planet_name - will transport all re
 #Features:
 
 - Spend Resources on defenses<br />
-- transport resources from all of your planets into one of your planets<br />
+- Transport resources from all of your planets into one of your planets<br />
 - Auto spy inactive players nearby<br />
 - Auto attack inactive players nearby<br />
 - Send Expeditons<br />
-- overview player info<br />
+- Overview player info<br />
     
 #Credits:
 
