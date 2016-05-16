@@ -1,4 +1,6 @@
-﻿import util
+﻿from mechanize._beautifulsoup import BeautifulSOAP
+
+import util
 from mechanize import Browser
 from bs4 import BeautifulSoup
 import re
@@ -71,7 +73,7 @@ class Buildings(Scraper):
         return planet_buildings
 
     def get_buildings(self, planet):
-        self.logger.info('Getting buildings data')
+        self.logger.info('Getting buildings data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('resources', planet)
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
@@ -79,24 +81,33 @@ class Buildings(Scraper):
 
         buildings = []
         for building_button in building_buttons:
-            id = building_button['ref']
-            building_data = BUILDINGS_DATA.get(id)
+            building_data = self.get_building_data_from_button(building_button)
 
-            # ensures that execution will not break if there is a new item
             if building_data != None:
-                try:
-                    building_info = "".join(building_button.find("span", {"class": "level"})
-                                          .findAll(text=True, recursive=False)[1])
-                # If we get an exception here it means the building is in construction mode, so we
-                # the info we need will be at index 0
-                except IndexError:
-                    building_info = "".join(building_button.find("span", {"class": "level"})
-                                          .findAll(text=True, recursive=False)[0])
-
-                level = int(re.sub("[^0-9]", "", building_info))
-                buildings.append(ItemAction(BuildingItem(building_data.id, building_data.name), level))
+                buildings.append(building_data)
         return buildings
 
+    def get_building_data_from_button(self, building_button):
+        """ Read the bulding data from the building button """
+
+        id = building_button['ref']
+        building_data = BUILDINGS_DATA.get(id)
+
+        # ensures that execution will not break if there is a new item
+        if building_data != None:
+            try:
+                building_info = "".join(building_button.find("span", {"class": "level"})
+                                        .findAll(text=True, recursive=False)[1])
+            # If we get an exception here it means the building is in construction mode, so we
+            # the info we need will be at index 0
+            except IndexError:
+                building_info = "".join(building_button.find("span", {"class": "level"})
+                                        .findAll(text=True, recursive=False)[0])
+
+            level = int(re.sub("[^0-9]", "", building_info))
+            return ItemAction(BuildingItem(building_data.id, building_data.name), level)
+        else:
+            return None
 
     def get_weaker_planet(self):
         planets = self.general_client.get_planets()
@@ -112,58 +123,60 @@ class Buildings(Scraper):
         weaker_planet = next(iter(weaker_planets), None)
         return weaker_planet
 
-    def auto_build_structure(self, planet):
+    def get_available_building_for_planet(self, planet):
+        """ Returns the first structure on planet that has enough resources to be built """
+
+        buildings = self.get_available_buildings_for_planet(planet)
+        building = next(iter(buildings), None)
+
+        return building
+
+    def get_available_buildings_for_planet(self, planet):
+        """ Returns the the structures on planet that has enough resources to be built """
+
+        url = self.url_provider.get_page_url('resources', planet)
+        resp = self.open_url(url)
+
+        soup = BeautifulSoup(resp.read(), "lxml")
+        build_images = soup.findAll("a", {"class": "fastBuild tooltip js_hideTipOnMobile"})
+
+        buildings = []
+
+        for build_image in build_images:
+            parent_block = build_image.parent
+            building_btn = parent_block.find("a", {"id": "details"})
+            building = self.get_building_data_from_button(building_btn).item
+            buildings.append(building)
+
+        return buildings
+
+    def build_structure(self, building_data, planet):
         if self.construction_mode(planet):
-            self.logger.info('Planet is already in construction mode')
+            self.logger.info('Planet %s is already in construction mode' % planet.name)
             return
         else:
-            resources = self.general_client.get_resources(planet)
-            buildings = self.get_buildings(planet)
-
-            crystal_mine_level = buildings.get(BuildingTypes.CrystalMine).level
-            metal_mine_level = buildings.get(BuildingTypes.MetalMine).level
-            deuterium_synthesizer_level = buildings.get(BuildingTypes.DeuteriumSynthesizer).level
-            metal_storage_level = buildings.get(BuildingTypes.MetalStorage).level
-            crystal_storage_level = buildings.get(BuildingTypes.CrystalStorage).level
-            deuterium_tank_level = buildings.get(BuildingTypes.DeuteriumTank).level
-
-            if resources.energy < 0:
-                self.build_structure_item(BuildingTypes.SolarPlant, planet)
-            else:
-                if crystal_mine_level - metal_mine_level > 2:
-                    if crystal_storage_level == 0 or crystal_mine_level / crystal_storage_level > 3:
-                        self.build_structure_item(BuildingTypes.CrystalStorage, planet)
-                    else:
-                        self.build_structure_item(BuildingTypes.CrystalMine, planet)
-                else:
-                    if deuterium_synthesizer_level - metal_mine_level > 5:
-                        if deuterium_tank_level == 0 or deuterium_synthesizer_level / deuterium_tank_level > 3:
-                            self.build_structure_item(BuildingTypes.DeuteriumTank, planet)
-                        else:
-                            self.build_structure_item(BuildingTypes.DeuteriumSynthesizer, planet)
-                    else:
-                        if metal_storage_level == 0 or metal_mine_level / metal_storage_level > 3:
-                            self.build_structure_item(BuildingTypes.MetalStorage, planet)
-                        else:
-                            self.build_structure_item(BuildingTypes.MetalMine, planet)
-
-    def build_structure(self, building_type, planet):
-        if self.construction_mode(planet):
-            self.logger.info('Planet is already in construction mode')
-            return
-        else:
-            self.build_structure_item(building_type.value, planet)
+            self.logger.info('Building %s on planet %s' % (building_data.name, planet.name))
+            self.build_structure_item(building_data)
 
     def build_structure_item(self, building_data, planet = None):
-        self.logger.info('Building %s on planet %s' % (type, building_data.item.data))
+        """
+            Building structure to planet,
+            it doesn't need the planet parameter if the browser
+            is already at the resources page of the planet
+        """
+
+        if planet != None:
+            url = self.url_provider.get_page_url('resources', planet)
+            self.open_url(url)
+
         self.browser.select_form(name='form')
         self.browser.form.new_control('text','menge',{'value':'1'})
         self.browser.form.fixup()
         self.browser['menge'] = '1'
 
-        self.browser.form.new_control('text','type',{'value': str(building_data)})
+        self.browser.form.new_control('text','type',{'value': str(building_data.id)})
         self.browser.form.fixup()
-        self.browser['type'] = str(building_data)
+        self.browser['type'] = str(building_data.id)
 
         self.browser.form.new_control('text','modus',{'value':'1'})
         self.browser.form.fixup()
@@ -174,9 +187,8 @@ class Buildings(Scraper):
 
     def construction_mode(self, planet = None):
         url = self.url_provider.get_page_url('resources', planet)
-        self.logger.info('Opening url %s' % url)
         resp = self.open_url(url)
-        soup = BeautifulSoup(resp.read())
+        soup = BeautifulSoup(resp.read(), "lxml")
         # if the planet is in construction mode there shoud be a div with the
         # class construction
         return soup.find("div", {"class" : "construction"}) != None

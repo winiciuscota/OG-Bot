@@ -31,7 +31,8 @@ switcher = {
     'auto_build_defenses' : bot.auto_build_defenses,
     'auto_build_defenses_to_planet' : bot.auto_build_defenses_to_planet,
     'transport_resources_to_planet' : bot.transport_resources_to_planet,
-    'transport_resources_to_weaker_planet' : bot.transport_resources_to_weaker_planet
+    'transport_resources_to_weaker_planet' : bot.transport_resources_to_weaker_planet,
+    'auto_build_structure_to_weaker_planet' : bot.auto_build_structure_to_weaker_planet
 }
 
 logger.info("Bot running on %s mode" % config.mode)

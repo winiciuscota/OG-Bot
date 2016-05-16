@@ -149,7 +149,7 @@ class SpyBot(BaseBot):
                         time.sleep(delay)
                     result = self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
                     if result == fleet.FleetResult.NoAvailableSlots:
-                        delay = int(self.config.time_to_wait_for_probes / 10)
+                        delay = int(self.config.time_to_wait_for_probes / 8)
                         self.logger.info("Waiting %d seconds for spy probes to return and free up some slots" % delay)
                         time.sleep(delay)
                         self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)

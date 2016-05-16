@@ -58,3 +58,7 @@ class OgameBot(object):
 
     def auto_build_defenses_to_planet(self):
         self.builder_bot.auto_build_defenses_to_planet()
+
+    def auto_build_structure_to_weaker_planet(self):
+        self.builder_bot.auto_build_structure_to_weaker_planet()
+

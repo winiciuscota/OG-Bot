@@ -20,6 +20,7 @@ The currently supported modes are: <br />
 - auto_build_defenses_to_planet - build defenses to planet x(must be one of your planets) <br />
 - transport_resources_to_planet - transport resources from all of your planets to planet x(must be one of your planets) <br />
 - transport_resources_to_weaker_planet - transport resources from all of your planets to the planet that has less buldings <br />
+- auto_build_structure_to_weaker_planet - Build structure on the weaker planet
 
 e.g.: <br />
 
@@ -38,6 +39,7 @@ python main.py transport_resources_to_planet planet_name - will transport all re
 - Auto attack inactive players nearby<br />
 - Send Expeditons<br />
 - Overview player info<br />
+- Build structures<br />
     
 #Credits:
 
