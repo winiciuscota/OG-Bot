@@ -25,7 +25,6 @@ class Movement(Scraper):
         """
             Get fleet slot usage data. Only works if there is at least 1 fleet in movement
         """
-
         url = self.url_provider.get_page_url('movement')
         res = self.open_url(url)
         soup = BeautifulSoup(res.read())

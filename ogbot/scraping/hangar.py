@@ -32,8 +32,4 @@ class Hangar(Scraper):
                 ships.append(ItemAction(ShipItem(ship_data.id, ship_data.name), amount))
 
         return ships
-        
-
-
-
 

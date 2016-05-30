@@ -29,9 +29,7 @@ class LoggerBot(OgameBot):
 
     def log_overview(self):
         """Log planets overview"""
-
-        planets = self.general_client.get_planets_overview();
-        
+        planets = self.general_client.get_planets_overview()
         for planet in planets:
             self.logger.info("Planet %s:", planet)
             self.logger.info("Resources: [%s]", planet.resources)

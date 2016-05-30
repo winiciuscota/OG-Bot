@@ -109,8 +109,10 @@ class Buildings(Scraper):
         else:
             return None
 
-    def get_weaker_planet(self):
-        planets = self.general_client.get_planets()
+    def get_weaker_planet(self, planets = None):
+        if planets == None:
+            planets = self.general_client.get_planets()
+
         planet_sum_buildings = []
         totals = []
 
@@ -145,13 +147,14 @@ class Buildings(Scraper):
         for build_image in build_images:
             parent_block = build_image.parent
             building_btn = parent_block.find("a", {"id": "details"})
-            building = self.get_building_data_from_button(building_btn).item
-            buildings.append(building)
+            building = self.get_building_data_from_button(building_btn)
+            if building != None:
+                buildings.append(building.item)
 
         return buildings
 
     def build_structure(self, building_data, planet):
-        if self.construction_mode(planet):
+        if self.is_in_construction_mode(planet):
             self.logger.info('Planet %s is already in construction mode' % planet.name)
             return
         else:
@@ -185,7 +188,13 @@ class Buildings(Scraper):
         self.logger.info("Submitting form")
         self.submit_request()
 
-    def construction_mode(self, planet = None):
+    def is_in_construction_mode(self, planet = None):
+        """
+        Check if the planet is in construction mode
+        :param planet: planet to check
+        :return: True if the planet is in construction mode, otherwise returns False
+        """
+
         url = self.url_provider.get_page_url('resources', planet)
         resp = self.open_url(url)
         soup = BeautifulSoup(resp.read(), "lxml")

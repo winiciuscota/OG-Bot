@@ -50,7 +50,7 @@ class OgameBot(object):
         self.transporter_bot.transport_resources_to_planet()
 
     def transport_resources_to_weaker_planet(self):
-        weaker_planet = self.builder_bot.get_weaker_planet()
+        weaker_planet = self.builder_bot.get_planet_for_construction()
         self.transporter_bot.transport_resources_to_planet(weaker_planet)
 
     def auto_build_defenses(self):
@@ -59,6 +59,6 @@ class OgameBot(object):
     def auto_build_defenses_to_planet(self):
         self.builder_bot.auto_build_defenses_to_planet()
 
-    def auto_build_structure_to_weaker_planet(self):
-        self.builder_bot.auto_build_structure_to_weaker_planet()
+    def auto_build_structures(self):
+        self.builder_bot.auto_build_structures()
 
