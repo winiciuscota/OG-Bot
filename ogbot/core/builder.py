@@ -76,6 +76,7 @@ class BuilderBot(BaseBot):
         """
             Auto build structures on all planets
         """
+
         for planet in self.planets:
             self.auto_build_structures_to_planet(planet)
 
@@ -90,13 +91,17 @@ class BuilderBot(BaseBot):
         if len(available_buildings) > 0:
             building = available_buildings[0]
             if resources.energy < 0:
+                self.logger.info("Planet has not enough energy, building solar plant or fusion reactor")
                 energy_buildings = [building for building
                                                 in available_buildings
-                                                if building == buildings.BUILDINGS_DATA.get("sp")
-                                                or building == buildings.BUILDINGS_DATA.get("fs") ]
+                                                if building.id == buildings.BUILDINGS_DATA.get("sp").id
+                                                or building.id == buildings.BUILDINGS_DATA.get("fr").id ]
 
                 if len(energy_buildings) > 0:
-                    building = energy_buildings[0]
+                    #Get the last element from the list, this way the bot will build fusion reactors first
+                    building = energy_buildings[-1]
+                else:
+                    self.logger.info("No available resources to buld solar plant or fusion reactor")
 
             self.buildings_client.build_structure(building, planet)
         else:

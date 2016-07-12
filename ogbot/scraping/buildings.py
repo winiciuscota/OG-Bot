@@ -37,18 +37,18 @@ BUILDINGS_DATA = {
     "ds": BuildingItem(3, "Deuterium Synthesizer"),
     "sp": BuildingItem(4, "Solar Plant"),
     "fr": BuildingItem(12, "Fusion Reactor"),
-    "ms": BuildingItem(102, "Metal Storage"),
-    "cm": BuildingItem(22, "Crystal Storage"),
-    "dt": BuildingItem(23, "Deuterium Tank"),
+    "ms": BuildingItem(22, "Metal Storage"),
+    "cm": BuildingItem(23, "Crystal Storage"),
+    "dt": BuildingItem(24, "Deuterium Tank"),
 
     "1": BuildingItem(1, "Metal Mine"),
     "2": BuildingItem(2, "Crystal Mine"),
     "3": BuildingItem(3, "Deuterium Synthesizer"),
     "4": BuildingItem(4, "Solar Plant"),
     "12": BuildingItem(12, "Fusion Reactor"),
-    "102": BuildingItem(102, "Metal Storage"),
-    "22": BuildingItem(22, "Crystal Storage"),
-    "23": BuildingItem(23, "Deuterium Tank")
+    "102": BuildingItem(22, "Metal Storage"),
+    "22": BuildingItem(23, "Crystal Storage"),
+    "23": BuildingItem(24, "Deuterium Tank")
 
 }
 

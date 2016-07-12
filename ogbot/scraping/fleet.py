@@ -185,7 +185,7 @@ class Fleet(Scraper):
                 ships_count = int(math.ceil(resources_count / 5000))
                 return {self.SHIPS_DATA.get('sg'): ships_count}
 
-        self.logger.info("Not enough Small Cargos, using Largos instead")
+        self.logger.info("Not enough Small Cargos, using Large Cargos instead")
         ships_count = int(math.ceil(resources_count / 25000))
         fleet = {self.SHIPS_DATA.get('lg'): ships_count}
         return fleet
