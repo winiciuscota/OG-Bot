@@ -98,25 +98,6 @@ class AttackerBot(BaseBot):
             time.sleep(self.config.time_to_wait_for_probes)
             self.attack_inactive_planets_from_spy_reports()
 
-    def auto_send_expeditions(self):
-        for index, _ in enumerate(range(3)):
-
-            if index > 1:
-                # Delay - wait a random time before sending fleet, this makes the bot less detectable
-                delay = random.randint(self.config.expedition_fleet_min_delay, self.config.expedition_fleet_max_delay)
-                self.logger.info("Waiting for %s seconds" % delay)
-                time.sleep(delay)
-
-            target_planet = self.get_random_player_planet()
-            res = self.send_expedition(target_planet)
-            if res != fleet.FleetResult.Success:
-                self.logger.warning("Error launching expedition, retrying...")
-                # Retry 3 times
-                for _ in range(3):
-                    target_planet = self.get_random_player_planet()
-                    res = self.send_expedition(target_planet)
-                    break
-
 
 def get_distinct_targets(targets):
     """Given an list that possibly contains repeated targets, returns a list of distinct targets"""

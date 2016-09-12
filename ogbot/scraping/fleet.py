@@ -164,44 +164,47 @@ class Fleet(Scraper):
 
     def get_tranport_fleet(self, resources, origin_planet=None):
         """
-            Get fleet for transporting resources,
-            Will use small cargos if there is enough of them.
+        Get fleet for transporting resources,
+        Will use small cargos if there is enough of them.
         """
 
         resources_count = resources.total()
 
-        if origin_planet is not None:
-            small_cargos = self.get_small_cargos(origin_planet)
-            self.logger.info("Checking if there is enough small cargos for the mission")
-            if (small_cargos.amount * 5000) > (resources_count):
-                self.logger.info("Using small cargos")
-                ships_count = int(math.ceil(resources_count / 5000))
-                return {self.SHIPS_DATA.get('sg'): ships_count}
-
-        self.logger.info("Not enough Small Cargos, using Large Cargos instead")
-        ships_count = int(math.ceil(resources_count / 25000))
-        fleet = {self.SHIPS_DATA.get('lg'): ships_count}
-        return fleet
+        return self.get_cargo_fleet_for_mission(origin_planet, resources_count)
 
     def get_attack_fleet(self, origin_planet, target_planet):
         """
-            Get fleet for attacks to inactive targets.
-            Will use small cargos if there is enough of them.
+        :param origin_planet: Origin planet
+        :param target_planet: Target planet
+        :return: Optimized fleet for the mission
+        """
+        """
+        Get fleet for attacks to inactive targets.
+        Will use small cargos if there is enough of them.
         """
 
         resources = target_planet.resources.total()
         resources_count = resources * target_planet.loot
 
+        return self.get_cargo_fleet_for_mission(origin_planet, resources_count)
+
+    def get_cargo_fleet_for_mission(self, origin_planet, resources_count):
+        """
+        :param origin_planet: Origin to check for cargos
+        :param resources_count: Amount of resources to transport
+        :return: Get fleet of cargos for the mission
+        """
         small_cargos = self.get_small_cargos(origin_planet)
         self.logger.info("Checking if there is enough small cargos for the mission")
-        if (small_cargos.amount * 5000) > (resources_count):
+        if (small_cargos.amount * 5000) > resources_count:
             self.logger.info("Using small cargos")
             ships_count = int(math.ceil(resources_count / 5000))
             return {self.SHIPS_DATA.get('sg'): ships_count}
 
-        self.logger.info("Not enough Small Cargos for this target, using Large Cargos instead")
+        self.logger.info("Not enough Small Cargos, using Large Cargos instead")
         ships_count = int(math.ceil(resources_count / 25000))
-        return {self.SHIPS_DATA.get('lg'): ships_count}
+        fleet = {self.SHIPS_DATA.get('lg'): ships_count}
+        return fleet
 
     def get_small_cargos(self, origin_planet):
         small_cargos_aux = [item_order for item_order

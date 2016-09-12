@@ -61,7 +61,11 @@ class Scraper(object):
         }
 
     def open_url(self, url, data=None):
-        """Open url, make up to 3 retrys"""
+        """
+        Redirect to the url, makes up to 3 attempts
+        :param url: Url to redirect to
+        :param data: Additional data to send in the get request
+        """
         for attempt in range(0, self.attempts):
             try:
                 res = self.browser.open(url, data, self.timeout)
@@ -70,11 +74,13 @@ class Scraper(object):
                 self.logger.warning("URLError opening url, trying again for the %dth time" % (attempt + 1))
 
         # If is unable to connect quit the bot
-        self.logger.error("Unable to comunicate with the server, exiting the bot")
+        self.logger.error("Unable to communicate with the server, exiting the bot")
         exit()
 
     def submit_request(self):
-        """Submit browser, make up to 3 retrys"""
+        """
+        Submit form, makes up to 3 attempts
+        """
         for attempt in range(0, self.attempts):
             try:
                 res = self.browser.submit()
@@ -83,8 +89,28 @@ class Scraper(object):
                 self.logger.warning("URLError submitting form, trying again for the %dth time" % (attempt + 1))
 
         # If is unable to connect quit the bot
-        self.logger.error("Unable to comunicate with the server, exiting the bot")
+        self.logger.error("Unable to communicate with the server, exiting the bot")
         exit()
+
+    def get_current_url(self):
+        """
+        :return: The url where the browser is in
+        """
+        return self.browser.geturl()
+
+    def create_control(self, form_id, control_type, control_name, control_value):
+        """
+        Create a new control in the specified form
+        :param form_id: id of the form in which the control will be created
+        :param control_type: type of the control to be created(i.e.: 'text')
+        :param control_name: name of the control to be created
+        :param control_value: value of the control to be created
+        :return:
+        """
+        self.browser.select_form(name=form_id)
+        self.browser.form.new_control(control_type, control_name, {'value': ''})
+        self.browser.form.fixup()
+        self.browser[control_name] = control_value
 
 
 def sanitize(t):
@@ -123,6 +149,14 @@ class Resources(object):
 
 class Planet(object):
     def __init__(self, name, link, coordinates, resources=None, defenses=None, fleet=None):
+        """
+        :param name: Planet name
+        :param link: Planet link
+        :param coordinates: Planet coordinates
+        :param resources: Resources on the planet
+        :param defenses: Defenses on the planet
+        :param fleet: Fleet on the planet
+        """
         self.name = name
         self.link = link
         self.coordinates = coordinates
@@ -171,10 +205,15 @@ class BuildingItem(Item): pass
 
 
 class FleetMovement(object):
-    def __init__(self, origin_coords, origin_name, destination_coords):
-        self.origin_coords = origin_coords
+    def __init__(self, origin_coordinates, origin_name, destination_coordinates):
+        """
+        :param origin_coordinates: Coordinates of the origin planet
+        :param origin_name: Name o the origin planet
+        :param destination_coordinates: Destination of the destination planet
+        """
+        self.origin_coords = origin_coordinates
         self.origin_name = origin_name
-        self.destination_coords = destination_coords
+        self.destination_coords = destination_coordinates
 
     def __str__(self):
         return "Fleet from planet %s(%s) to planet %s" % (self.origin_name, self.origin_coords, self.destination_coords)

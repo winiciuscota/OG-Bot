@@ -25,8 +25,8 @@ class SpyBot(BaseBot):
         planets = [planet for planet
                    in self.get_planets_in_systems(systems)
                    if planet.player_state == galaxy.PlayerState.Inactive
-                   if planet.player_rank >= self.config.minimun_inactive_target_rank
-                   if planet.player_rank <= self.config.maximun_inactive_target_rank]
+                   if planet.player_rank >= self.config.minimum_inactive_target_rank
+                   if planet.player_rank <= self.config.maximum_inactive_target_rank]
         return planets
 
     def get_nearest_planets(self, origin_planet=None, nr_range=3):
@@ -62,7 +62,7 @@ class SpyBot(BaseBot):
         planets = [planet for planet
                    in nearest_planets
                    if planet.player_state == galaxy.PlayerState.Inactive
-                   if planet.player_rank >= self.config.minimun_inactive_target_rank]
+                   if planet.player_rank >= self.config.minimum_inactive_target_rank]
         return planets
 
     def spy_nearest_planets(self, origin_planet=None, nr_range=3):

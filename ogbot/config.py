@@ -4,9 +4,6 @@ import os
 
 
 class Config(object):
-    # todo update message
-
-
     def __init__(self, argv):
         self.argv = argv
         config = ConfigParser.ConfigParser()
@@ -31,9 +28,9 @@ class Config(object):
                 AttackRange = 10
                 HowLongToWaitForProbes = 60
                 """
-        if cfg == []:
+        if not cfg:
+            # Config file is empty, log error
             self.logger.error(self.WRONG_ARGUMENTS_MESSAGE)
-            # Config file is empty, log an error
 
             exit()
         else:
@@ -48,8 +45,8 @@ class Config(object):
             self.attack_range = config.getint('Settings', 'AttackRange')
             self.time_to_wait_for_probes = config.getint('Settings', 'HowLongToWaitForProbes')
             self.spy_report_life = config.getint('Settings', 'SpyReportLife')  # Time in which spy report is valid
-            self.minimun_inactive_target_rank = config.getint('Settings', 'MinimunInactiveTargetRank')
-            self.maximun_inactive_target_rank = config.getint('Settings', 'MaximunInactiveTargetRank')
+            self.minimum_inactive_target_rank = config.getint('Settings', 'MinimumInactiveTargetRank')
+            self.maximum_inactive_target_rank = config.getint('Settings', 'MaximumInactiveTargetRank')
             self.spy_fleet_min_delay = config.getint('Settings',
                                                      'SpyFleetMinDelay')  # Minimum time between sending next spy
             self.spy_fleet_max_delay = config.getint('Settings',

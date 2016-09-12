@@ -60,7 +60,7 @@ class Defense(Scraper):
             defense_data = DEFENSES_DATA.get(id)
 
             # ensures that execution will not break if there is a new item
-            if defense_data != None:
+            if defense_data is not None:
                 amount_info = "".join(def_button.find("span", {"class": "level"})
                                       .findAll(text=True, recursive=False)[1])
                 amount = int(re.sub("[^0-9]", "", amount_info))
@@ -69,59 +69,73 @@ class Defense(Scraper):
 
         return defenses
 
-    def auto_build_defenses(self, planet=None):
+    def auto_build_defenses_to_planet(self, planet):
         """
-        Build some defenses for the given planet
+        Automatically build defenses to the specified planet
+        :param planet: planet to build defenses on
+        :return:
         """
 
-        items = [ItemAction(DEFENSES_DATA.get(Defenses.PlasmaTurrent.value), '20'),
-                 ItemAction(DEFENSES_DATA.get(Defenses.GaussCannon.value), '50'),
-                 ItemAction(DEFENSES_DATA.get(Defenses.IonCannon.value), '10'),
-                 ItemAction(DEFENSES_DATA.get(Defenses.HeavyLaser.value), '10'),
-                 ItemAction(DEFENSES_DATA.get(Defenses.LightLaser.value), '3000'),
-                 ItemAction(DEFENSES_DATA.get(Defenses.RocketLauncher.value), '3000')]
+        defense_items = [ItemAction(DEFENSES_DATA.get(Defenses.PlasmaTurrent.value), 20),
+                         ItemAction(DEFENSES_DATA.get(Defenses.GaussCannon.value), 50),
+                         ItemAction(DEFENSES_DATA.get(Defenses.IonCannon.value), 10),
+                         ItemAction(DEFENSES_DATA.get(Defenses.HeavyLaser.value), 10),
+                         ItemAction(DEFENSES_DATA.get(Defenses.LightLaser.value), 3000),
+                         ItemAction(DEFENSES_DATA.get(Defenses.RocketLauncher.value), 3000)]
 
         self.logger.info('Auto building defenses')
         self.redirect_to_page(planet)
-        for defense in items:
-            self.build_defense_item(defense, planet)
+        for defense_item in defense_items:
+            self.logger.info("building %d %s(s) on planet %s" % (defense_item.amount,
+                                                                 defense_item.item.name,
+                                                                 planet.name))
+            self.build_defense_on_current_page(defense_item.item.id, defense_item.amount)
 
-    def redirect_to_page(self, planet=None):
+    def build_defense_to_planet(self, defense_type, amount, planet):
         """
-        Redirect to defense page for the given planet
-        """
-        url = self.url_provider.get_page_url('defense', planet)
-        self.logger.info("Redirecting to page %s" % url)
-        self.open_url(url)
-
-    def build_defense(self, defense, amount, planet=None):
-        """
-        Redirect to the defense page and build the defense item
-        
-        defense parameter must be an Defense object
-        
+        Build defense on specified planet
+        :param defense_type: object of the defense type to build(must be of type DefenseItem)
+        :param amount: amount of defenses to build
+        :param planet: planet to build the defense on
+        :return:
         """
 
-        self.redirect_to_page(planet)
-
+        if self.url_provider.get_page_url("defense", planet) != self.get_current_url():
+            self.logger.warning(self.url_provider.get_page_url("defense", planet))
+            self.logger.warning(self.get_current_url())
+            self.redirect_to_page(planet)
         try:
-            self.build_defense_item(defense, planet)
+            self.logger.info("building %d %s(s) on planet %s" % (amount,
+                                                                 defense_type.name,
+                                                                 planet.name))
+
+            self.build_defense_on_current_page(defense_type.id, amount)
         except Exception as e:
             self.logger.info('Error building defense')
             self.logger.info(e)
 
-    def build_defense_item(self, item_action, planet=None):
-        self.logger.info("building %s %s(s) on planet %s" % (item_action.amount, item_action.item.name, planet.name))
+    def redirect_to_page(self, planet=None):
+        """
+        Redirect to defense page for the specified planet
+        :param planet: Planet to redirect
+        """
+
+        url = self.url_provider.get_page_url('defense', planet)
+        self.logger.info("Redirecting to page %s" % url)
+        self.open_url(url)
+
+    def build_defense_on_current_page(self, defense_id, amount):
+        """
+        Request building of defense type on current page,
+        use it if you know that the bot is in the defense page
+        for the right planet to save get requests
+        :param defense_id: ID of the defense type to build
+        :param amount: amount of defenses to build
+        """
+
         self.logger.info("Writing data to form")
-        self.browser.select_form(name='form')
-        self.browser.form.new_control('text', 'menge', {'value': item_action.amount})
-        self.browser.form.fixup()
-        self.browser['menge'] = item_action.amount
-        self.browser.form.new_control('text', 'type', {'value': item_action.item.id})
-        self.browser.form.fixup()
-        self.browser['type'] = str(item_action.item.id)
-        self.browser.form.new_control('text', 'modus', {'value': '1'})
-        self.browser.form.fixup()
-        self.browser['modus'] = '1'
+        self.create_control("form", "text", "menge", str(amount))
+        self.create_control("form", "text", "type", str(defense_id))
+        self.create_control("form", "text", "modus", "1")
         self.logger.info("Submitting build defense request")
         self.submit_request()

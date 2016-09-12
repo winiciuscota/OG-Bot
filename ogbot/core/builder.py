@@ -17,7 +17,7 @@ class BuilderBot(BaseBot):
         """Auto build defenses on all planets"""
         planets = self.planets
         for planet in planets:
-            self.defense_client.auto_build_defenses(planet)
+            self.defense_client.auto_build_defenses_to_planet(planet)
 
     def auto_build_defenses_to_planet(self):
         """
@@ -30,7 +30,7 @@ class BuilderBot(BaseBot):
             self.logger.warning("Planet not found")
             return
 
-        self.defense_client.auto_build_defenses(origin_planet)
+        self.defense_client.auto_build_defenses_to_planet(origin_planet)
 
     def get_planet_for_construction(self):
         """
@@ -48,12 +48,12 @@ class BuilderBot(BaseBot):
         :return: planet object
         """
 
-        if planets == None:
+        if planets is None:
             planets = self.planets
 
         weaker_planet = self.buildings_client.get_weaker_planet(planets)
         construction_mode = self.buildings_client.is_in_construction_mode(weaker_planet)
-        if construction_mode == False:
+        if construction_mode is False:
             return weaker_planet
 
         # If the weaker planets is in construction mode make a recursive call

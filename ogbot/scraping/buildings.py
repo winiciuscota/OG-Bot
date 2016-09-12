@@ -1,12 +1,5 @@
-﻿from mechanize._beautifulsoup import BeautifulSOAP
-
-import util
-from mechanize import Browser
-from bs4 import BeautifulSoup
+﻿from bs4 import BeautifulSoup
 import re
-import logging
-import urlparse
-from enum import Enum
 from general import General
 from scraper import *
 
@@ -68,7 +61,8 @@ class Buildings(Scraper):
         super(Buildings, self).__init__(browser, config)
         self.general_client = General(browser, config)
 
-    def parse_buildings(self, buildings):
+    @staticmethod
+    def parse_buildings(buildings):
         planet_buildings = {}
         count = 0
         for building_type in BuildingTypes:
@@ -87,18 +81,19 @@ class Buildings(Scraper):
         for building_button in building_buttons:
             building_data = self.get_building_data_from_button(building_button)
 
-            if building_data != None:
+            if building_data is not None:
                 buildings.append(building_data)
         return buildings
 
-    def get_building_data_from_button(self, building_button):
+    @staticmethod
+    def get_building_data_from_button(building_button):
         """ Read the bulding data from the building button """
 
         id = building_button['ref']
         building_data = BUILDINGS_DATA.get(id)
 
         # ensures that execution will not break if there is a new item
-        if building_data != None:
+        if building_data is not None:
             try:
                 building_info = "".join(building_button.find("span", {"class": "level"})
                                         .findAll(text=True, recursive=False)[1])
@@ -114,7 +109,7 @@ class Buildings(Scraper):
             return None
 
     def get_weaker_planet(self, planets=None):
-        if planets == None:
+        if planets is None:
             planets = self.general_client.get_planets()
 
         planet_sum_buildings = []
@@ -125,7 +120,11 @@ class Buildings(Scraper):
             planet_sum_buildings.append((planet, buildings_sum))
             totals.append(buildings_sum)
 
-        weaker_planets = [planet_sum[0] for planet_sum in planet_sum_buildings if planet_sum[1] == min(totals)]
+        weaker_planets = [planet_sum[0]
+                          for planet_sum
+                          in planet_sum_buildings
+                          if planet_sum[1] == min(totals)]
+
         weaker_planet = next(iter(weaker_planets), None)
         return weaker_planet
 
@@ -152,7 +151,7 @@ class Buildings(Scraper):
             parent_block = build_image.parent
             building_btn = parent_block.find("a", {"id": "details"})
             building = self.get_building_data_from_button(building_btn)
-            if building != None:
+            if building is not None:
                 buildings.append(building.item)
 
         return buildings
@@ -172,22 +171,13 @@ class Buildings(Scraper):
             is already at the resources page of the planet
         """
 
-        if planet != None:
+        if planet is not None:
             url = self.url_provider.get_page_url('resources', planet)
             self.open_url(url)
 
-        self.browser.select_form(name='form')
-        self.browser.form.new_control('text', 'menge', {'value': '1'})
-        self.browser.form.fixup()
-        self.browser['menge'] = '1'
-
-        self.browser.form.new_control('text', 'type', {'value': str(building_data.id)})
-        self.browser.form.fixup()
-        self.browser['type'] = str(building_data.id)
-
-        self.browser.form.new_control('text', 'modus', {'value': '1'})
-        self.browser.form.fixup()
-        self.browser['modus'] = '1'
+        self.create_control("form", "text", "menge", "1")
+        self.create_control("form", "text", "type", str(building_data.id))
+        self.create_control("form", "text", "modus", "1")
 
         self.logger.info("Submitting form")
         self.submit_request()

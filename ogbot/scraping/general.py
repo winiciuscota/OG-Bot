@@ -1,8 +1,4 @@
-import util
-from mechanize import Browser
 from bs4 import BeautifulSoup
-import re
-import logging
 import urlparse
 import datetime
 from scraper import *
