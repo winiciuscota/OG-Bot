@@ -6,11 +6,11 @@ import os
 import util
 from scraper import Scraper
 
-class AuthenticationProvider(Scraper):
 
+class AuthenticationProvider(Scraper):
     def __init__(self, config):
         self.login_url = 'http://br.ogame.gameforge.com/'
-                        # http://s114-br.ogame.gameforge.com/game/index.php?page=overview
+        # http://s114-br.ogame.gameforge.com/game/index.php?page=overview
         self.index_url = 'http://s%s-br.ogame.gameforge.com' % config.universe + '/game/index.php'
         headers = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) \
         AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36')]
@@ -32,17 +32,17 @@ class AuthenticationProvider(Scraper):
         # self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
         self.cookies_file_name = 'cookies.tmp'
         super(AuthenticationProvider, self).__init__(br, config)
-        
+
     def verify_connection(self):
         res = self.open_url(self.index_url)
         soup = BeautifulSoup(res.get_data(), "lxml")
-        if soup.find("meta", { "name" : "ogame-player-name" }) == None:
+        if soup.find("meta", {"name": "ogame-player-name"}) == None:
             return False
         else:
             self.logger.info('Connection is ok')
-            self.logger.info('Logged in as %s ' % soup.find("meta", { "name" : "ogame-player-name" })['content'])
-            self.logger.info('Language is %s ' % soup.find("meta", { "name" : "ogame-language" })['content'])
-            self.logger.info('Game version is %s ' % soup.find("meta", { "name" : "ogame-version" })['content'])
+            self.logger.info('Logged in as %s ' % soup.find("meta", {"name": "ogame-player-name"})['content'])
+            self.logger.info('Language is %s ' % soup.find("meta", {"name": "ogame-language"})['content'])
+            self.logger.info('Game version is %s ' % soup.find("meta", {"name": "ogame-version"})['content'])
             return True
 
     def connect(self):

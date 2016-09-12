@@ -1,4 +1,3 @@
-import re
 import logging
 import sys
 
@@ -25,18 +24,18 @@ browser = auth_client.get_browser()
 bot = OgameBot(browser, config)
 
 switcher = {
-    'overview' : bot.overview,
-    'explore' : bot.explore,
-    'attack_inactive_planets' : bot.attack_inactive_planets,
-    'auto_build_defenses' : bot.auto_build_defenses,
-    'auto_build_defenses_to_planet' : bot.auto_build_defenses_to_planet,
-    'transport_resources_to_planet' : bot.transport_resources_to_planet,
-    'transport_resources_to_weaker_planet' : bot.transport_resources_to_weaker_planet,
-    'auto_build_structures' : bot.auto_build_structures
+    'overview': bot.overview,
+    'explore': bot.explore,
+    'attack_inactive_planets': bot.attack_inactive_planets,
+    'auto_build_defenses': bot.auto_build_defenses,
+    'auto_build_defenses_to_planet': bot.auto_build_defenses_to_planet,
+    'transport_resources_to_planet': bot.transport_resources_to_planet,
+    'transport_resources_to_weaker_planet': bot.transport_resources_to_weaker_planet,
+    'auto_build_structures': bot.auto_build_structures
 }
 
 function = switcher.get(config.mode)
-if function == None:
+if function is None:
     logger.warning("There is no mode named %s" % config.mode)
     logger.warning("The available modes are:")
     logger.warning("\toverview")

@@ -25,23 +25,20 @@ class MessagesBot(BaseBot):
         game_date = self.general_client.get_game_datetime()
 
         reports = self.get_spy_reports()
-        valid_reports = [ report for report
-                                    in reports
-                                    # Get reports from inactive players only
-                                    if report.player_state == galaxy.PlayerState.Inactive
-                                    # Get reports from last n minutes
-                                    and report.report_datetime >= (game_date - timedelta(minutes=self.config.spy_report_life))
-                                    ]
+        valid_reports = [report for report
+                         in reports
+                         # Get reports from inactive players only
+                         if report.player_state == galaxy.PlayerState.Inactive
+                         # Get reports from last n minutes
+                         and report.report_datetime >= (game_date - timedelta(minutes=self.config.spy_report_life))
+                         ]
 
         return valid_reports
 
-
-
     def get_valid_spy_reports_from_inactive_targets(self):
-
         reports = self.get_valid_spy_reports()
 
-        inactive_planets_reports = [ report for report
+        inactive_planets_reports = [report for report
                                     in reports
                                     # Get reports from inactive players only
                                     if report.player_state == galaxy.PlayerState.Inactive

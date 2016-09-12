@@ -1,4 +1,4 @@
-import unittest 
+import unittest
 import sys
 import datetime
 
@@ -11,4 +11,3 @@ from ogbot.scraping import fleet
 #     def test_get_ships_list(self):
 
 #         self.assertEquals()
-

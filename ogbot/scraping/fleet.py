@@ -1,16 +1,9 @@
 ﻿from __future__ import division
-import util
-from mechanize import Browser
-import mechanize
 from bs4 import BeautifulSoup
-import re
-import logging
-import urlparse
 import general
 import math
 from scraper import *
-import time
-import random
+
 
 class Fleet(Scraper):
     def __init__(self, browser, config):
@@ -23,17 +16,17 @@ class Fleet(Scraper):
         self.logger.info("Spying planet %s (%s)", destination_planet.name, destination_planet.coordinates)
 
         result = self.send_fleet(origin_planet, destination_planet.coordinates,
-            self.missions["spy"], { self.SHIPS_DATA.get('ep') : spy_probes_count})
+                                 self.missions["spy"], {self.SHIPS_DATA.get('ep'): spy_probes_count})
 
         return result
 
     def send_expedition(self, origin_planet, coordinates):
         fleet = {
-            # Small expeditino fleet
-            self.SHIPS_DATA.get('sg') : 1,
-            self.SHIPS_DATA.get('lf') : 2,
-            self.SHIPS_DATA.get('ep') : 1
-            }
+            # Small expedition fleet
+            self.SHIPS_DATA.get('sg'): 1,
+            self.SHIPS_DATA.get('lf'): 2,
+            self.SHIPS_DATA.get('ep'): 1
+        }
 
         self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.name, coordinates)
         self.send_fleet(origin_planet, coordinates, self.missions.get("expedition"), fleet)
@@ -44,7 +37,7 @@ class Fleet(Scraper):
         self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
 
         result = self.send_fleet(origin_planet, target_planet.coordinates,
-             self.missions["attack"], fleet)
+                                 self.missions["attack"], fleet)
         return result
 
     def transport_resources(self, origin_planet, destination_planet, resources):
@@ -59,7 +52,7 @@ class Fleet(Scraper):
         fleet = self.get_tranport_fleet(resources, origin_planet)
 
         self.send_fleet(origin_planet, destination_planet.coordinates,
-             self.missions["transport"], fleet, resources)
+                        self.missions["transport"], fleet, resources)
 
     def send_fleet(self, origin_planet, coordinates, mission, ships, resources=None):
         """
@@ -75,7 +68,7 @@ class Fleet(Scraper):
             2 - Alliance attack,
             9 - Destroy star
         """
-        if resources == None:
+        if resources is None:
             resources = general.Resources(0, 0)
 
         if origin_planet.coordinates == coordinates:
@@ -104,7 +97,7 @@ class Fleet(Scraper):
             control_name = "am" + str(ship.id)
             control = self.browser.form.find_control(control_name)
             # If there is no available ships exit
-            if control.readonly == False:
+            if not control.readonly:
                 self.browser[control_name] = str(amount)
             else:
                 self.logger.warning("Not enough %s to send" % ship.name)
@@ -122,7 +115,7 @@ class Fleet(Scraper):
         self.browser["position"] = coordinates.split(':')[2]
         self.submit_request()
 
-        # set mission and resouces to send
+        # set mission and resources to send
         try:
             self.browser.select_form(name='sendForm')
         except mechanize.FormNotFoundError:
@@ -136,17 +129,17 @@ class Fleet(Scraper):
         self.submit_request()
         self.logger.info("Sending %s from planet %s to coordinates %s" % (
             get_ships_list(ships), origin_planet.name, coordinates))
-        if resources.empty() != True:
+        if not resources.empty():
             self.logger.info("The fleet is transporting %s " % resources)
 
         return FleetResult.Success
 
-    def get_fleet_slots_usage(self, mission = None, soup = None):
+    def get_fleet_slots_usage(self, mission=None, soup=None):
         """
             Get fleet slot usage data.
         """
 
-        if soup == None:
+        if soup is None:
             url = self.url_provider.get_page_url('fleet')
             res = self.open_url(url)
             soup = BeautifulSoup(res.read(), "lxml")
@@ -164,12 +157,12 @@ class Fleet(Scraper):
         try:
             result = (int(slot_usage.split('/')[0].strip()), int(slot_usage.split('/')[1].strip()))
         except ValueError:
-            slot_usage = "".join(node[0].find("span", {"class" : "overmark"}).findAll(text=True, recursive=False))
+            slot_usage = "".join(node[0].find("span", {"class": "overmark"}).findAll(text=True, recursive=False))
             result = (int(slot_usage.split('/')[0].strip()), int(slot_usage.split('/')[1].strip()))
 
         return result
 
-    def get_tranport_fleet(self, resources, origin_planet = None):
+    def get_tranport_fleet(self, resources, origin_planet=None):
         """
             Get fleet for transporting resources,
             Will use small cargos if there is enough of them.
@@ -177,7 +170,7 @@ class Fleet(Scraper):
 
         resources_count = resources.total()
 
-        if origin_planet != None:
+        if origin_planet is not None:
             small_cargos = self.get_small_cargos(origin_planet)
             self.logger.info("Checking if there is enough small cargos for the mission")
             if (small_cargos.amount * 5000) > (resources_count):
@@ -202,15 +195,13 @@ class Fleet(Scraper):
         small_cargos = self.get_small_cargos(origin_planet)
         self.logger.info("Checking if there is enough small cargos for the mission")
         if (small_cargos.amount * 5000) > (resources_count):
-
             self.logger.info("Using small cargos")
             ships_count = int(math.ceil(resources_count / 5000))
             return {self.SHIPS_DATA.get('sg'): ships_count}
 
         self.logger.info("Not enough Small Cargos for this target, using Large Cargos instead")
         ships_count = int(math.ceil(resources_count / 25000))
-        return  { self.SHIPS_DATA.get('lg') : ships_count}
-
+        return {self.SHIPS_DATA.get('lg'): ships_count}
 
     def get_small_cargos(self, origin_planet):
         small_cargos_aux = [item_order for item_order
@@ -221,5 +212,6 @@ class Fleet(Scraper):
 
         return small_cargos
 
+
 def get_ships_list(ships):
-    return ", ".join([ str(ships.get(ship)) + ' ' + ship.name for ship in ships])
+    return ", ".join([str(ships.get(ship)) + ' ' + ship.name for ship in ships])

@@ -1,16 +1,16 @@
 from base import *
 from scraping import galaxy, fleet
 
+
 class SpyBot(BaseBot):
     """Logging functions for the bot"""
-    
+
     def __init__(self, browser, config, planets):
         self.fleet_client = fleet.Fleet(browser, config)
         self.galaxy_client = galaxy.Galaxy(browser, config)
-        
+
         super(SpyBot, self).__init__(browser, config, planets)
-        
-        
+
     def get_planets_in_systems(self, systems):
         """Get planets in the given systems"""
         planets_in_systems = []
@@ -23,24 +23,23 @@ class SpyBot(BaseBot):
         """Get nearest inactive planets in the given systems"""
 
         planets = [planet for planet
-                        in self.get_planets_in_systems(systems)
-                        if planet.player_state == galaxy.PlayerState.Inactive
-                        if planet.player_rank >= self.config.minimun_inactive_target_rank
-                        if planet.player_rank <= self.config.maximun_inactive_target_rank]
+                   in self.get_planets_in_systems(systems)
+                   if planet.player_state == galaxy.PlayerState.Inactive
+                   if planet.player_rank >= self.config.minimun_inactive_target_rank
+                   if planet.player_rank <= self.config.maximun_inactive_target_rank]
         return planets
 
-
-    def get_nearest_planets(self, origin_planet = None, nr_range = 3):
+    def get_nearest_planets(self, origin_planet=None, nr_range=3):
         """Get nearest planets from origin planet"""
 
-        if origin_planet == None:
+        if origin_planet is None:
             origin_planet = self.default_origin_planet
 
         self.logger.info("Getting nearest planets from %s", origin_planet.name)
 
         planets = []
         galaxy = origin_planet.coordinates.split(':')[0]
-        system =  origin_planet.coordinates.split(':')[1]
+        system = origin_planet.coordinates.split(':')[1]
         planets.extend(self.galaxy_client.get_planets(galaxy, system))
         for i in range(1, nr_range):
             target_previous_system = str(int(system) - i)
@@ -51,7 +50,7 @@ class SpyBot(BaseBot):
             planets.extend(later_planets)
         return planets
 
-    def get_nearest_inactive_planets(self, origin_planet = None, nr_range = 3):
+    def get_nearest_inactive_planets(self, origin_planet=None, nr_range=3):
         """Get nearest inactive planets from origin planet"""
 
         if origin_planet == None:
@@ -61,15 +60,15 @@ class SpyBot(BaseBot):
 
         nearest_planets = self.get_nearest_planets(origin_planet, nr_range)
         planets = [planet for planet
-                        in nearest_planets
-                        if planet.player_state == galaxy.PlayerState.Inactive
-                        if planet.player_rank >= self.config.minimun_inactive_target_rank]
+                   in nearest_planets
+                   if planet.player_state == galaxy.PlayerState.Inactive
+                   if planet.player_rank >= self.config.minimun_inactive_target_rank]
         return planets
-    
-    def spy_nearest_planets(self, origin_planet = None, nr_range = 3):
+
+    def spy_nearest_planets(self, origin_planet=None, nr_range=3):
         """Spy the nearest planets from origin"""
 
-        if origin_planet == None:
+        if origin_planet is None:
             origin_planet = self.default_origin_planet
 
         self.logger.info("Getting nearest planets from %s", origin_planet.name)
@@ -78,10 +77,10 @@ class SpyBot(BaseBot):
         for target_planet in target_planets:
             self.fleet_client.spy_planet(origin_planet, target_planet, self.config.spy_probes_count)
 
-    def spy_nearest_inactive_planets(self, origin_planet = None, nr_range = 3):
+    def spy_nearest_inactive_planets(self, origin_planet=None, nr_range=3):
         """ Spy the nearest inactive planets from origin"""
 
-        if origin_planet == None:
+        if origin_planet is None:
             origin_planet = self.default_origin_planet
 
         self.logger.info("Spying nearest inactive planets from %s", origin_planet.name)
@@ -90,15 +89,15 @@ class SpyBot(BaseBot):
 
         for target_planet in target_planets:
             self.fleet_client.spy_planet(origin_planet, target_planet, self.config.spy_probes_count)
-    
-    def get_systems_in_range(self, nr_range, planet = None):
+
+    def get_systems_in_range(self, nr_range, planet=None):
         """Return the systems in range"""
 
         systems = []
-        if planet == None:
-           planets = self.planets;
+        if planet is None:
+            planets = self.planets;
         else:
-           planets = [planet]
+            planets = [planet]
 
         for p in planets:
             systems.append("%s:%s" % (p.coordinates.split(":")[0], p.coordinates.split(":")[1]))
@@ -111,7 +110,7 @@ class SpyBot(BaseBot):
 
         # Return the list without duplicate systems
         return list(set(systems))
-        
+
     def associate_systems_to_origin_planet(self, systems):
         """Associate systems to the nearest player planet"""
 
@@ -121,11 +120,10 @@ class SpyBot(BaseBot):
             associated_systems.append((system, origin_planet))
 
         return associated_systems
-    
 
-    def auto_spy_inactive_planets(self, nr_range = None):
+    def auto_spy_inactive_planets(self, nr_range=None):
 
-        if nr_range == None:
+        if nr_range is None:
             nr_range = self.config.attack_range
 
         self.logger.info("Getting systems in range")
@@ -143,7 +141,7 @@ class SpyBot(BaseBot):
                 for index, target_planet in enumerate(target_planets):
                     # delay before sending mission
                     if index > 1:
-                         #Delay - wait a random time before sending fleet, this makes the bot less detectable
+                        # Delay - wait a random time before sending fleet, this makes the bot less detectable
                         delay = random.randint(self.config.spy_fleet_min_delay, self.config.spy_fleet_max_delay)
                         self.logger.info("Waiting for %s seconds" % delay)
                         time.sleep(delay)
@@ -153,5 +151,3 @@ class SpyBot(BaseBot):
                         self.logger.info("Waiting %d seconds for spy probes to return and free up some slots" % delay)
                         time.sleep(delay)
                         self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
-
-

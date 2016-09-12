@@ -1,5 +1,6 @@
 from bot import OgameBot
 
+
 class LoggerBot(OgameBot):
     """Logging functions for the bot"""
 
@@ -44,12 +45,12 @@ class LoggerBot(OgameBot):
             self.logger.info(planet)
 
     def log_nearest_planets(self):
-        planets = self.get_nearest_planets(nr_range =  15)
+        planets = self.get_nearest_planets(nr_range=15)
         for planet in planets:
             self.logger.info(planet)
 
     def log_nearest_inactive_planets(self):
-        planets = self.get_nearest_inactive_planets(nr_range = 15)
+        planets = self.get_nearest_inactive_planets(nr_range=15)
         for planet in planets:
             self.logger.info(planet)
 
@@ -70,7 +71,3 @@ class LoggerBot(OgameBot):
     def log_fleet_slot_usage(self):
         slot_usage = self.fleet_client.get_fleet_slots_usage()
         self.logger.info(slot_usage)
-
-
-
-

@@ -2,9 +2,9 @@ from base import BaseBot
 from scraping import *
 
 
-
 class LoggerBot(BaseBot):
     """Logging functions for the bot"""
+
     def __init__(self, browser, config, planets):
         self.fleet_client = fleet.Fleet(browser, config)
         self.movement_client = movement.Movement(browser, config)
@@ -13,7 +13,7 @@ class LoggerBot(BaseBot):
         self.general_client = general.General(browser, config)
         self.buildings_client = buildings.Buildings(browser, config)
         super(LoggerBot, self).__init__(browser, config, planets)
-        
+
     def log_planets(self):
         """Log planets info"""
         planets = self.planets
@@ -40,7 +40,7 @@ class LoggerBot(BaseBot):
 
     def log_overview(self):
         """Log planets overview"""
-        
+
         planets = self.general_client.get_planets()
 
         for planet in planets:
@@ -65,9 +65,7 @@ class LoggerBot(BaseBot):
             for buildings in planet.buildings:
                 self.print_building_item_order(buildings)
 
-
         self.log_fleet_movement()
-                
 
     def log_planets_in_same_system(self):
         """Log planets on same system"""
@@ -77,12 +75,12 @@ class LoggerBot(BaseBot):
             self.logger.info(planet)
 
     def log_nearest_planets(self):
-        planets = self.get_nearest_planets(nr_range =  15)
+        planets = self.get_nearest_planets(nr_range=15)
         for planet in planets:
             self.logger.info(planet)
 
     def log_nearest_inactive_planets(self):
-        planets = self.get_nearest_inactive_planets(nr_range = 15)
+        planets = self.get_nearest_inactive_planets(nr_range=15)
         for planet in planets:
             self.logger.info(planet)
 
@@ -107,7 +105,6 @@ class LoggerBot(BaseBot):
     def log_index_page(self):
         """Log the index page for test purposes"""
         self.general_client.log_index_page()
-
 
     def print_item_order(self, item_order):
         if item_order.amount > 0:

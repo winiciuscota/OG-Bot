@@ -10,6 +10,7 @@ from enum import Enum
 from general import General
 from scraper import *
 
+
 class BuildingTypes(Enum):
     """
     1. Mina de metal
@@ -52,12 +53,15 @@ BUILDINGS_DATA = {
 
 }
 
+
 class BuildingItem(Item): pass
+
 
 class BuildingData(object):
     def __init__(self, building, level):
         self.building = building
         self.level = level
+
 
 class Buildings(Scraper):
     def __init__(self, browser, config):
@@ -109,7 +113,7 @@ class Buildings(Scraper):
         else:
             return None
 
-    def get_weaker_planet(self, planets = None):
+    def get_weaker_planet(self, planets=None):
         if planets == None:
             planets = self.general_client.get_planets()
 
@@ -161,7 +165,7 @@ class Buildings(Scraper):
             self.logger.info('Building %s on planet %s' % (building_data.name, planet.name))
             self.build_structure_item(building_data)
 
-    def build_structure_item(self, building_data, planet = None):
+    def build_structure_item(self, building_data, planet=None):
         """
             Building structure to planet,
             it doesn't need the planet parameter if the browser
@@ -173,22 +177,22 @@ class Buildings(Scraper):
             self.open_url(url)
 
         self.browser.select_form(name='form')
-        self.browser.form.new_control('text','menge',{'value':'1'})
+        self.browser.form.new_control('text', 'menge', {'value': '1'})
         self.browser.form.fixup()
         self.browser['menge'] = '1'
 
-        self.browser.form.new_control('text','type',{'value': str(building_data.id)})
+        self.browser.form.new_control('text', 'type', {'value': str(building_data.id)})
         self.browser.form.fixup()
         self.browser['type'] = str(building_data.id)
 
-        self.browser.form.new_control('text','modus',{'value':'1'})
+        self.browser.form.new_control('text', 'modus', {'value': '1'})
         self.browser.form.fixup()
         self.browser['modus'] = '1'
 
         self.logger.info("Submitting form")
         self.submit_request()
 
-    def is_in_construction_mode(self, planet = None):
+    def is_in_construction_mode(self, planet=None):
         """
         Check if the planet is in construction mode
         :param planet: planet to check
@@ -200,4 +204,4 @@ class Buildings(Scraper):
         soup = BeautifulSoup(resp.read(), "lxml")
         # if the planet is in construction mode there shoud be a div with the
         # class construction
-        return soup.find("div", {"class" : "construction"}) != None
+        return soup.find("div", {"class": "construction"}) != None

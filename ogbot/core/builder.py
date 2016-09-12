@@ -3,7 +3,6 @@ from base import BaseBot
 from scraping import buildings, defense, general
 
 
-
 class BuilderBot(BaseBot):
     """Logging functions for the bot"""
 
@@ -42,7 +41,7 @@ class BuilderBot(BaseBot):
         planet = self.get_planet_candidate_for_construction(planets)
         return planet
 
-    def get_planet_candidate_for_construction(self, planets = None):
+    def get_planet_candidate_for_construction(self, planets=None):
         """
         Get the weaker planet that is not in construction mode
         :param planets: planets to search for, use all planets if None
@@ -62,7 +61,7 @@ class BuilderBot(BaseBot):
         planets = planets[:]
         planets.remove(weaker_planet)
 
-        #If there is no more planets return None
+        # If there is no more planets return None
         if not planets:
             return None
 
@@ -93,12 +92,12 @@ class BuilderBot(BaseBot):
             if resources.energy < 0:
                 self.logger.info("Planet has not enough energy, building solar plant or fusion reactor")
                 energy_buildings = [building for building
-                                                in available_buildings
-                                                if building.id == buildings.BUILDINGS_DATA.get("sp").id
-                                                or building.id == buildings.BUILDINGS_DATA.get("fr").id ]
+                                    in available_buildings
+                                    if building.id == buildings.BUILDINGS_DATA.get("sp").id
+                                    or building.id == buildings.BUILDINGS_DATA.get("fr").id]
 
                 if len(energy_buildings) > 0:
-                    #Get the last element from the list, this way the bot will build fusion reactors first
+                    # Get the last element from the list, this way the bot will build fusion reactors first
                     building = energy_buildings[-1]
                 else:
                     self.logger.info("No available resources to buld solar plant or fusion reactor")
@@ -106,4 +105,3 @@ class BuilderBot(BaseBot):
             self.buildings_client.build_structure(building, planet)
         else:
             self.logger.info("No available buildings on planet %s" % planet)
-

@@ -12,8 +12,8 @@ class Hangar(Scraper):
         url = self.url_provider.get_page_url('shipyard', planet)
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
-        ship_buttons = soup(attrs={'class' : "detail_button"})
-        
+        ship_buttons = soup(attrs={'class': "detail_button"})
+
         ships = []
         for ship_button in ship_buttons:
             id = ship_button['ref']
@@ -23,8 +23,8 @@ class Hangar(Scraper):
             if ship_data != None:
 
                 try:
-                    amount_info = "".join(ship_button.find("span", {"class" : "level"})
-                                .findAll(text=True, recursive=False)[1])
+                    amount_info = "".join(ship_button.find("span", {"class": "level"})
+                                          .findAll(text=True, recursive=False)[1])
                 except IndexError:
                     amount_info = "".join(ship_button.find("span", {"class": "level"})
                                           .findAll(text=True, recursive=False)[0])
@@ -32,4 +32,3 @@ class Hangar(Scraper):
                 ships.append(ItemAction(ShipItem(ship_data.id, ship_data.name), amount))
 
         return ships
-

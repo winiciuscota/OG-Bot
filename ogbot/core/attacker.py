@@ -1,6 +1,7 @@
 from base import *
 from scraping import fleet, movement, general
 
+
 class AttackerBot(BaseBot):
     """Logging functions for the bot"""
 
@@ -12,12 +13,10 @@ class AttackerBot(BaseBot):
 
         super(AttackerBot, self).__init__(browser, config, planets)
 
-
     def get_nearest_planet_to_target(self, target_planet):
         """Get the nearest planet to the target planet"""
 
         return get_nearest_planet_to_coordinates(target_planet.coordinates, self.planets)
-
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         ships = self.hangar_client.get_ships(origin_planet)
@@ -38,19 +37,19 @@ class AttackerBot(BaseBot):
             return True
 
         movements = [movement.destination_coords for movement
-                                                 in self.movement_client.get_fleet_movement()]
+                     in self.movement_client.get_fleet_movement()]
 
         self.logger.info("Got %d reports" % len(reports))
 
-        inactive_planets = [ report for report
-                                    in set(reports)
-                                    # Get reports from inactive players only
-                                    if report.player_state == galaxy.PlayerState.Inactive
-                                    # Don't attack planets that are already being attacked
-                                    and report.coordinates not in movements
-                                    # Don't attack defended planets
-                                    and report.defenses == 0
-                                    and report.fleet == 0]
+        inactive_planets = [report for report
+                            in set(reports)
+                            # Get reports from inactive players only
+                            if report.player_state == galaxy.PlayerState.Inactive
+                            # Don't attack planets that are already being attacked
+                            and report.coordinates not in movements
+                            # Don't attack defended planets
+                            and report.defenses == 0
+                            and report.fleet == 0]
 
         self.logger.info("Found %d recent spy reports of inactive players" % len(inactive_planets))
 
@@ -61,12 +60,11 @@ class AttackerBot(BaseBot):
 
         predicted_loot = 0
 
-
         for target in targets:
 
             if used_slots < available_slots:
                 self.logger.info("Slot usage: %d/%d" % (used_slots, slot_usage[1]))
-                    # Get the nearest planet from target
+                # Get the nearest planet from target
                 if self.planet == None:
                     origin_planet = self.get_nearest_planet_to_target(target)
                 else:
@@ -104,7 +102,7 @@ class AttackerBot(BaseBot):
         for index, _ in enumerate(range(3)):
 
             if index > 1:
-                #Delay - wait a random time before sending fleet, this makes the bot less detectable
+                # Delay - wait a random time before sending fleet, this makes the bot less detectable
                 delay = random.randint(self.config.expedition_fleet_min_delay, self.config.expedition_fleet_max_delay)
                 self.logger.info("Waiting for %s seconds" % delay)
                 time.sleep(delay)
@@ -113,11 +111,12 @@ class AttackerBot(BaseBot):
             res = self.send_expedition(target_planet)
             if res != fleet.FleetResult.Success:
                 self.logger.warning("Error launching expedition, retrying...")
-                #Retry 3 times
+                # Retry 3 times
                 for _ in range(3):
                     target_planet = self.get_random_player_planet()
                     res = self.send_expedition(target_planet)
                     break
+
 
 def get_distinct_targets(targets):
     """Given an list that possibly contains repeated targets, returns a list of distinct targets"""
@@ -126,6 +125,7 @@ def get_distinct_targets(targets):
         dict[obj.coordinates] = obj
     distinct_targets = dict.values()
     return distinct_targets
+
 
 def get_target_value(target):
     """Get the value of a target by its resources"""

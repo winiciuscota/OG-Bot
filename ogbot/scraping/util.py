@@ -2,23 +2,24 @@ import mechanize
 import urllib2
 import logging
 
+
 class UrlProvider:
     def __init__(self, universe):
         self.main_url = 'https://s' + str(universe) + '-br.ogame.gameforge.com/game/index.php'
         self.logger = logging.getLogger('ogame-bot')
 
         self.pages = {
-            'overview':         self.main_url + '?page=overview',
-            'resources':        self.main_url + '?page=resources',
-            'research':         self.main_url + '?page=research',
-            'shipyard':         self.main_url + '?page=shipyard',
-            'defense':          self.main_url + '?page=defense',
-            'fleet':            self.main_url + '?page=fleet1',
-            'galaxy':           self.main_url + '?page=galaxy',
-            'galaxyContent':    self.main_url + '?page=galaxyContent',
-            'messages':         self.main_url + '?page=messages',
-            'movement':         self.main_url + '?page=movement',
-            'missileAtack' :    self.main_url + '?page=missileattacklayer'
+            'overview': self.main_url + '?page=overview',
+            'resources': self.main_url + '?page=resources',
+            'research': self.main_url + '?page=research',
+            'shipyard': self.main_url + '?page=shipyard',
+            'defense': self.main_url + '?page=defense',
+            'fleet': self.main_url + '?page=fleet1',
+            'galaxy': self.main_url + '?page=galaxy',
+            'galaxyContent': self.main_url + '?page=galaxyContent',
+            'messages': self.main_url + '?page=messages',
+            'movement': self.main_url + '?page=movement',
+            'missileAtack': self.main_url + '?page=missileattacklayer'
         }
 
     def get_pages(self):
@@ -27,7 +28,7 @@ class UrlProvider:
         """
         return self.pages
 
-    def get_page_url(self, page, planet = None):
+    def get_page_url(self, page, planet=None):
         """
         Get page url for planet
         """
@@ -41,7 +42,3 @@ class UrlProvider:
         Return the main url
         """
         return self.main_url
-
-
-
-

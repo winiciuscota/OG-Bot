@@ -6,9 +6,8 @@ from core import *
 
 
 class OgameBot(object):
-
     def __init__(self, browser, config):
-        #Authenticate and get browser instance
+        # Authenticate and get browser instance
         self.config = config
         self.logger = logging.getLogger('OGBot')
 
@@ -61,4 +60,3 @@ class OgameBot(object):
 
     def auto_build_structures(self):
         self.builder_bot.auto_build_structures()
-
