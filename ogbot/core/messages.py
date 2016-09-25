@@ -1,7 +1,7 @@
 from base import BaseBot
 from datetime import timedelta
 
-from scraping import messages, general, galaxy
+from scraping import messages, general, scraper
 
 
 class MessagesBot(BaseBot):
@@ -28,7 +28,7 @@ class MessagesBot(BaseBot):
         valid_reports = [report for report
                          in reports
                          # Get reports from inactive players only
-                         if report.player_state == galaxy.PlayerState.Inactive
+                         if report.player_state == scraper.PlayerState.Inactive
                          # Get reports from last n minutes
                          and report.report_datetime >= (game_date - timedelta(minutes=self.config.spy_report_life))
                          ]
@@ -41,7 +41,7 @@ class MessagesBot(BaseBot):
         inactive_planets_reports = [report for report
                                     in reports
                                     # Get reports from inactive players only
-                                    if report.player_state == galaxy.PlayerState.Inactive
+                                    if report.player_state == scraper.PlayerState.Inactive
                                     ]
 
         return inactive_planets_reports

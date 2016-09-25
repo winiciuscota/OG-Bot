@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib
 from enum import Enum
-from scraper import Scraper
+from scraper import *
 
 
 class Galaxy(Scraper):
@@ -62,12 +62,6 @@ class Galaxy(Scraper):
             player_rank_string = player_rank_node.find("a").text.strip()
             player_rank = int(player_rank_string if player_rank_string else "-1")
             return player_rank
-
-
-class PlayerState(Enum):
-    Active = 1
-    Inactive = 2
-    Vacation = 3
 
 
 class Planet(object):

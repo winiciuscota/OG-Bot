@@ -62,24 +62,28 @@ class Messages(Scraper):
 
         for message_box in message_boxes:
 
-            # We already are in the spionage tab, there is only spy reports and reports from other
+            # We already are in the espionage tab, there is only spy reports and reports from other
             # players spying on us here. If the report is from other player spying on us the message div
             # should contain an span with the class espionageDefText
-            is_spy_report = True if message_box.find("span", {"class": "espionageDefText"}) == None else False
+            is_spy_report = True if message_box.find("span", {"class": "espionageDefText"}) is None else False
 
             msg_date_node = message_box.find("span", {"class": "msg_date fright"})
             message_datetime = parse_report_datetime(
-                msg_date_node.text if msg_date_node != None else "1.1.2016 00:00:00")
+                msg_date_node.text if msg_date_node is not None else "1.1.2016 00:00:00")
 
             if is_spy_report:
                 planet_info = message_box.find("a", {"class": "txt_link"}).text
                 planet_name = planet_info.split('[')[0].strip()
-                coordinates = planet_info.split('[')[1].replace(']', '').strip()
-                player_name = ''
-                player_state = ''
+                coordinates_data = planet_info.split('[')
+
+                # If there is nothing after an '[' character it means the planet has been destroyed
+                if len(coordinates_data) <= 1:
+                    self.logger.info("Hmm, I found a destroyed planet")
+                    continue
+                coordinates = coordinates_data[1].replace(']', '').strip()
                 # find inactive player name
                 player_node = message_box.find("span", {"class": "status_abbr_longinactive"})
-                if player_node != None:
+                if player_node is not None:
                     player_name = player_node.text.strip()
                     player_state = galaxy.PlayerState.Inactive
                 else:
@@ -92,7 +96,7 @@ class Messages(Scraper):
                     resources_row = message_content[1]
                     resources_data = resources_row.findAll("span", {"class": "resspan"})
                     resources = None
-                    if resources_data != None:
+                    if resources_data is not None:
                         metal = parse_resource(resources_data[0].text)
                         crystal = parse_resource(resources_data[1].text)
                         deuterium = parse_resource(resources_data[2].text)
@@ -104,7 +108,7 @@ class Messages(Scraper):
                     fleet_data = defense_row.find("span", {"class": "ctn ctn4 tooltipLeft"})
                     defenses_data = defense_row.find("span", {"class": "ctn ctn4 fright tooltipRight"})
 
-                    if fleet_data != None and defenses_data != None:
+                    if fleet_data is not None and defenses_data is not None:
                         fleet = parse_resource(fleet_data.text)
                         defenses = parse_resource(defenses_data.text)
                     else:

@@ -34,7 +34,7 @@ class Fleet(Scraper):
     def attack_inactive_planet(self, origin_planet, target_planet):
         fleet = self.get_attack_fleet(origin_planet, target_planet)
 
-        self.logger.info("Atacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
+        self.logger.info("Attacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
 
         result = self.send_fleet(origin_planet, target_planet.coordinates,
                                  self.missions["attack"], fleet)
@@ -194,26 +194,30 @@ class Fleet(Scraper):
         :param resources_count: Amount of resources to transport
         :return: Get fleet of cargos for the mission
         """
-        small_cargos = self.get_small_cargos(origin_planet)
+        small_cargos_count = self.get_small_cargos(origin_planet)
         self.logger.info("Checking if there is enough small cargos for the mission")
-        if (small_cargos.amount * 5000) > resources_count:
+        if (small_cargos_count * 5000) > resources_count:
             self.logger.info("Using small cargos")
             ships_count = int(math.ceil(resources_count / 5000))
             return {self.SHIPS_DATA.get('sg'): ships_count}
+        else:
+            self.logger.info("Not enough Small Cargos, using Large Cargos instead")
+            ships_count = int(math.ceil(resources_count / 25000))
+            fleet = {self.SHIPS_DATA.get('lg'): ships_count}
+            return fleet
 
-        self.logger.info("Not enough Small Cargos, using Large Cargos instead")
-        ships_count = int(math.ceil(resources_count / 25000))
-        fleet = {self.SHIPS_DATA.get('lg'): ships_count}
-        return fleet
-
-    def get_small_cargos(self, origin_planet):
-        small_cargos_aux = [item_order for item_order
-                            in origin_planet.ships
-                            if item_order.item.id == self.SHIPS_DATA.get("sg").id]
+    def get_small_cargos(self, planet):
+        """
+        :param origin_planet: planet to get count of small cargos
+        :return: number of small cargos in the planet
+        """""
+        small_cargos_aux = [ship for ship
+                            in planet.ships
+                            if ship.item.id == self.SHIPS_DATA.get("sg").id]
 
         small_cargos = next(iter(small_cargos_aux), None)
 
-        return small_cargos
+        return small_cargos.amount if small_cargos is not None else 0
 
 
 def get_ships_list(ships):

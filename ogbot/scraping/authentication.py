@@ -3,7 +3,6 @@ from mechanize import Browser
 from bs4 import BeautifulSoup
 import cookielib
 import os
-import util
 from scraper import Scraper
 
 
@@ -14,13 +13,13 @@ class AuthenticationProvider(Scraper):
         self.index_url = 'http://s%s-br.ogame.gameforge.com' % config.universe + '/game/index.php'
         headers = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) \
         AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36')]
-        # Dados de autenticacao
+        # Authentication data
         self.username = config.username
         self.password = config.password
         self.universe = config.universe
 
         self.logger = logging.getLogger('ogame-bot')
-        # Preparando o browser
+        # Setting up the browser
         self.cj = cookielib.LWPCookieJar()
 
         br = Browser()
@@ -36,7 +35,7 @@ class AuthenticationProvider(Scraper):
     def verify_connection(self):
         res = self.open_url(self.index_url)
         soup = BeautifulSoup(res.get_data(), "lxml")
-        if soup.find("meta", {"name": "ogame-player-name"}) == None:
+        if soup.find("meta", {"name": "ogame-player-name"}) is None:
             return False
         else:
             self.logger.info('Connection is ok')
@@ -51,7 +50,7 @@ class AuthenticationProvider(Scraper):
         self.open_url(self.login_url)
         self.browser.select_form(name="loginForm")
 
-        # enter Username and password
+        # Enter Username and password
         self.browser['login'] = self.username
         self.browser['pass'] = self.password
         self.browser['uni'] = ['s%s-br.ogame.gameforge.com' % self.universe]
@@ -73,7 +72,7 @@ class AuthenticationProvider(Scraper):
         self.connect()
         connection = self.verify_connection()
 
-        if connection != True:
+        if not connection:
             self.logger.error("Unable to connect, check your username and password")
             exit()
 

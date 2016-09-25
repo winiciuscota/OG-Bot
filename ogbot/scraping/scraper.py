@@ -29,7 +29,7 @@ class Scraper(object):
             "d": ShipItem(213, "Destroyer"),
             "ds": ShipItem(214, "Deathstar"),
             "r": ShipItem(209, "Recycler"),
-            "ss": ShipItem(212, "Solar Satelellite"),
+            "ss": ShipItem(212, "Solar Satellite"),
 
             "204": ShipItem(204, "Light Fighter"),
             "205": ShipItem(205, "Heavy Fighter"),
@@ -44,7 +44,7 @@ class Scraper(object):
             "213": ShipItem(213, "Destroyer"),
             "214": ShipItem(214, "Deathstar"),
             "209": ShipItem(209, "Recycler"),
-            "212": ShipItem(212, "Solar Satelellite"),
+            "212": ShipItem(212, "Solar Satellite"),
         }
 
         self.missions = {
@@ -217,3 +217,9 @@ class FleetMovement(object):
 
     def __str__(self):
         return "Fleet from planet %s(%s) to planet %s" % (self.origin_name, self.origin_coords, self.destination_coords)
+
+
+class PlayerState(Enum):
+    Active = 1
+    Inactive = 2
+    Vacation = 3

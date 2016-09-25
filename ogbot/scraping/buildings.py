@@ -87,7 +87,7 @@ class Buildings(Scraper):
 
     @staticmethod
     def get_building_data_from_button(building_button):
-        """ Read the bulding data from the building button """
+        """ Read the building data from the building button """
 
         id = building_button['ref']
         building_data = BUILDINGS_DATA.get(id)

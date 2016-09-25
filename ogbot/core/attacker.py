@@ -1,5 +1,5 @@
 from base import *
-from scraping import fleet, movement, general
+from scraping import fleet, movement, general, scraper
 
 
 class AttackerBot(BaseBot):
@@ -44,11 +44,11 @@ class AttackerBot(BaseBot):
         inactive_planets = [report for report
                             in set(reports)
                             # Get reports from inactive players only
-                            if report.player_state == galaxy.PlayerState.Inactive
+                            if report.player_state == scraper.PlayerState.Inactive
                             # Don't attack planets that are already being attacked
                             and report.coordinates not in movements
                             # Don't attack defended planets
-                            and report.defenses == 0
+                            # and report.defenses == 0
                             and report.fleet == 0]
 
         self.logger.info("Found %d recent spy reports of inactive players" % len(inactive_planets))
@@ -61,11 +61,13 @@ class AttackerBot(BaseBot):
         predicted_loot = 0
 
         for target in targets:
-
+            if target.defenses != 0:
+                self.logger.warning("Found a inactive defended planet %s(%s) with %s" % (target.planet_name, target.coordinates, target.resources))
+                continue
             if used_slots < available_slots:
                 self.logger.info("Slot usage: %d/%d" % (used_slots, slot_usage[1]))
                 # Get the nearest planet from target
-                if self.planet == None:
+                if self.planet is None:
                     origin_planet = self.get_nearest_planet_to_target(target)
                 else:
                     origin_planet = self.planet
@@ -91,8 +93,7 @@ class AttackerBot(BaseBot):
 
     def auto_attack_inactive_planets(self):
         result = self.attack_inactive_planets_from_spy_reports()
-        if result == False:
-            self.logger.info("Sending Spy Probes")
+        if not result:
             self.auto_spy_inactive_planets(self.config.attack_range)
             self.logger.info("Waiting %f seconds for probes to return" % self.config.time_to_wait_for_probes)
             time.sleep(self.config.time_to_wait_for_probes)
