@@ -94,7 +94,8 @@ class BuilderBot(BaseBot):
                 energy_buildings = [building for building
                                     in available_buildings
                                     if building.id == buildings.BUILDINGS_DATA.get("sp").id
-                                    or building.id == buildings.BUILDINGS_DATA.get("fr").id]
+                                    or (building.id == buildings.BUILDINGS_DATA.get("fr")
+                                    and config.build_fusion_reactor)]
 
                 if len(energy_buildings) > 0:
                     # Get the last element from the list, this way the bot will build fusion reactors first

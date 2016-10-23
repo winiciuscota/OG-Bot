@@ -62,6 +62,7 @@ class Config(object):
             self.spy_probes_count = config.getint('Settings', 'SpyProbesCount')  # Amount of spy probes to send
             self.min_res_to_attack = config.getint('Settings', 'MinResToSendAttack')  # Min resources to send attack
             self.expedition_range = config.getint('Settings', 'ExpeditionRange')  # range to send expeditions
+            self.build_fusion_reactor = config.getboolean('Settings', 'FusionReactor') # build fusion reactor or not
 
             # Override default mode if the user has specified a mode by parameters
             if len(self.argv) > 1:
