@@ -23,18 +23,40 @@ class ResearcherBot(BaseBot):
         available_research = self.research_client.get_available_research_for_planet(planet)
         available_research_item = None
 
-        if available_research is not None:
-            available_research_item = available_research[0]
+        priority_list = [
+            109,    #WeaponTech
+            110,    #ShieldTech
+            111,    #ArmourTech
+            113,    #EnergyTech
+            120,    #LaserTech
+            115,    #CombustionDrive
+            106,    #EspionageTech
+            108,    #ComputerTech
+            121,    #IonTech
+            117,    #ImpulseDrive
+            124,    #AstroPhysics
+            114,    #HyperspaceTech
+            118,    #HyperspaceDrive
+
+        ]
+
+        for aresearch in available_research:
+            if aresearch.id in priority_list:
+                available_research_item = aresearch
+                break
+
+        if len(available_research) > 1:
+            for research_canidate in available_research:
+                if research_canidate.id in priority_list:
+                    rc_priority = priority_list.index(research_canidate.id)
+                    r_priority =  priority_list.index(available_research_item.id)
+                    if rc_priority < r_priority:
+                        available_research_item = research_canidate
+
 
             self.logger.info("Available Research:")
             for item in available_research:
                 self.logger.info("      " + item.name)
-
-            # Favor ship upgrades
-            for item in available_research:
-                if item.id in [109, 110, 111]:
-                    available_research_item = item
-                    break
 
         return available_research_item
 
