@@ -40,6 +40,7 @@ class Config(object):
             self.username = config.get('UserInfo', 'Username')
             self.password = config.get('UserInfo', 'Password')
             self.universe = config.get('UserInfo', 'Universe')
+            self.country = config.get('UserInfo', 'Country')
             self.mode = config.get('Settings', 'DefaultMode')
             self.default_origin_planet_name = config.get('Settings', 'DefaultOriginPlanet')
             self.attack_range = config.getint('Settings', 'AttackRange')
