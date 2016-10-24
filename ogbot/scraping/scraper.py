@@ -9,7 +9,7 @@ class Scraper(object):
 
     def __init__(self, browser, config):
         self.config = config
-        self.url_provider = util.UrlProvider(self.config.universe)
+        self.url_provider = util.UrlProvider(self.config.universe, self.config.country)
         self.logger = logging.getLogger('OGBot')
         self.browser = browser
 

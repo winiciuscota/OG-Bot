@@ -4,8 +4,8 @@ import logging
 
 
 class UrlProvider:
-    def __init__(self, universe):
-        self.main_url = 'https://s' + str(universe) + '-br.ogame.gameforge.com/game/index.php'
+    def __init__(self, universe, country):
+        self.main_url = 'https://s' + str(universe) + '-' + country + '.ogame.gameforge.com/game/index.php'
         self.logger = logging.getLogger('ogame-bot')
 
         self.pages = {

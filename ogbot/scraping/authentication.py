@@ -8,15 +8,16 @@ from scraper import Scraper
 
 class AuthenticationProvider(Scraper):
     def __init__(self, config):
-        self.login_url = 'http://br.ogame.gameforge.com/'
+        self.login_url = 'http://%s.ogame.gameforge.com/' % config.country
         # http://s114-br.ogame.gameforge.com/game/index.php?page=overview
-        self.index_url = 'http://s%s-br.ogame.gameforge.com' % config.universe + '/game/index.php'
+        self.index_url = 'http://s%s-%s.ogame.gameforge.com' % (config.universe, config.country) + '/game/index.php'
         headers = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) \
         AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36')]
         # Authentication data
         self.username = config.username
         self.password = config.password
         self.universe = config.universe
+        self.country = config.country
 
         self.logger = logging.getLogger('ogame-bot')
         # Setting up the browser
@@ -53,7 +54,7 @@ class AuthenticationProvider(Scraper):
         # Enter Username and password
         self.browser['login'] = self.username
         self.browser['pass'] = self.password
-        self.browser['uni'] = ['s%s-br.ogame.gameforge.com' % self.universe]
+        self.browser['uni'] = ['s%s-%s.ogame.gameforge.com' % (self.universe, self.country)]
         self.logger.info('Logging in to server: %s' % self.browser['uni'])
         self.submit_request()
         self.logger.info('Saving authentication data')
