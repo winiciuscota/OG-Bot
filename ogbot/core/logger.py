@@ -1,6 +1,5 @@
 from base import BaseBot
-from scraping import *
-
+from scraping import fleet, movement, defense, hangar, general, buildings, research
 
 class LoggerBot(BaseBot):
     """Logging functions for the bot"""
@@ -12,6 +11,7 @@ class LoggerBot(BaseBot):
         self.hangar_client = hangar.Hangar(browser, config)
         self.general_client = general.General(browser, config)
         self.buildings_client = buildings.Buildings(browser, config)
+        self.research_client = research.Research(browser, config)
         super(LoggerBot, self).__init__(browser, config, planets)
 
     def log_planets(self):
@@ -49,6 +49,8 @@ class LoggerBot(BaseBot):
             planet.fleet = self.hangar_client.get_ships(planet)
             planet.buildings = self.buildings_client.get_buildings(planet)
 
+            planet.research = self.research_client.get_research(planet)
+
         for planet in planets:
             self.logger.info("Planet %s:", planet)
             self.logger.info("Resources: [%s]", planet.resources)
@@ -64,6 +66,11 @@ class LoggerBot(BaseBot):
             self.logger.info("Buildings: ")
             for buildings in planet.buildings:
                 self.print_building_item_order(buildings)
+
+        # We need the research output only once
+        self.logger.info("Research: ")
+        for research in planets[0].research:
+            self.print_building_item_order(research)
 
         self.log_fleet_movement()
 
