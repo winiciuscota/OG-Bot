@@ -1,5 +1,6 @@
 from base import BaseBot
 from scraping import *
+from scraping import scraper
 
 
 class LoggerBot(BaseBot):
@@ -50,9 +51,6 @@ class LoggerBot(BaseBot):
             planet.buildings = self.buildings_client.get_buildings(planet)
 
         for planet in planets:
-            self.logger.info("Planet %s:", planet)
-            self.logger.info("Resources: [%s]", planet.resources)
-
             self.logger.info("Defenses: ")
             for defense in planet.defenses:
                 self.print_item_order(defense)
@@ -64,6 +62,16 @@ class LoggerBot(BaseBot):
             self.logger.info("Buildings: ")
             for buildings in planet.buildings:
                 self.print_building_item_order(buildings)
+
+        total_resources = scraper.Resources(0, 0, 0)
+
+        for planet in planets:
+            self.logger.info("Planet %s:", planet)
+            self.logger.info("Resources: [%s]", planet.resources)
+
+            total_resources.sum(planet.resources)
+
+        self.logger.info("Total of resources is: [%s]", total_resources)
 
         self.log_fleet_movement()
 

@@ -1,3 +1,4 @@
+import argparse
 import logging
 import sys
 
@@ -5,6 +6,14 @@ from bot import OgameBot
 from config import Config
 
 from scraping import authentication
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', help='Mode in which to run the bot')
+parser.add_argument('-r', help='Range of the bot')
+parser.add_argument('-p', help='Origin planet')
+
+args = parser.parse_args()
 
 # setting up logger
 logger = logging.getLogger('OGBot')
@@ -16,7 +25,7 @@ logger.addHandler(ch)
 
 logger.info('Starting the bot')
 
-config = Config(sys.argv)
+config = Config(args)
 
 auth_client = authentication.AuthenticationProvider(config)
 browser = auth_client.get_browser()

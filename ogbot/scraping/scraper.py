@@ -131,13 +131,13 @@ class Resources(object):
     def __str__(self):
         result = []
         if self.metal != 0:
-            result.append("Metal: %s" % self.metal)
+            result.append("Metal: %s" % "{:,.0f}".format(self.metal))
         if self.crystal != 0:
-            result.append("Crystal: %s" % self.crystal)
+            result.append("Crystal: %s" % "{:,.0f}".format(self.crystal))
         if self.deuterium != 0:
-            result.append("Deuterium: %s" % self.deuterium)
+            result.append("Deuterium: %s" % "{:,.0f}".format(self.deuterium))
         if self.energy != 0:
-            result.append("Energy: %s" % self.energy)
+            result.append("Energy: %s" % "{:,.0f}".format(self.energy))
         return ', '.join(result)
 
     def total(self):
@@ -146,6 +146,10 @@ class Resources(object):
     def empty(self):
         return self.metal == 0 and self.crystal == 0 and self.deuterium == 0
 
+    def sum(self, resources):
+        self.metal += resources.metal
+        self.crystal += resources.crystal
+        self.deuterium += resources.deuterium
 
 class Planet(object):
     def __init__(self, name, link, coordinates, resources=None, defenses=None, fleet=None):
