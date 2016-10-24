@@ -43,3 +43,5 @@ class ResearcherBot(BaseBot):
         research = self.get_next_research_item(planet)
         if research is not None:
             self.research_client.research_item(research, planet)
+        else:
+            self.logger.info("Nothing to research on planet %s" % planet)
