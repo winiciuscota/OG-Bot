@@ -94,7 +94,7 @@ class BuilderBot(BaseBot):
                 energy_buildings = [building for building
                                     in available_buildings
                                     if building.id == buildings.BUILDINGS_DATA.get("sp").id
-                                    or (building.id == buildings.BUILDINGS_DATA.get("fr")
+                                    or (building.id == buildings.BUILDINGS_DATA.get("fr").id
                                     and config.build_fusion_reactor)]
 
                 if len(energy_buildings) > 0:
