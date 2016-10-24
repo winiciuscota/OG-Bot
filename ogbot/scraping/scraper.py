@@ -148,7 +148,7 @@ class Resources(object):
 
 
 class Planet(object):
-    def __init__(self, name, link, coordinates, resources=None, defenses=None, fleet=None):
+    def __init__(self, name, link, coordinates, resources=None, defenses=None, fleet=None, research=None):
         """
         :param name: Planet name
         :param link: Planet link
@@ -163,6 +163,7 @@ class Planet(object):
         self.resources = resources
         self.defenses = defenses
         self.fleet = fleet
+        self.research = research
 
     def __str__(self):
         return "[Planet: %s, Link: %s, Coordinates: %s]" % (self.name, self.link, self.coordinates)
@@ -202,6 +203,8 @@ class DefenseItem(Item): pass
 
 
 class BuildingItem(Item): pass
+
+class ReasearchItem(Item): pass
 
 
 class FleetMovement(object):

@@ -2,7 +2,8 @@ import time
 import logging
 
 from scraping import general
-from core import *
+from core import attacker, base, builder, expeditionary, logger, messages
+from core import researcher, spy, transporter
 
 
 class OgameBot(object):
@@ -20,6 +21,7 @@ class OgameBot(object):
         self.transporter_bot = transporter.TransporterBot(browser, config, planets)
         self.builder_bot = builder.BuilderBot(browser, config, planets)
         self.messages_bot = messages.MessagesBot(browser, config, planets)
+        self.researcher_bot = researcher.ResearcherBot(browser, config, planets)
 
     def explore(self):
         self.expeditionary_bot.auto_send_expeditions()
@@ -60,3 +62,6 @@ class OgameBot(object):
 
     def auto_build_structures(self):
         self.builder_bot.auto_build_structures()
+
+    def auto_research(self):
+        self.researcher_bot.auto_research_next_item()
