@@ -1,4 +1,3 @@
-﻿from mechanize import Browser
 from bs4 import BeautifulSoup
 from scraper import *
 
