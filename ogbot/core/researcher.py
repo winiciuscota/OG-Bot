@@ -39,23 +39,24 @@ class ResearcherBot(BaseBot):
 
         ]
 
-        for aresearch in available_research:
-            if aresearch.id in priority_list:
-                available_research_item = aresearch
-                break
+        if available_research:
+            for aresearch in available_research:
+                if aresearch.id in priority_list:
+                    available_research_item = aresearch
+                    break
 
-        if len(available_research) > 1:
-            for research_canidate in available_research:
-                if research_canidate.id in priority_list:
-                    rc_priority = priority_list.index(research_canidate.id)
-                    r_priority =  priority_list.index(available_research_item.id)
-                    if rc_priority < r_priority:
-                        available_research_item = research_canidate
+            if len(available_research) > 1:
+                for research_canidate in available_research:
+                    if research_canidate.id in priority_list:
+                        rc_priority = priority_list.index(research_canidate.id)
+                        r_priority =  priority_list.index(available_research_item.id)
+                        if rc_priority < r_priority:
+                            available_research_item = research_canidate
 
 
-            self.logger.info("Available Research:")
-            for item in available_research:
-                self.logger.info("      " + item.name)
+                self.logger.info("Available Research:")
+                for item in available_research:
+                    self.logger.info("      " + item.name)
 
         return available_research_item
 
