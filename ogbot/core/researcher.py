@@ -26,11 +26,11 @@ class ResearcherBot(BaseBot):
             109,    #WeaponTech
             110,    #ShieldTech
             111,    #ArmourTech
+            106,    #EspionageTech
+            108,    #ComputerTech
             113,    #EnergyTech
             120,    #LaserTech
             115,    #CombustionDrive
-            106,    #EspionageTech
-            108,    #ComputerTech
             121,    #IonTech
             117,    #ImpulseDrive
             124,    #AstroPhysics
