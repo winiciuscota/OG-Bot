@@ -145,6 +145,11 @@ class Fleet(Scraper):
             soup = BeautifulSoup(res.read(), "lxml")
 
         slots_info = soup.find("div", {"id": "slots"})
+
+        if slots_info is None:
+            self.logger.warning("Error Getting fleet slots data")
+            return 0, 15
+
         flefts = slots_info.findAll("div", {"class": "fleft"})
 
         if mission == self.missions.get("expedition"):

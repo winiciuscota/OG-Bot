@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import urllib
 from enum import Enum
 from scraper import *
+from ast import literal_eval
 
 
 class Galaxy(Scraper):
@@ -13,21 +14,23 @@ class Galaxy(Scraper):
         url = self.url_provider.get_page_url('galaxyContent')
         data = urllib.urlencode({'galaxy': galaxy, 'system': system})
         res = self.open_url(url, data).read()
+        res2 = str(literal_eval(res))
+        soup = BeautifulSoup(res2, "lxml")
 
-        soup = BeautifulSoup(res, "lxml")
-
-        nodes = soup.findAll("td", {"class": "planetname "})
+        nodes = soup.findAll("td", {"class": 'planetname'})
         table_rows = [node.parent for node in nodes]
 
         planets = []
 
         for table_row in table_rows:
 
-            planet_name = table_row(attrs={'class': "planetname"})[0].text.strip()
+            planet_name = self.strip_text(table_row(attrs={'class': "planetname"})[0].text)
             planet_coordinates_data = table_row(attrs={'id': "pos-planet"})[0].text
-            planet_coordinates = str(planet_coordinates_data).translate(None, '[]')
-            player_name_data = table_row(attrs={'class': "playername"})[0]
-            player_name_heading = player_name_data.find('h1')
+            planet_coordinates = self.strip_text(str(planet_coordinates_data).split(']')[0])
+            # player_name_data = table_row(attrs={'class': "playername"})[0]
+            # player_name_heading = player_name_data.find('h1')
+            player_name_data = None
+            player_name_heading = table_row.find('h1')
             if player_name_heading is None:
                 continue
             player_name = player_name_heading.find('span').text
@@ -45,6 +48,10 @@ class Galaxy(Scraper):
             planets.append(Planet(planet_name, planet_coordinates, player_name, player_state, player_rank))
 
         return planets
+
+    @staticmethod
+    def strip_text(text):
+        return text.replace("\\n", '').strip("u' [ ]")
 
     @staticmethod
     def get_rank(soup, player_name):

@@ -129,7 +129,7 @@ class SpyBot(BaseBot):
 
         self.logger.info("Getting systems in range")
         systems = self.get_systems_in_range(nr_range, self.planet)
-        self.logger.info("there is a total of %d systems in range" % len(systems))
+        self.logger.info("there is a total of %d systems in the range %d" % (len(systems), self.config.attack_range))
         associated_systems = self.associate_systems_to_origin_planet(systems);
 
         for planet in self.planets:

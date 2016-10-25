@@ -4,8 +4,7 @@ import os
 
 
 class Config(object):
-    def __init__(self, argv):
-        self.argv = argv
+    def __init__(self, args):
         config = ConfigParser.ConfigParser()
 
         current_file = os.path.abspath(os.path.dirname(__file__))
@@ -28,6 +27,9 @@ class Config(object):
                 AttackRange = 10
                 HowLongToWaitForProbes = 60
                 """
+
+        parameters = vars(args)
+
         if not cfg:
             # Config file is empty, log error
             self.logger.error(self.WRONG_ARGUMENTS_MESSAGE)
@@ -65,9 +67,18 @@ class Config(object):
             self.expedition_range = config.getint('Settings', 'ExpeditionRange')  # range to send expeditions
             self.build_fusion_reactor = config.getboolean('Settings', 'FusionReactor') # build fusion reactor or not
 
-            # Override default mode if the user has specified a mode by parameters
-            if len(self.argv) > 1:
-                self.mode = self.argv[1]
+            # read values from parameters
+            mode = parameters.get('m')
+            attack_range = parameters.get('r')
+            planet_name = parameters.get('p')
 
-            # Planet to operate in
-            self.planet_name = self.argv[2] if len(self.argv) > 2 else None
+
+            # Override default mode if the user has specified a mode by parameters
+            if mode is not None:
+                self.mode = mode
+
+            if attack_range is not None:
+                self.attack_range = int(attack_range)
+
+            self.planet_name = planet_name
+
