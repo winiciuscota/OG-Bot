@@ -11,7 +11,6 @@ class ResearcherBot(BaseBot):
         self.planets = planets
         super(ResearcherBot, self).__init__(browser, config, planets)
 
-
     def get_planet_for_research(self, planets=None):
         if planets is None:
             planets = self.planets

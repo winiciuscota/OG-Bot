@@ -26,7 +26,7 @@ class BuilderBot(BaseBot):
         """
         origin_planet = self.planet
 
-        if origin_planet == None:
+        if origin_planet is None:
             self.logger.warning("Planet not found")
             return
 
@@ -93,7 +93,8 @@ class BuilderBot(BaseBot):
                 self.logger.info("Planet has not enough energy, building solar plant or fusion reactor")
                 energy_buildings = [building for building
                                     in available_buildings
-                                    if building.id == buildings.BUILDINGS_DATA.get("sp").id
+                                    if (building.id == buildings.BUILDINGS_DATA.get("sp").id
+                                    and config.build_solar_plant)
                                     or (building.id == buildings.BUILDINGS_DATA.get("fr").id
                                     and config.build_fusion_reactor)]
 
@@ -101,7 +102,7 @@ class BuilderBot(BaseBot):
                     # Get the last element from the list, this way the bot will build fusion reactors first
                     building = energy_buildings[-1]
                 else:
-                    self.logger.info("No available resources to buld solar plant or fusion reactor")
+                    self.logger.info("No available resources to build solar plant or fusion reactor")
 
             self.buildings_client.build_structure(building, planet)
         else:

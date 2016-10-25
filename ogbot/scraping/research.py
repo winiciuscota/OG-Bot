@@ -4,25 +4,28 @@ from general import General
 from scraper import Item, ItemAction, Scraper
 from enum import Enum
 
+
 class ResearchItem(Item): pass
 
+
 class ResearchTypes(Enum):
-    EnergyTech                      = 113,
-    LaserTech                       = 120,
-    IonTech                         = 121,
-    HyperspaceTech                  = 114,
-    PlasmaTech                      = 122,
-    CombustionDrive                 = 115,
-    ImpulseDrive                    = 117,
-    HyperspaceDrive                 = 118,
-    EspionageTech                   = 106,
-    ComputerTech                    = 108,
-    AstroPhysics                    = 124,
-    IntergalacticResearchNetwork    = 123,
-    GravitonResearch                = 199,
-    WeaponTech                      = 109,
-    ShieldTech                      = 110,
-    ArmourTech                      = 111
+    EnergyTech = 113,
+    LaserTech = 120,
+    IonTech = 121,
+    HyperspaceTech = 114,
+    PlasmaTech = 122,
+    CombustionDrive = 115,
+    ImpulseDrive = 117,
+    HyperspaceDrive = 118,
+    EspionageTech = 106,
+    ComputerTech = 108,
+    AstroPhysics = 124,
+    IntergalacticResearchNetwork = 123,
+    GravitonResearch = 199,
+    WeaponTech = 109,
+    ShieldTech = 110,
+    ArmourTech = 111
+
 
 RESEARCH_DATA = {
     "113": ResearchItem(113, "Energy Technology"),
@@ -59,7 +62,7 @@ class Research(Scraper):
     def parse_research(research):
         planet_research = {}
         count = 0
-        for research_type in researchTypes:
+        for research_type in ResearchTypes:
             planet_research[research_type] = ResearchItem(research[count][0], research[count][1])
             count += 1
         return planet_research
@@ -102,7 +105,6 @@ class Research(Scraper):
         else:
             return None
 
-
     def get_available_research_for_planet(self, planet):
         """ Returns the the research on the page of the planetthat has enough resources to be built """
 
@@ -128,7 +130,6 @@ class Research(Scraper):
             research_item = None
             if research_item_btn is not None:
                 research_item = self.get_research_data_from_button(research_item_btn)
-
 
             if research_item is not None:
                 research.append(research_item.item)
@@ -169,4 +170,4 @@ class Research(Scraper):
         soup = BeautifulSoup(resp.read(), "lxml")
         # if the planet is in construction mode there shoud be a div with the
         # class construction
-        return soup.find("div", {"class": "construction"}) != None
+        return soup.find("div", {"class": "construction"}) is not None

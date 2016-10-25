@@ -66,6 +66,7 @@ class Config(object):
             self.min_res_to_attack = config.getint('Settings', 'MinResToSendAttack')  # Min resources to send attack
             self.expedition_range = config.getint('Settings', 'ExpeditionRange')  # range to send expeditions
             self.build_fusion_reactor = config.getboolean('Settings', 'FusionReactor') # build fusion reactor or not
+            self.build_solar_plant = config.getboolean('Settings', 'SolarPlant') # build solar planet or not
 
             # read values from parameters
             mode = parameters.get('m')

@@ -2,8 +2,7 @@ import time
 import logging
 
 from scraping import general
-from core import attacker, base, builder, expeditionary, logger, messages
-from core import researcher, spy, transporter
+from core import *
 
 
 class OgameBot(object):

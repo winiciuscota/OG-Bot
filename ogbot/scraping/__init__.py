@@ -9,4 +9,6 @@ __all__ = [
     "hangar",
     "messages",
     "movement",
-    "util"]
+    "util",
+    "research",
+    "scraper"]

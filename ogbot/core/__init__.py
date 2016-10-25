@@ -5,5 +5,6 @@ __all__ = [
     "messages",
     "spy",
     "transporter",
-    "logger"
+    "logger",
+    "researcher"
 ]
