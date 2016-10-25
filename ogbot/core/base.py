@@ -1,7 +1,5 @@
 from scraping import *
 import logging
-from datetime import timedelta
-import random
 
 
 class BaseBot(object):

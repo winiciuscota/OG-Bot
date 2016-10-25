@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import util
-from mechanize import Browser
 from bs4 import BeautifulSoup
-import re
-import logging
 from enum import Enum
 import urllib
 import galaxy
