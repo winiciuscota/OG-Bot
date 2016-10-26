@@ -1,6 +1,6 @@
 from base import *
 from scraping import fleet, movement, general, scraper
-
+import random
 
 class AttackerBot(BaseBot):
     """Logging functions for the bot"""

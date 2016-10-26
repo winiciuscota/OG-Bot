@@ -1,6 +1,5 @@
 import time
 import logging
-import random
 
 from scraping import general
 from core import *
