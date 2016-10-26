@@ -3,7 +3,7 @@ import urllib
 from enum import Enum
 from scraper import *
 from ast import literal_eval
-
+import re
 
 class Galaxy(Scraper):
     def get_planets(self, galaxy, system):
@@ -15,31 +15,34 @@ class Galaxy(Scraper):
         data = urllib.urlencode({'galaxy': galaxy, 'system': system})
         res = self.open_url(url, data).read()
         res2 = str(literal_eval(res))
-        soup = BeautifulSoup(res2, "lxml")
+        soup = BeautifulSoup(self.strip_text(res2), "lxml")
 
-        nodes = soup.findAll("td", {"class": 'planetname'})
-        table_rows = [node.parent for node in nodes]
-
+        table = soup.find("table", {"id": "galaxytable"})
+        table_rows = table.findAll("tr", {"class": "row"})
         planets = []
 
         for table_row in table_rows:
 
+            # skip empty table rows
+            if "empty_filter" in table_row.get("class"):
+                continue
+
             planet_name = self.strip_text(table_row(attrs={'class': "planetname"})[0].text)
-            planet_coordinates_data = table_row(attrs={'id': "pos-planet"})[0].text
-            planet_coordinates = self.strip_text(str(planet_coordinates_data).split(']')[0])
-            # player_name_data = table_row(attrs={'class': "playername"})[0]
-            # player_name_heading = player_name_data.find('h1')
-            player_name_data = None
+            planet_position = self.strip_text(table_row.find('td', {'class': "position"}).text)
+            planet_coordinates = ":".join([galaxy, system, planet_position])
+            player_name_data = table_row(attrs={'class': "playername"})[0]
             player_name_heading = table_row.find('h1')
             if player_name_heading is None:
                 continue
             player_name = player_name_heading.find('span').text
-            player_state_data = player_name_data(attrs={'class': "status"})[0].text
 
             # Set player state
-            if '(I)' in player_state_data:
+            player_name_classes = player_name_data.get("class")
+
+            if 'longinactive' in player_name_classes:
                 player_state = PlayerState.Inactive
-            elif '(m I)' in player_state_data or '(m)' in player_state_data:
+
+            elif 'vacationlonginactive' in player_name_classes or 'vacation' in player_name_classes:
                 player_state = PlayerState.Vacation
             else:
                 player_state = PlayerState.Active
@@ -67,7 +70,8 @@ class Galaxy(Scraper):
         else:
             player_rank_node = player_rank_node_match[0]
             player_rank_string = player_rank_node.find("a").text.strip()
-            player_rank = int(player_rank_string if player_rank_string else "-1")
+            s = re.findall('^\d*', player_rank_string)
+            player_rank = int(s[0] if s[0] else "-1")
             return player_rank
 
 
