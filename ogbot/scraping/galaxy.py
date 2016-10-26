@@ -17,32 +17,32 @@ class Galaxy(Scraper):
         res2 = str(literal_eval(res))
         soup = BeautifulSoup(self.strip_text(res2), "lxml")
 
-        nodes = soup.findAll("td", {"class": 'planetname'})
-        table_rows = [node.parent for node in nodes]
-
+        table = soup.find("table", {"id": "galaxytable"})
+        table_rows = table.findAll("tr", {"class": "row"})
         planets = []
-
-        # The last item is always not valid, maybe theres a better method, but
-        # I dont have a better one for now
-        if len(table_rows) > 0:
-            del(table_rows[-1])
 
         for table_row in table_rows:
 
+            # skip empty table rows
+            if "empty_filter" in table_row.get("class"):
+                continue
+
             planet_name = self.strip_text(table_row(attrs={'class': "planetname"})[0].text)
-            planet_coordinates_data = self.strip_text(table_row(attrs={'id': "pos-planet"})[0].text)
-            planet_coordinates = unicode(planet_coordinates_data).split(']')[0]#.split('[')[2]
+            planet_position = self.strip_text(table_row.find('td', {'class': "position"}).text)
+            planet_coordinates = ":".join([galaxy, system, planet_position])
             player_name_data = table_row(attrs={'class': "playername"})[0]
             player_name_heading = table_row.find('h1')
             if player_name_heading is None:
                 continue
             player_name = player_name_heading.find('span').text
-            player_state_data = player_name_data(attrs={'class': "status"})[0].text
 
             # Set player state
-            if '(I)' in player_state_data:
+            player_name_classes = player_name_data.get("class")
+
+            if 'longinactive' in player_name_classes:
                 player_state = PlayerState.Inactive
-            elif '(m I)' in player_state_data or '(m)' in player_state_data:
+
+            elif 'vacationlonginactive' in player_name_classes or 'vacation' in player_name_classes:
                 player_state = PlayerState.Vacation
             else:
                 player_state = PlayerState.Active
