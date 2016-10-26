@@ -18,7 +18,7 @@ args = parser.parse_args()
 # setting up logger
 logger = logging.getLogger('OGBot')
 logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
+ch = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
