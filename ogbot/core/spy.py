@@ -1,6 +1,7 @@
 from base import *
 from scraping import galaxy, fleet
-
+import random
+import time
 
 class SpyBot(BaseBot):
     """Logging functions for the bot"""
