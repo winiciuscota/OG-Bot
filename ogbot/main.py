@@ -1,6 +1,7 @@
 import argparse
 import logging
 import sys
+import time
 from bot import OgameBot
 from config import Config
 
