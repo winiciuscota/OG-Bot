@@ -100,7 +100,7 @@ class Research(Scraper):
                 research_info = "".join(research_button.find("span", {"class": "level"})
                                         .findAll(text=True, recursive=False)[0])
 
-            level = int(re.sub("[^0-9]", "", research_info))
+            level = int(research_info.strip())
             return ItemAction(ResearchItem(research_data.id, research_data.name), level)
         else:
             return None
