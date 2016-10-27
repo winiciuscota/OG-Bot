@@ -26,9 +26,9 @@ The currently supported modes are: <br />
 
 e.g.: <br />
 
-python main.py explore - will run the bot on the explorer mode (send expeditions and attack inactive targets) <br />
+python main.py -m explore - will run the bot on the explorer mode (send expeditions and attack inactive targets) <br />
 
-python main.py transport_resources_to_planet planet_name - will transport all resources to the planet_name planet (must be one of your planets) <br />
+python main.py -m transport_resources_to_planet planet_name - will transport all resources to the planet_name planet (must be one of your planets) <br />
 
 
 4 - Have a nice day while the bot takes care of the boring parts =]<br />
