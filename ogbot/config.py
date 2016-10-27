@@ -43,7 +43,9 @@ class Config(object):
             self.password = config.get('UserInfo', 'Password')
             self.universe = config.get('UserInfo', 'Universe')
             self.country = config.get('UserInfo', 'Country')
-            self.mode = config.get('Settings', 'DefaultMode')
+            self.mode = []
+            for dmode in config.get('Settings', 'DefaultMode').split(','):
+                self.mode.append(dmode.strip())
             self.default_origin_planet_name = config.get('Settings', 'DefaultOriginPlanet')
             self.attack_range = config.getint('Settings', 'AttackRange')
             self.time_to_wait_for_probes = config.getint('Settings', 'HowLongToWaitForProbes')
@@ -73,7 +75,6 @@ class Config(object):
             attack_range = parameters.get('r')
             planet_name = parameters.get('p')
 
-
             # Override default mode if the user has specified a mode by parameters
             if mode is not None:
                 self.mode = mode
@@ -82,4 +83,3 @@ class Config(object):
                 self.attack_range = int(attack_range)
 
             self.planet_name = planet_name
-
