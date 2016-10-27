@@ -6,7 +6,7 @@ At the beginning the bot could only build defenses, now it can do a variety of t
 #Usage:
 
 1 - Install the requirements: <br />
-pip install requirements.txt <br />
+pip install -r requirements.txt <br />
 
 2 - Modify the user-sample.cfg file and rename it to user.cfg <br />
 
@@ -21,6 +21,8 @@ The currently supported modes are: <br />
 - transport_resources_to_planet - transport resources from all of your planets to planet x(must be one of your planets) <br />
 - transport_resources_to_weaker_planet - transport resources from all of your planets to the planet that has less buldings <br />
 - auto_build_structure_to_weaker_planet - Build structure on the weaker planet
+- auto_build_structures - Build structures on planets
+- auto_research - Research on your homeplanet
 
 e.g.: <br />
 
@@ -40,9 +42,9 @@ python main.py transport_resources_to_planet planet_name - will transport all re
 - Send Expeditons<br />
 - Overview player info<br />
 - Build structures<br />
-    
+- Research Technologies <br />
+
 #Credits:
 
 Many thanks to Rafał Furmański(http://rafal-furmanski.com/) for letting me use some snippets of his code (https://github.com/r4fek/ogame-bot).<br />
 Rafał Furmański's work was crucial for creating the functions to build defenses, send fleets and fetch galaxy's data <br/>
-
