@@ -58,9 +58,7 @@ class Defense(Scraper):
 
             # ensures that execution will not break if there is a new item
             if defense_data is not None:
-                amount_info = "".join(def_button.find("span", {"class": "level"})
-                                      .findAll(text=True, recursive=False)[1])
-                amount = int(re.sub("[^0-9]", "", amount_info))
+                amount = int(re.findall('\d+', def_button.text.strip())[0])
                 item = DefenseItem(defense_data.id, defense_data.name)
                 defenses.append(ItemAction(item, amount))
 
