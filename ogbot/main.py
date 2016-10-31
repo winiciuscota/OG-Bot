@@ -1,6 +1,7 @@
 import argparse
 import logging
 import sys
+import time
 from bot import OgameBot
 from config import Config
 
@@ -8,7 +9,7 @@ from scraping import authentication
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-m', help='Mode in which to run the bot')
+parser.add_argument('-m', help='Mode in which to run the bot', nargs='+')
 parser.add_argument('-r', help='Range of the bot')
 parser.add_argument('-p', help='Origin planet')
 
@@ -43,18 +44,20 @@ switcher = {
     'auto_research': bot.auto_research
 }
 
-function = switcher.get(config.mode)
-if function is None:
-    logger.warning("There is no mode named %s" % config.mode)
-    logger.warning("The available modes are:")
-    logger.warning("\toverview")
-    logger.warning("\texplore")
-    logger.warning("\tattack_inactive_planets")
-    logger.warning("\tauto_build_defenses")
-    logger.warning("\tauto_build_defenses_to_planet")
-    logger.warning("\ttransport_resources_to_weaker_planet")
-    logger.warning("\tauto_build_structures")
-else:
-    logger.info("Bot running on %s mode" % config.mode)
-    function()
+for mode in config.mode:
+    function = switcher.get(mode)
+    if function is None:
+        logger.warning("There is no mode named %s" % mode)
+        logger.warning("The available modes are:")
+        logger.warning("\toverview")
+        logger.warning("\texplore")
+        logger.warning("\tattack_inactive_planets")
+        logger.warning("\tauto_build_defenses")
+        logger.warning("\tauto_build_defenses_to_planet")
+        logger.warning("\ttransport_resources_to_weaker_planet")
+        logger.warning("\tauto_build_structures")
+        logger.warning("\tauto_research")
+    else:
+        logger.info("Bot running in %s mode" % mode)
+        function()
 logger.info("Quiting bot")
