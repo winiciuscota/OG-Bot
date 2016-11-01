@@ -15,37 +15,37 @@ class Scheduler():
             SCHEDULES = {
                     'print_resources' : {
                         'enable':   self.config.schedules['print_resources']['enable'],
-                        'priority': 10,
+                        'priority': 1,
                         'delay': self.config.schedules['print_resources']['delay'],
                         'function': bot.print_resources
                     },
                     'auto_build_structures': {
                         'enable': self.config.schedules['auto_build_structures']['enable'],
-                        'priority': 1,
+                        'priority': 3,
                         'delay': self.config.schedules['auto_build_structures']['delay'],
                         'function': bot.auto_build_structures
                     },
                     'attack_inactive_planets': {
                         'enable': self.config.schedules['attack_inactive_planets']['enable'],
-                        'priority': 1,
+                        'priority': 2,
                         'delay': self.config.schedules['attack_inactive_planets']['delay'],
                         'function': bot.attack_inactive_planets
                     },
                     'auto_research': {
                         'enable': self.config.schedules['auto_research']['enable'],
-                        'priority': 1,
+                        'priority': 3,
                         'delay': self.config.schedules['auto_research']['delay'],
                         'function': bot.auto_research
                     },
                     'transport_resources_to_weaker_planet': {
                         'enable': self.config.schedules['transport_resources_to_weaker_planet']['enable'],
-                        'priority': 1,
+                        'priority': 3,
                         'delay': self.config.schedules['transport_resources_to_weaker_planet']['delay'],
                         'function': bot.transport_resources_to_weaker_planet
                     },
                     'auto_build_defenses': {
                         'enable': self.config.schedules['auto_build_defenses']['enable'],
-                        'priority': 1,
+                        'priority': 3,
                         'delay': self.config.schedules['auto_build_defenses']['delay'],
                         'function': bot.auto_build_defenses
                     }
