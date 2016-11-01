@@ -93,12 +93,12 @@ class Research(Scraper):
         if research_data is not None:
             try:
                 research_info = "".join(research_button.find("span", {"class": "level"})
-                                        .findAll(text=True, recursive=False)[1])
+                                        .findAll(text=True, recursive=False))
             # If we get an exception here it means the research is in construction mode, so we
             # the info we need will be at index 0
             except IndexError:
                 research_info = "".join(research_button.find("span", {"class": "level"})
-                                        .findAll(text=True, recursive=False)[0])
+                                        .findAll(text=True, recursive=False))
 
             level = int(research_info.strip())
             return ItemAction(ResearchItem(research_data.id, research_data.name), level)
