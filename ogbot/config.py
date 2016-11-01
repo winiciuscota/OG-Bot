@@ -84,3 +84,28 @@ class Config(object):
                 self.attack_range = int(attack_range)
 
             self.planet_name = planet_name
+
+            #Scheduler configuration
+            #self.schedules[print_resources = {}
+            schedules = {}
+            schedules['print_resources'] = {}
+            schedules['print_resources']['enable'] = config.getboolean('Scheduler', 'PrintRessources' )
+            schedules['print_resources']['delay'] = config.getint('Scheduler', 'PrintRessourcesDelay')
+            schedules['auto_build_structures'] = {}
+            schedules['auto_build_structures']['enable'] = config.getboolean('Scheduler', 'AutoBuildStructures' )
+            schedules['auto_build_structures']['delay'] = config.getint('Scheduler', 'AutoBuildStructuresDelay')
+            schedules['auto_research'] = {}
+            schedules['auto_research']['enable'] = config.getboolean('Scheduler', 'AutoResearch' )
+            schedules['auto_research']['delay'] = config.getint('Scheduler', 'AutoResearchDelay')
+            schedules['attack_inactive_planets'] = {}
+            schedules['attack_inactive_planets']['enable'] = config.getboolean('Scheduler', 'AttackInactivePlanets' )
+            schedules['attack_inactive_planets']['delay'] = config.getint('Scheduler', 'AttackInactivePlanetsDelay')
+            schedules['auto_build_defenses'] = {}
+            schedules['auto_build_defenses']['enable'] = config.getboolean('Scheduler', 'AutoBuildDefenses' )
+            schedules['auto_build_defenses']['delay'] = config.getint('Scheduler', 'AutoBuildDefensesDelay')
+            schedules['transport_resources_to_weaker_planet'] = {}
+            schedules['transport_resources_to_weaker_planet']['enable'] = config.getboolean('Scheduler', 'TransportResourcesToWeakerPlanet' )
+            schedules['transport_resources_to_weaker_planet']['delay'] = config.getint('Scheduler', 'TransportResourcesToWeakerPlanetDelay')
+
+
+            self.schedules = schedules

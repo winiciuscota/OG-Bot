@@ -13,29 +13,41 @@ class Scheduler():
 
         if self.config.scheduler:
             SCHEDULES = {
-                    'print_ressources' : {
-                        'enable': True,
+                    'print_resources' : {
+                        'enable':   self.config.schedules['print_resources']['enable'],
                         'priority': 10,
-                        'delay': 10,
-                        'function': bot.print_ressources
+                        'delay': self.config.schedules['print_resources']['delay'],
+                        'function': bot.print_resources
                     },
                     'auto_build_structures': {
-                        'enable': True,
+                        'enable': self.config.schedules['auto_build_structures']['enable'],
                         'priority': 1,
-                        'delay': 180,
+                        'delay': self.config.schedules['auto_build_structures']['delay'],
                         'function': bot.auto_build_structures
                     },
                     'attack_inactive_planets': {
-                        'enable': True,
+                        'enable': self.config.schedules['attack_inactive_planets']['enable'],
                         'priority': 1,
-                        'delay': 5400,
+                        'delay': self.config.schedules['attack_inactive_planets']['delay'],
                         'function': bot.attack_inactive_planets
                     },
                     'auto_research': {
-                        'enable': True,
+                        'enable': self.config.schedules['auto_research']['enable'],
                         'priority': 1,
-                        'delay': 3600,
+                        'delay': self.config.schedules['auto_research']['delay'],
                         'function': bot.auto_research
+                    },
+                    'transport_resources_to_weaker_planet': {
+                        'enable': self.config.schedules['transport_resources_to_weaker_planet']['enable'],
+                        'priority': 1,
+                        'delay': self.config.schedules['transport_resources_to_weaker_planet']['delay'],
+                        'function': bot.transport_resources_to_weaker_planet
+                    },
+                    'auto_build_defenses': {
+                        'enable': self.config.schedules['auto_build_defenses']['enable'],
+                        'priority': 1,
+                        'delay': self.config.schedules['auto_build_defenses']['delay'],
+                        'function': bot.auto_build_defenses
                     }
             }
 
@@ -46,9 +58,7 @@ class Scheduler():
             for schedule in SCHEDULES:
                 if SCHEDULES[schedule]['enable']:
                     self.set_schedule(schedule)
-                    #self.scheduler.enter(   SCHEDULES[schedule]['delay'],
-                    #                        SCHEDULES[schedule]['priority'],
-                    #                        SCHEDULES[schedule]['function'], ())
+
             self.scheduler.run()
 
     def set_schedule(self, function, delay=None, priority=None, retry=True):
@@ -64,6 +74,6 @@ class Scheduler():
             self.scheduler.enter(   delay, priority,
                                     self.schedules[function]['function'], ())
             if retry:
-                self.scheduler.enter(   delay, piority,
+                self.scheduler.enter(   delay, priority,
                                         self.set_schedule, (
                                             function, delay, priority))

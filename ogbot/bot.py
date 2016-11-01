@@ -24,7 +24,7 @@ class OgameBot(object):
         self.messages_bot = messages.MessagesBot(browser, config, planets)
         self.researcher_bot = researcher.ResearcherBot(browser, config, planets)
 
-    def print_ressources(self):
+    def print_resources(self):
         for planet in self.planets:
             res = self.general_client.get_resources(planet)
             self.logger.info("%s : %s" % (planet, res))
