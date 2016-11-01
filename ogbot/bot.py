@@ -11,7 +11,9 @@ class OgameBot(object):
         self.config = config
         self.logger = logging.getLogger('OGBot')
 
-        planets = general.General(browser, config).get_planets()
+        self.general_client = general.General(browser, config)
+        planets = self.general_client.get_planets()
+        self.planets = planets
 
         self.attacker_bot = attacker.AttackerBot(browser, config, planets)
         self.spy_bot = spy.SpyBot(browser, config, planets)
@@ -21,6 +23,11 @@ class OgameBot(object):
         self.builder_bot = builder.BuilderBot(browser, config, planets)
         self.messages_bot = messages.MessagesBot(browser, config, planets)
         self.researcher_bot = researcher.ResearcherBot(browser, config, planets)
+
+    def print_ressources(self):
+        for planet in self.planets:
+            res = self.general_client.get_resources(planet)
+            self.logger.info("%s : %s" % (planet, res))
 
     def explore(self):
         self.expeditionary_bot.auto_send_expeditions()

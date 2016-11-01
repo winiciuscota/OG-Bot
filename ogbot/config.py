@@ -74,6 +74,7 @@ class Config(object):
             mode = parameters.get('m')
             attack_range = parameters.get('r')
             planet_name = parameters.get('p')
+            self.scheduler = parameters.get('s')
 
             # Override default mode if the user has specified a mode by parameters
             if mode is not None:
