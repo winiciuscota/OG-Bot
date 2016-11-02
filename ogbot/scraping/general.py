@@ -21,7 +21,7 @@ class General(Scraper):
         return game_datetime
 
     def get_resources(self, planet):
-        self.logger.info('Getting resources data for planet %s' % planet.name)
+        self.logger.debug('Getting resources data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('resources', planet)
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
