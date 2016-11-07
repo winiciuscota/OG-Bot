@@ -14,10 +14,11 @@ parser.add_argument('-r', help='Range of the bot')
 parser.add_argument('-p', help='Origin planet')
 
 args = parser.parse_args()
+config = Config(args)
 
 # setting up logger
 logger = logging.getLogger('OGBot')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(config.log_level)
 ch = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
@@ -25,7 +26,6 @@ logger.addHandler(ch)
 
 logger.info('Starting the bot')
 
-config = Config(args)
 
 auth_client = authentication.AuthenticationProvider(config)
 browser = auth_client.get_browser()
