@@ -106,6 +106,8 @@ class Config(object):
             schedules['transport_resources_to_weaker_planet'] = {}
             schedules['transport_resources_to_weaker_planet']['enable'] = config.getboolean('Scheduler', 'TransportResourcesToWeakerPlanet' )
             schedules['transport_resources_to_weaker_planet']['delay'] = config.getint('Scheduler', 'TransportResourcesToWeakerPlanetDelay')
+            schedules['explore']['enable'] = config.getboolean('Scheduler', 'Explore' )
+            schedules['explore']['delay'] = config.getint('Scheduler', 'ExploreDelay')
 
 
             self.schedules = schedules

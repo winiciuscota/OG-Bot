@@ -48,6 +48,12 @@ class Scheduler():
                         'priority': 3,
                         'delay': self.config.schedules['auto_build_defenses']['delay'],
                         'function': bot.auto_build_defenses
+                    },
+                    'explore': {
+                        'enable': self.config.schedules['explore']['enable'],
+                        'priority': 3,
+                        'delay': self.config.schedules['explore']['delay'],
+                        'function': bot.explore
                     }
             }
 
