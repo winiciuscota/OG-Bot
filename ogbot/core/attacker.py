@@ -103,10 +103,10 @@ class AttackerBot(BaseBot):
 
 def get_distinct_targets(targets):
     """Given an list that possibly contains repeated targets, returns a list of distinct targets"""
-    dict = {}
+    dict_targets = {}
     for obj in targets:
-        dict[obj.coordinates] = obj
-    distinct_targets = dict.values()
+        dict_targets[obj.coordinates] = obj
+    distinct_targets = dict_targets.values()
     return distinct_targets
 
 

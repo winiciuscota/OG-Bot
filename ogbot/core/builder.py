@@ -1,7 +1,5 @@
 from base import BaseBot
-
-from scraping import buildings, defense, general
-
+from ogbot.scraping import buildings, defense, general
 
 class BuilderBot(BaseBot):
     """Logging functions for the bot"""
@@ -125,7 +123,7 @@ class BuilderBot(BaseBot):
 
         if not config.build_storage:
             excluded_buildings.append(buildings.BUILDINGS_DATA.get("ms").id)
-            excluded_buildings.append(buildings.BUILDINGS_DATA.get("cm").id)
+            excluded_buildings.append(buildings.BUILDINGS_DATA.get("cs").id)
             excluded_buildings.append(buildings.BUILDINGS_DATA.get("dt").id)
 
         available_buildings = filter(lambda building: building.id not in excluded_buildings, available_buildings)

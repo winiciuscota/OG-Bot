@@ -1,8 +1,5 @@
 import unittest
-import sys
 import datetime
-
-sys.path.append('../..')
 
 from ogbot.scraping import messages
 

@@ -2,3 +2,4 @@ mechanize
 beautifulsoup4
 enum
 lxml
+mock
