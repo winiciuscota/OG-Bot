@@ -1,5 +1,5 @@
 from base import *
-from scraping import fleet, movement, general, scraper
+from ogbot.scraping import fleet, movement, general, scraper, hangar
 import random
 import time
 
@@ -37,7 +37,7 @@ class AttackerBot(BaseBot):
             self.logger.warning("There is no fleet slot available")
             return True
 
-        movements = [movement.destination_coords for movement
+        movements = [fleet_movement.destination_coords for fleet_movement
                      in self.movement_client.get_fleet_movement()]
 
         self.logger.info("Got %d reports" % len(reports))

@@ -13,11 +13,11 @@ class Hangar(Scraper):
 
         ships = []
         for ship_button in ship_buttons:
-            id = ship_button['ref']
-            ship_data = self.SHIPS_DATA.get(id)
+            ship_id = ship_button['ref']
+            ship_data = self.SHIPS_DATA.get(ship_id)
 
             # ensures that execution will not break if there is a new item
-            if ship_data != None:
+            if ship_data is not None:
 
                 try:
                     amount_info = "".join(ship_button.find("span", {"class": "level"})
