@@ -86,17 +86,17 @@ class BuilderBot(BaseBot):
         """
         resources = self.general_client.get_resources(planet)
         available_buildings = self.get_available_buildings_for_planet(planet)
+        available_buildings = self.filter_available_buildings(available_buildings, self.config)
 
         if len(available_buildings) > 0:
             building = available_buildings[0]
             if resources.energy < 0:
                 self.logger.info("Planet has not enough energy, building solar plant or fusion reactor")
-                energy_buildings = [building for building
-                                    in available_buildings
-                                    if (building.id == buildings.BUILDINGS_DATA.get("sp").id
-                                    and config.build_solar_plant)
-                                    or (building.id == buildings.BUILDINGS_DATA.get("fr").id
-                                    and config.build_fusion_reactor)]
+
+                id_energy_buildings = [buildings.BUILDINGS_DATA.get("sp").id,
+                                       buildings.BUILDINGS_DATA.get("fr").id]
+
+                energy_buildings = filter(lambda value: value.id in id_energy_buildings, available_buildings)
 
                 if len(energy_buildings) > 0:
                     # Get the last element from the list, this way the bot will build fusion reactors first
@@ -107,3 +107,27 @@ class BuilderBot(BaseBot):
             self.buildings_client.build_structure(building, planet)
         else:
             self.logger.info("No available buildings on planet %s" % planet)
+
+    @staticmethod
+    def filter_available_buildings(available_buildings, config):
+        """
+        :param available_buildings: list of buildings
+        :param config: configuration object
+        :return: filtered list of available buildings
+        """
+        excluded_buildings = []
+
+        if not config.build_solar_plant:
+            excluded_buildings.append(buildings.BUILDINGS_DATA.get("sp").id)
+
+        if not config.build_fusion_reactor:
+            excluded_buildings.append(buildings.BUILDINGS_DATA.get("fr").id)
+
+        if not config.build_storage:
+            excluded_buildings.append(buildings.BUILDINGS_DATA.get("ms").id)
+            excluded_buildings.append(buildings.BUILDINGS_DATA.get("cm").id)
+            excluded_buildings.append(buildings.BUILDINGS_DATA.get("dt").id)
+
+        available_buildings = filter(lambda building: building.id not in excluded_buildings, available_buildings)
+
+        return available_buildings
