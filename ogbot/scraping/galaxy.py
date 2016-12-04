@@ -17,6 +17,11 @@ class Galaxy(Scraper):
         soup = BeautifulSoup(self.strip_text(res2), "lxml")
 
         table = soup.find("table", {"id": "galaxytable"})
+
+        if table is None:
+            self.logger.error("Invalid response from server, could not find #galaxytable")
+            return []
+
         table_rows = table.findAll("tr", {"class": "row"})
         planets = []
 
