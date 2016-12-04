@@ -41,8 +41,8 @@ BUILDINGS_DATA = {
     "4": BuildingItem(4, "Solar Plant"),
     "12": BuildingItem(12, "Fusion Reactor"),
     "102": BuildingItem(22, "Metal Storage"),
-    "22": BuildingItem(23, "Crystal Storage"),
-    "23": BuildingItem(24, "Deuterium Tank")
+    "23": BuildingItem(23, "Crystal Storage"),
+    "24": BuildingItem(24, "Deuterium Tank")
 
 }
 
@@ -89,8 +89,8 @@ class Buildings(Scraper):
     def get_building_data_from_button(building_button):
         """ Read the building data from the building button """
 
-        id = building_button['ref']
-        building_data = BUILDINGS_DATA.get(id)
+        building_id = building_button['ref']
+        building_data = BUILDINGS_DATA.get(building_id)
 
         # ensures that execution will not break if there is a new item
         if building_data is not None:
@@ -194,4 +194,4 @@ class Buildings(Scraper):
         soup = BeautifulSoup(resp.read(), "lxml")
         # if the planet is in construction mode there shoud be a div with the
         # class construction
-        return soup.find("div", {"class": "construction"}) != None
+        return soup.find("div", {"class": "construction"}) is not None
