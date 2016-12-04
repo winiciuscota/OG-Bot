@@ -32,7 +32,7 @@ BUILDINGS_DATA = {
     "sp": BuildingItem(4, "Solar Plant"),
     "fr": BuildingItem(12, "Fusion Reactor"),
     "ms": BuildingItem(22, "Metal Storage"),
-    "cm": BuildingItem(23, "Crystal Storage"),
+    "cs": BuildingItem(23, "Crystal Storage"),
     "dt": BuildingItem(24, "Deuterium Tank"),
 
     "1": BuildingItem(1, "Metal Mine"),

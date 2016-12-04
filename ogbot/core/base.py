@@ -1,4 +1,3 @@
-from scraping import *
 import logging
 
 
@@ -24,7 +23,7 @@ class BaseBot(object):
     def get_player_planet_by_name(self, planet_name):
         """Get player planet by name. If there is no match returns None"""
         planets = self.planets
-        if planet_name == None:
+        if planet_name is None:
             return None
 
         planet = next(iter([planet for planet
@@ -33,7 +32,7 @@ class BaseBot(object):
         return planet
 
     def get_default_origin_planet(self, planet_name):
-        if planet_name == None:
+        if planet_name is None:
             return self.planets[0]
         else:
             return self.get_player_planet_by_name(planet_name)
@@ -62,7 +61,7 @@ def get_nearest_planet_to_coordinates(coordinates, planets):
                    and planet.coordinates.split(":")[1] == str(closest_system)
                    ), None)
 
-    if planet == None:
+    if planet is None:
         raise EnvironmentError("Error getting closest planet from target")
     else:
         return planet
