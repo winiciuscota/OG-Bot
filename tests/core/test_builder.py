@@ -24,7 +24,7 @@ class BuilderTest(unittest.TestCase):
 
         self.assertEquals(5, len(builder.BuilderBot.filter_available_buildings(self.available_buildings_stub,
                                                                                self.config_mock1)))
-        self.assertEquals(2, len(builder.BuilderBot.filter_available_buildings(self.available_buildings_stub,
+        self.assertEquals(1, len(builder.BuilderBot.filter_available_buildings(self.available_buildings_stub,
                                                                                self.config_mock2)))
         self.assertEquals(0, len(builder.BuilderBot.filter_available_buildings(self.available_buildings_stub,
                                                                                self.config_mock3)))
