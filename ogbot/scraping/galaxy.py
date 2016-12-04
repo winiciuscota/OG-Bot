@@ -4,6 +4,7 @@ from scraper import *
 from ast import literal_eval
 import re
 
+
 class Galaxy(Scraper):
     def get_planets(self, galaxy, system):
         """
