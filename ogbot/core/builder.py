@@ -1,5 +1,5 @@
 from base import BaseBot
-from ogbot.scraping import buildings, defense, general
+from scraping import buildings, defense, general
 
 class BuilderBot(BaseBot):
     """Logging functions for the bot"""

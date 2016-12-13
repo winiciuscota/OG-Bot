@@ -1,10 +1,16 @@
-- refactor get_available ships data (should get the data from the fleet page) - done
-- refactor scraping classes, there should functions for opening and submitting
+- Refactor get_available ships data (should get the data from the fleet page) - done
+- Refactor scraping classes, there should functions for opening and submitting
 pages in a base class, these functions should retry the request if there is
 no response - done
-- improve auto_build_structures
-- add feature to enable the user to exclude any kind of building from being built by auto_build_structures
-- create functions for research - done (thanks to dr1s)
-- refactor bot.py file - done
-- launch missile if planet is inactive and has defenses
-- use light cargos on attacks if the origin planet has enough of them for the mission - done
+- Add option to exclude any kind of building from being built by auto_build_structures
+    (done for solar plant, fusion reactor and storage)
+- Create functions for research - done (thanks to dr1s)
+- Refactor bot.py file - done
+- Launch missile if planet is inactive and has defenses - not very important
+- Use light cargos on attacks if the origin planet has enough of them for the mission - done
+
+- Add feature to automatically build defenses following a proportion specified by the user
+- Auto build Structures - The user should have more control of the building order
+- Warn the user(email or sms?) if there are reports of other players spying on him
+- Warn the user(email or sms?) if he is being attacked
+- Reorganize the cfg file

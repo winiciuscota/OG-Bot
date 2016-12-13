@@ -1,5 +1,5 @@
 from base import *
-from ogbot.scraping import fleet, movement, general, scraper, hangar
+from scraping import fleet, movement, general, scraper, hangar
 import random
 import time
 

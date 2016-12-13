@@ -1,5 +1,5 @@
 from base import BaseBot
-from ogbot.scraping import *
+from scraping import *
 
 
 class LoggerBot(BaseBot):

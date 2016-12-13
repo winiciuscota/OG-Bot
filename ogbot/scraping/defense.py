@@ -2,8 +2,6 @@ from bs4 import BeautifulSoup
 import re
 from scraper import *
 
-from enum import Enum
-
 DEFENSES_DATA = {
 
     "rl": DefenseItem(401, "Rocket Launcher"),
@@ -27,17 +25,16 @@ DEFENSES_DATA = {
     "408": DefenseItem(408, "Large Shield Dome"),
     "502": DefenseItem(502, "Anti-Ballistic Missile"),
     "503": DefenseItem(503, "Interplanetary Missile")
-
 }
 
 
-class Defenses(Enum):
+class Defenses:
     RocketLauncher = "rl"
     LightLaser = "ll"
     HeavyLaser = "hl"
     GaussCannon = "gc"
     IonCannon = "ic"
-    PlasmaTurrent = "pt"
+    PlasmaTurret = "pt"
 
 
 class Defense(Scraper):
@@ -71,12 +68,12 @@ class Defense(Scraper):
         :return:
         """
 
-        defense_items = [ItemAction(DEFENSES_DATA.get(Defenses.PlasmaTurrent.value), 20),
-                         ItemAction(DEFENSES_DATA.get(Defenses.GaussCannon.value), 50),
-                         ItemAction(DEFENSES_DATA.get(Defenses.IonCannon.value), 10),
-                         ItemAction(DEFENSES_DATA.get(Defenses.HeavyLaser.value), 10),
-                         ItemAction(DEFENSES_DATA.get(Defenses.LightLaser.value), 3000),
-                         ItemAction(DEFENSES_DATA.get(Defenses.RocketLauncher.value), 3000)]
+        defense_items = [ItemAction(DEFENSES_DATA.get(Defenses.PlasmaTurret), 20),
+                         ItemAction(DEFENSES_DATA.get(Defenses.GaussCannon), 50),
+                         ItemAction(DEFENSES_DATA.get(Defenses.IonCannon), 10),
+                         ItemAction(DEFENSES_DATA.get(Defenses.HeavyLaser), 10),
+                         ItemAction(DEFENSES_DATA.get(Defenses.LightLaser), 3000),
+                         ItemAction(DEFENSES_DATA.get(Defenses.RocketLauncher), 3000)]
 
         self.logger.info('Auto building defenses')
         self.redirect_to_page(planet)
