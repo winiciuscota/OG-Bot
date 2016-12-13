@@ -4,7 +4,7 @@ import datetime
 from ogbot.scraping import messages
 
 
-class MessagesTest(unittest.TestCase):
+class TestMessages(unittest.TestCase):
     def test_parse_resource(self):
         self.assertEquals(messages.parse_resource("Metal: 2.492M"), 2492000)
         self.assertEquals(messages.parse_resource("Metall: 1,089M"), 1089000)

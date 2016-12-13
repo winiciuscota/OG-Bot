@@ -18,9 +18,9 @@ class TransporterBot(BaseBot):
         """
         planets = self.planets
 
-        if self.planet != None:
+        if self.planet is not None:
             destination_planet = self.planet
-        elif planet != None:
+        elif planet is not None:
             destination_planet = planet
         else:
             self.logger.info("there is no specified target planet, using default origin planet instead")
@@ -28,8 +28,6 @@ class TransporterBot(BaseBot):
 
         self.logger.info("Transporting resources to planet: %s" % destination_planet.name)
         for planet in [planet for planet in planets if planet != destination_planet]:
-            # todo use resources data within origin planet
-
             planet.ships = self.hangar_client.get_ships(planet)
             resources = self.general_client.get_resources(planet)
             self.fleet_client.transport_resources(planet, destination_planet, resources)

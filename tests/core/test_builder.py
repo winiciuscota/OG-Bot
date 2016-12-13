@@ -1,12 +1,11 @@
 import unittest
-import sys
 from mock import Mock
 
 from ogbot.core import builder
 from ogbot.scraping import buildings
 
 
-class BuilderTest(unittest.TestCase):
+class TestBuilder(unittest.TestCase):
     def setup_test_filter_available_buildings(self):
         self.config_mock1 = Mock(build_solar_plant=True, build_fusion_reactor=True, build_storage=True)
         self.config_mock2 = Mock(build_solar_plant=False, build_fusion_reactor=True, build_storage=False)

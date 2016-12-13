@@ -1,5 +1,5 @@
 from base import BaseBot
-from scraping import *
+from ogbot.scraping import *
 
 
 class LoggerBot(BaseBot):
@@ -42,7 +42,7 @@ class LoggerBot(BaseBot):
     def log_overview(self):
         """Log planets overview"""
 
-        planets = self.general_client.get_planets()
+        planets = self.planets
 
         for planet in planets:
             planet.resources = self.general_client.get_resources(planet)

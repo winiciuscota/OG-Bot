@@ -71,6 +71,8 @@ class Config(object):
             self.build_solar_plant = config.getboolean('Settings', 'SolarPlant')  # build solar plant or not
             self.build_storage = config.getboolean('Settings', 'Storage')  # build storage structures or not
             self.log_level = config.get('Settings', 'LogLevel')  # Get loglevel
+            self.excluded_planets = map(lambda x: x.strip().lower(), config.get('Settings', 'ExcludedPlanets').split(','))
+
             # read values from parameters
             mode = parameters.get('m')
             attack_range = parameters.get('r')

@@ -199,7 +199,8 @@ class Fleet(Scraper):
         :param resources_count: Amount of resources to transport
         :return: Get fleet of cargos for the mission
         """
-        small_cargos_count = self.get_small_cargos(origin_planet)
+        small_cargos_count = self.get_ships_count(origin_planet, "sg")
+
         self.logger.info("Checking if there is enough small cargos for the mission")
         if (small_cargos_count * 5000) > resources_count:
             self.logger.info("Using small cargos")
@@ -208,21 +209,23 @@ class Fleet(Scraper):
         else:
             self.logger.info("Not enough Small Cargos, using Large Cargos instead")
             ships_count = int(math.ceil(resources_count / 25000))
+            large_cargos_count = self.get_ships_count(origin_planet, "lg")
+            if ships_count > large_cargos_count:
+                ships_count = large_cargos_count
             fleet = {self.SHIPS_DATA.get('lg'): ships_count}
             return fleet
 
-    def get_small_cargos(self, planet):
+    def get_ships_count(self, planet, ship_type):
         """
-        :param origin_planet: planet to get count of small cargos
-        :return: number of small cargos in the planet
-        """""
-        small_cargos_aux = [ship for ship
-                            in planet.ships
-                            if ship.item.id == self.SHIPS_DATA.get("sg").id]
+        :param planet: planet to get the count of ships
+        :param ship_type: type of ships to count
+        :return:
+        """
+        ships_count = [ship.amount for ship
+                       in planet.ships
+                       if ship.item.id == self.SHIPS_DATA.get(ship_type).id]
 
-        small_cargos = next(iter(small_cargos_aux), None)
-
-        return small_cargos.amount if small_cargos is not None else 0
+        return next(iter(ships_count), 0)
 
 
 def get_ships_list(ships):

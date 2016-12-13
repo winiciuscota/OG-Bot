@@ -11,7 +11,9 @@ class OgameBot(object):
         self.config = config
         self.logger = logging.getLogger('OGBot')
 
+        # Get planets and remove excluded planets in the config file
         planets = general.General(browser, config).get_planets()
+        planets = filter(lambda x: x.name.lower() not in config.excluded_planets, planets)
 
         self.attacker_bot = attacker.AttackerBot(browser, config, planets)
         self.spy_bot = spy.SpyBot(browser, config, planets)
