@@ -14,7 +14,11 @@ class Galaxy(Scraper):
         url = self.url_provider.get_page_url('galaxyContent')
         data = urllib.urlencode({'galaxy': galaxy, 'system': system})
         res = self.open_url(url, data).read()
-        res2 = str(literal_eval(res))
+
+        # For some reason the server is retrieving a file full of escaped quotes,
+        # So we need to replace the spaced quotes for normal quotes
+        res2 = res.replace('\\"', '"')
+
         soup = BeautifulSoup(self.strip_text(res2), "lxml")
 
         table = soup.find("table", {"id": "galaxytable"})
