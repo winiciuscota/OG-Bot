@@ -26,7 +26,6 @@ class General(Scraper):
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
 
-        resources = []
         metal = int(soup.find(id='resources_metal').text.replace('.', ''))
         crystal = int(soup.find(id='resources_crystal').text.replace('.', ''))
         deuterium = int(soup.find(id='resources_deuterium').text.replace('.', ''))
@@ -49,20 +48,6 @@ class General(Scraper):
                    for link in links]
 
         return planets
-
-        # def get_planets_overview(self):
-        #     planets = self.get_planets()
-        #     defense_client = Defense(self.browser, self.config)
-        #     hangar_client = Hangar(self.browser, self.config)
-        #     buildings_client = Buildings(self.browser, self.config)
-        #
-        #     for planet in planets:
-        #         planet.resources = self.get_resources(planet)
-        #         planet.defenses = defense_client.get_defenses(planet)
-        #         planet.fleet = hangar_client.get_ships(planet)
-        #         planet.buildings = buildings_client.get_buildings(planet)
-        #
-        #     return planets
 
 
 def parse_coordinates(coords):

@@ -4,7 +4,6 @@ from mock import Mock
 from ogbot.core import builder
 from ogbot.scraping import buildings
 
-
 class TestBuilder(unittest.TestCase):
     def setup_test_filter_available_buildings(self):
         self.config_mock1 = Mock(build_solar_plant=True, build_fusion_reactor=True, build_storage=True)

@@ -14,10 +14,11 @@ class UrlProvider:
             'defense': self.main_url + '?page=defense',
             'fleet': self.main_url + '?page=fleet1',
             'galaxy': self.main_url + '?page=galaxy',
-            'galaxyContent': self.main_url + '?page=galaxyContent',
+            'galaxyContent': self.main_url + '?page=galaxyContent&ajax=1',
             'messages': self.main_url + '?page=messages',
             'movement': self.main_url + '?page=movement',
-            'missileAtack': self.main_url + '?page=missileattacklayer'
+            'missileAtack': self.main_url + '?page=missileattacklayer',
+            'eventList': self.main_url + '?page=eventList&ajax=1'
         }
 
     def get_pages(self):

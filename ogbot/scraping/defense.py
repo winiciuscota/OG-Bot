@@ -2,29 +2,41 @@ from bs4 import BeautifulSoup
 import re
 from scraper import *
 
+
+ROCKET_LAUNCHER = DefenseItem(401, "Rocket Launcher", Resources(2000, 0))
+LIGHT_LASER = DefenseItem(402, "Light Laser", Resources(1500, 500))
+HEAVY_LASER = DefenseItem(403, "Heavy Laser", Resources(6000, 2000))
+GAUSS_CANNON = DefenseItem(404, "Gauss Cannon", Resources(20000, 15000, 2000))
+ION_CANNON = DefenseItem(405, "Ion Cannon", Resources(2000, 6000))
+PLASMA_TURRET = DefenseItem(406, "Plasma Turret", Resources(50000, 50000, 30000))
+SMALL_SHIELD_DOME = DefenseItem(407, "Small Shield Dome", Resources(10000, 10000))
+LARGE_SHIELD_DOME = DefenseItem(408, "Large Shield Dome", Resources(50000, 50000))
+ANTI_BALLISTIC_MISSILE = DefenseItem(502, "Anti-Ballistic Missile", Resources(8000, 2000))
+INTERPLANETARY_MISSILE = DefenseItem(503, "Interplanetary Missile", Resources(12500, 2500, 10000))
+
 DEFENSES_DATA = {
 
-    "rl": DefenseItem(401, "Rocket Launcher"),
-    "ll": DefenseItem(402, "Light Laser"),
-    "hl": DefenseItem(403, "Heavy Laser"),
-    "gc": DefenseItem(404, "Gauss Cannon"),
-    "ic": DefenseItem(405, "Ion Cannon"),
-    "pt": DefenseItem(406, "Plasma Turret"),
-    "ssd": DefenseItem(407, "Small Shield Dome"),
-    "lsd": DefenseItem(408, "Large Shield Dome"),
-    "abm": DefenseItem(502, "Anti-Ballistic Missile"),
-    "im": DefenseItem(503, "Interplanetary Missile"),
+    "rl": ROCKET_LAUNCHER,
+    "ll": LIGHT_LASER,
+    "hl": HEAVY_LASER,
+    "gc": GAUSS_CANNON,
+    "ic": ION_CANNON,
+    "pt": PLASMA_TURRET,
+    "ssd": SMALL_SHIELD_DOME,
+    "lsd": LARGE_SHIELD_DOME,
+    "abm": ANTI_BALLISTIC_MISSILE,
+    "im": INTERPLANETARY_MISSILE,
 
-    "401": DefenseItem(401, "Rocket Launcher"),
-    "402": DefenseItem(402, "Light Laser"),
-    "403": DefenseItem(403, "Heavy Laser"),
-    "404": DefenseItem(404, "Gauss Cannon"),
-    "405": DefenseItem(405, "Ion Cannon"),
-    "406": DefenseItem(406, "Plasma Turret"),
-    "407": DefenseItem(407, "Small Shield Dome"),
-    "408": DefenseItem(408, "Large Shield Dome"),
-    "502": DefenseItem(502, "Anti-Ballistic Missile"),
-    "503": DefenseItem(503, "Interplanetary Missile")
+    "401": ROCKET_LAUNCHER,
+    "402": LIGHT_LASER,
+    "403": HEAVY_LASER,
+    "404": GAUSS_CANNON,
+    "405": ION_CANNON,
+    "406": PLASMA_TURRET,
+    "407": SMALL_SHIELD_DOME,
+    "408": LARGE_SHIELD_DOME,
+    "502": ANTI_BALLISTIC_MISSILE,
+    "503": INTERPLANETARY_MISSILE
 }
 
 
@@ -50,38 +62,43 @@ class Defense(Scraper):
 
         defenses = []
         for def_button in defense_buttons:
-            id = def_button['ref']
-            defense_data = DEFENSES_DATA.get(id)
+            def_id = def_button['ref']
+            defense_data = DEFENSES_DATA.get(def_id)
 
             # ensures that execution will not break if there is a new item
             if defense_data is not None:
-                amount = int(re.findall('\d+', def_button.text.strip())[0])
+                amount_level_text = def_button.find("span", {"class": "level"}).text
+                amount = int(re.findall('\d+\.?\d*', amount_level_text)[0].replace(".", ""))
+
                 item = DefenseItem(defense_data.id, defense_data.name)
                 defenses.append(ItemAction(item, amount))
 
         return defenses
 
-    def auto_build_defenses_to_planet(self, planet):
-        """
-        Automatically build defenses to the specified planet
-        :param planet: planet to build defenses on
-        :return:
-        """
-
-        defense_items = [ItemAction(DEFENSES_DATA.get(Defenses.PlasmaTurret), 20),
-                         ItemAction(DEFENSES_DATA.get(Defenses.GaussCannon), 50),
-                         ItemAction(DEFENSES_DATA.get(Defenses.IonCannon), 10),
-                         ItemAction(DEFENSES_DATA.get(Defenses.HeavyLaser), 10),
-                         ItemAction(DEFENSES_DATA.get(Defenses.LightLaser), 3000),
-                         ItemAction(DEFENSES_DATA.get(Defenses.RocketLauncher), 3000)]
-
-        self.logger.info('Auto building defenses')
-        self.redirect_to_page(planet)
-        for defense_item in defense_items:
-            self.logger.info("building %d %s(s) on planet %s" % (defense_item.amount,
-                                                                 defense_item.item.name,
-                                                                 planet.name))
-            self.build_defense_on_current_page(defense_item.item.id, defense_item.amount)
+    # def auto_build_defenses_to_planet(self, planet):
+    #     """
+    #     Automatically build defenses to the specified planet
+    #     :param planet: planet to build defenses on
+    #     :return:
+    #     """
+    #
+    #     defense_proportion = self.parse_defense_proportion(self.config.defense_proportion)
+    #
+    #
+    #     defense_items = [ItemAction(DEFENSES_DATA.get(Defenses.PlasmaTurret), 20),
+    #                      ItemAction(DEFENSES_DATA.get(Defenses.GaussCannon), 50),
+    #                      ItemAction(DEFENSES_DATA.get(Defenses.IonCannon), 10),
+    #                      ItemAction(DEFENSES_DATA.get(Defenses.HeavyLaser), 10),
+    #                      ItemAction(DEFENSES_DATA.get(Defenses.LightLaser), 3000),
+    #                      ItemAction(DEFENSES_DATA.get(Defenses.RocketLauncher), 3000)]
+    #
+    #     self.logger.info('Auto building defenses')
+    #     self.redirect_to_page(planet)
+    #     for defense_item in defense_items:
+    #         self.logger.info("building %d %s(s) on planet %s" % (defense_item.amount,
+    #                                                              defense_item.item.name,
+    #                                                              planet.name))
+    #         self.build_defense_on_current_page(defense_item.item.id, defense_item.amount)
 
     def build_defense_to_planet(self, defense_type, amount, planet):
         """
@@ -131,3 +148,11 @@ class Defense(Scraper):
         self.create_control("form", "text", "modus", "1")
         self.logger.info("Submitting build defense request")
         self.submit_request()
+
+
+    @staticmethod
+    def parse_defense_proportion(defense_proportion_str):
+        parsed_defense_proportion = map(lambda x: (DEFENSES_DATA.get(filter(str.isalpha, x)),
+                       int(filter(str.isdigit, x))), defense_proportion_str)
+
+        return filter(lambda x: x[0] is not None and x[1] is not None, parsed_defense_proportion)

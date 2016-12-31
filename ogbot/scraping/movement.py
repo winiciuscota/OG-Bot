@@ -3,7 +3,7 @@ from scraper import *
 
 
 class Movement(Scraper):
-    def get_fleet_movement(self):
+    def get_fleet_movement_from_movement_page(self):
         url = self.url_provider.get_page_url('movement')
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
@@ -18,7 +18,30 @@ class Movement(Scraper):
             fleet_movements.append(movement)
         return fleet_movements
 
-    def parse_coords(self, text):
+    def get_fleet_movement(self):
+        url = self.url_provider.get_page_url('eventList')
+        res = self.open_url(url)
+        soup = BeautifulSoup(res.read(), "lxml")
+
+        movement_table = soup.find("table", {"id": "eventContent"})
+        movement_rows = movement_table.findAll("tr", {"class": "eventFleet"})
+
+        fleet_movements = []
+        for movement_row in movement_rows:
+            origin_coords = self.parse_coords(movement_row.find("td", {"class": "coordsOrigin"}).text.strip())
+            origin_planet_name = movement_row.find("td", {"class": "originFleet"}).text.strip()
+            dest_coords = self.parse_coords(movement_row.find("td", {"class": "destCoords"}).text.strip())
+            dest_planet_name = movement_row.find("td", {"class": "destFleet"}).text.strip()
+            count_down_td = movement_row.find("td", {"class": "countDown"})
+            is_friendly = 'friendly' in count_down_td.attrs['class']
+
+            movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly)
+            fleet_movements.append(movement)
+
+        return fleet_movements
+
+    @staticmethod
+    def parse_coords(text):
         return text.replace('[', '').replace(']', '')
 
     def get_fleet_slots_usage(self):
@@ -29,10 +52,10 @@ class Movement(Scraper):
         res = self.open_url(url)
         soup = BeautifulSoup(res.read())
         slots_info_node = soup.find("span", {"class", "fleetSlots"})
-        if slots_info_node != None:
+        if slots_info_node is not None:
             current_slots = int(slots_info_node.find("span", {"class", "current"}).text)
             all_slots = int(slots_info_node.find("span", {"class", "all"}).text)
         else:
             current_slots = 0
             all_slots = 1
-        return (current_slots, all_slots)
+        return current_slots, all_slots

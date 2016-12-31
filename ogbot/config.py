@@ -1,6 +1,7 @@
 import ConfigParser
 import logging
 import os
+import re
 
 
 class Config(object):
@@ -39,39 +40,48 @@ class Config(object):
             # Set configuration from config file
 
             self.logger.info('Getting user info from config file')
+
+            # User config options
             self.username = config.get('UserInfo', 'Username')
             self.password = config.get('UserInfo', 'Password')
             self.universe = config.get('UserInfo', 'Universe')
             self.country = config.get('UserInfo', 'Country')
-            self.mode = []
-            for dmode in config.get('Settings', 'DefaultMode').split(','):
-                self.mode.append(dmode.strip())
-            self.default_origin_planet_name = config.get('Settings', 'DefaultOriginPlanet')
-            self.attack_range = config.getint('Settings', 'AttackRange')
-            self.time_to_wait_for_probes = config.getint('Settings', 'HowLongToWaitForProbes')
-            self.spy_report_life = config.getint('Settings', 'SpyReportLife')  # Time in which spy report is valid
-            self.minimum_inactive_target_rank = config.getint('Settings', 'MinimumInactiveTargetRank')
-            self.maximum_inactive_target_rank = config.getint('Settings', 'MaximumInactiveTargetRank')
-            self.spy_fleet_min_delay = config.getint('Settings',
+
+            # General config options
+            self.mode = self.parse_multiple_value_config(config.get('General', 'DefaultMode'))
+            self.default_origin_planet_name = config.get('General', 'DefaultOriginPlanet')
+            self.excluded_planets = map(lambda x: x.strip().lower(),
+                                        config.get('General', 'ExcludedPlanets').split(','))
+            self.log_level = config.get('General', 'LogLevel')  # Get loglevel
+
+            # Development config options
+            self.build_fusion_reactor = config.getboolean('Development', 'FusionReactor')  # build fusion reactor or not
+            self.build_solar_plant = config.getboolean('Development', 'SolarPlant')  # build solar plant or not
+            self.build_storage = config.getboolean('Development', 'Storage')  # build storage structures or not
+            self.defense_proportion = self.parse_multiple_value_config(config.get('Development', 'DefenseProportion'))
+            self.spend_excess_metal_on_rl = config.getboolean('Development', 'SpendExcessMetalOnRL')
+            # Exploraton config options
+            self.attack_range = config.getint('Exploration', 'AttackRange')
+            self.time_to_wait_for_probes = config.getint('Exploration', 'HowLongToWaitForProbes')
+            self.spy_report_life = config.getint('Exploration', 'SpyReportLife')  # Time in which spy report is valid
+            self.minimum_inactive_target_rank = config.getint('Exploration', 'MinimumInactiveTargetRank')
+            self.maximum_inactive_target_rank = config.getint('Exploration', 'MaximumInactiveTargetRank')
+            self.spy_fleet_min_delay = config.getint('Exploration',
                                                      'SpyFleetMinDelay')  # Minimum time between sending next spy
-            self.spy_fleet_max_delay = config.getint('Settings',
+            self.spy_fleet_max_delay = config.getint('Exploration',
                                                      'SpyFleetMaxDelay')  # maximum time between sending next spy
-            self.attack_fleet_min_delay = config.getint('Settings',
+            self.attack_fleet_min_delay = config.getint('Exploration',
                                                         'AttackFleetMinDelay')  # Minimum time between sending next attack
-            self.attack_fleet_max_delay = config.getint('Settings',
+            self.attack_fleet_max_delay = config.getint('Exploration',
                                                         'AttackFleetMaxDelay')  # Maximum time between sending next attack
-            self.expedition_fleet_min_delay = config.getint('Settings',
+            self.expedition_fleet_min_delay = config.getint('Exploration',
                                                             'ExpeditionFleetMinDelay')  # Minimum time between sending next expedition
-            self.expedition_fleet_max_delay = config.getint('Settings',
+            self.expedition_fleet_max_delay = config.getint('Exploration',
                                                             'ExpeditionFleetMaxDelay')  # Maximum time between sending next expedition
-            self.spy_probes_count = config.getint('Settings', 'SpyProbesCount')  # Amount of spy probes to send
-            self.min_res_to_attack = config.getint('Settings', 'MinResToSendAttack')  # Min resources to send attack
-            self.expedition_range = config.getint('Settings', 'ExpeditionRange')  # range to send expeditions
-            self.build_fusion_reactor = config.getboolean('Settings', 'FusionReactor')  # build fusion reactor or not
-            self.build_solar_plant = config.getboolean('Settings', 'SolarPlant')  # build solar plant or not
-            self.build_storage = config.getboolean('Settings', 'Storage')  # build storage structures or not
-            self.log_level = config.get('Settings', 'LogLevel')  # Get loglevel
-            self.excluded_planets = map(lambda x: x.strip().lower(), config.get('Settings', 'ExcludedPlanets').split(','))
+            self.spy_probes_count = config.getint('Exploration', 'SpyProbesCount')  # Amount of spy probes to send
+            self.min_res_to_attack = config.getint('Exploration', 'MinResToSendAttack')  # Min resources to send attack
+            self.expedition_range = config.getint('Exploration', 'ExpeditionRange')  # range to send expeditions
+
 
             # read values from parameters
             mode = parameters.get('m')
@@ -86,3 +96,14 @@ class Config(object):
                 self.attack_range = int(attack_range)
 
             self.planet_name = planet_name
+
+    @staticmethod
+    def parse_multiple_value_config(str):
+        """
+        :param str: string to parse
+        :return: parsed vector of arguments
+        """
+        multiple_value_config = re.split(',| ', str)
+
+        return filter(lambda x: x is not "", multiple_value_config)
+

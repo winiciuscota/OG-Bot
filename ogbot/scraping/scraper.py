@@ -128,6 +128,19 @@ class Resources(object):
         self.deuterium = deuterium
         self.energy = energy
 
+    def __sub__(self, other):
+        result_metal = self.metal - other.metal
+        result_crystal = self.crystal - other.crystal
+        result_deuterium = self.crystal - other.crystal
+
+        return Resources(result_metal, result_crystal, result_deuterium)
+
+    def __lt__(self, other):
+
+        return self.metal < other.metal \
+               and self.crystal < other.crystal \
+               and self.deuterium < other.deuterium
+
     def __str__(self):
         result = []
         if self.metal != 0:
@@ -150,6 +163,7 @@ class Resources(object):
         self.metal += resources.metal
         self.crystal += resources.crystal
         self.deuterium += resources.deuterium
+
 
 class Planet(object):
     def __init__(self, name, link, coordinates, resources=None, defenses=None, fleet=None, research=None):
@@ -181,9 +195,10 @@ class FleetResult(Enum):
 
 
 class Item(object):
-    def __init__(self, id, name):
+    def __init__(self, item_id, name, cost=None):
         self.name = name
-        self.id = id
+        self.id = item_id
+        self.cost = cost
 
     def __str__(self):
         return "[Description: %s, Id: %s%s ]" % (
@@ -200,19 +215,24 @@ class ItemAction(object):
             self.item.name, self.item.id, self.amount)
 
 
-class ShipItem(Item): pass
+class ShipItem(Item):
+    pass
 
 
-class DefenseItem(Item): pass
+class DefenseItem(Item):
+    pass
 
 
-class BuildingItem(Item): pass
+class BuildingItem(Item):
+    pass
 
-class ReasearchItem(Item): pass
+
+class ResearchItem(Item):
+    pass
 
 
 class FleetMovement(object):
-    def __init__(self, origin_coordinates, origin_name, destination_coordinates):
+    def __init__(self, origin_coordinates, origin_name, destination_coordinates, destination_name, friendly):
         """
         :param origin_coordinates: Coordinates of the origin planet
         :param origin_name: Name o the origin planet
@@ -221,9 +241,13 @@ class FleetMovement(object):
         self.origin_coords = origin_coordinates
         self.origin_name = origin_name
         self.destination_coords = destination_coordinates
+        self.destination_name = destination_name
+        self.friendly = friendly
 
     def __str__(self):
-        return "Fleet from planet %s(%s) to planet %s" % (self.origin_name, self.origin_coords, self.destination_coords)
+        return "%s Fleet from planet %s(%s) to planet %s(%s)" % (("friendly" if self.friendly else "hostile"),
+                                                                         self.origin_name, self.origin_coords,
+                                                                         self.destination_name, self.destination_coords)
 
 
 class PlayerState(Enum):

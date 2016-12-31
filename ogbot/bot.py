@@ -4,6 +4,8 @@ import logging
 from scraping import general
 from core import *
 
+from ogbot.core import defender
+
 
 class OgameBot(object):
     def __init__(self, browser, config):
@@ -16,6 +18,7 @@ class OgameBot(object):
         planets = filter(lambda x: x.name.lower() not in config.excluded_planets, planets)
 
         self.attacker_bot = attacker.AttackerBot(browser, config, planets)
+        self.defender_bot = defender.DefenderBot(browser, config, planets)
         self.spy_bot = spy.SpyBot(browser, config, planets)
         self.expeditionary_bot = expeditionary.ExpeditionaryBot(browser, config, planets)
         self.logger_bot = logger.LoggerBot(browser, config, planets)
@@ -48,6 +51,9 @@ class OgameBot(object):
     def overview(self):
         self.logger_bot.log_overview()
 
+    def log_fleet_movement(self):
+        self.logger_bot.log_fleet_movement()
+
     def transport_resources_to_planet(self):
         self.transporter_bot.transport_resources_to_planet()
 
@@ -56,10 +62,10 @@ class OgameBot(object):
         self.transporter_bot.transport_resources_to_planet(weaker_planet)
 
     def auto_build_defenses(self):
-        self.builder_bot.auto_build_defenses()
+        self.defender_bot.auto_build_defenses()
 
     def auto_build_defenses_to_planet(self):
-        self.builder_bot.auto_build_defenses_to_planet()
+        self.defender_bot.auto_build_defenses_to_planet()
 
     def auto_build_structures(self):
         self.builder_bot.auto_build_structures()

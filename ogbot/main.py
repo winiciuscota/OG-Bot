@@ -34,6 +34,7 @@ bot = OgameBot(browser, config)
 
 switcher = {
     'overview': bot.overview,
+    'log_fleet_movement': bot.log_fleet_movement,
     'explore': bot.explore,
     'attack_inactive_planets': bot.attack_inactive_planets,
     'auto_build_defenses': bot.auto_build_defenses,
@@ -50,6 +51,7 @@ for mode in config.mode:
         logger.warning("There is no mode named %s" % mode)
         logger.warning("The available modes are:")
         logger.warning("\toverview")
+        logger.warning("\tlog_fleet_movement")
         logger.warning("\texplore")
         logger.warning("\tattack_inactive_planets")
         logger.warning("\tauto_build_defenses")
