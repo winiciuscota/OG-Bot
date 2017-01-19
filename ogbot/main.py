@@ -1,7 +1,6 @@
 import argparse
 import logging
 import sys
-import time
 from bot import OgameBot
 from config import Config
 
@@ -40,7 +39,7 @@ switcher = {
     'auto_build_defenses': bot.auto_build_defenses,
     'auto_build_defenses_to_planet': bot.auto_build_defenses_to_planet,
     'transport_resources_to_planet': bot.transport_resources_to_planet,
-    'transport_resources_to_weaker_planet': bot.transport_resources_to_weaker_planet,
+    'transport_resources_to_least_developed_planet': bot.transport_resources_to_least_developed_planet,
     'transport_resources_to_least_defended_planet' : bot.transport_resources_to_least_defended_planet,
     'auto_build_structures': bot.auto_build_structures,
     'auto_research': bot.auto_research
@@ -57,7 +56,7 @@ for mode in config.mode:
         logger.warning("\tattack_inactive_planets")
         logger.warning("\tauto_build_defenses")
         logger.warning("\tauto_build_defenses_to_planet")
-        logger.warning("\ttransport_resources_to_weaker_planet")
+        logger.warning("\ttransport_resources_to_least_developed_planet")
         logger.warning("\ttransport_resources_to_least_defended_planet")
         logger.warning("\tauto_build_structures")
         logger.warning("\tauto_research")

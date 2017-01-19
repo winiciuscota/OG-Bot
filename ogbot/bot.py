@@ -58,9 +58,13 @@ class OgameBot(object):
     def transport_resources_to_planet(self):
         self.transporter_bot.transport_resources_to_planet()
 
-    def transport_resources_to_weaker_planet(self):
-        weaker_planet = self.builder_bot.get_planet_for_construction()
-        self.transporter_bot.transport_resources_to_planet(weaker_planet)
+    def transport_resources_to_least_developed_planet(self):
+        least_developed_planet = self.builder_bot.get_planet_for_construction()
+
+        if least_developed_planet is None:
+            self.logger.info("there is no planet available for construction")
+        else:
+            self.transporter_bot.transport_resources_to_planet(least_developed_planet)
 
     def auto_build_defenses(self):
         self.defender_bot.auto_build_defenses()

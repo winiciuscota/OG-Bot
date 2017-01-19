@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib
 from scraper import *
-from ast import literal_eval
 import re
 
 

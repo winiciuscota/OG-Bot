@@ -1,5 +1,5 @@
 from base import BaseBot
-from ogbot.scraping import general, defense, scraper
+from scraping import general, defense, scraper
 
 import sys
 
@@ -96,7 +96,7 @@ class DefenderBot(BaseBot):
         return False
 
     def get_least_defended_planet(self):
-        least_defended_planet = min(self.planets, self.get_defense_points_for_planet(x))
+        least_defended_planet = min(self.planets, key=self.get_defense_points_for_planet)
         return least_defended_planet
 
     def get_defense_points_for_planet(self, planet):

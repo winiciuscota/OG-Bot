@@ -179,13 +179,11 @@ class Fleet(Scraper):
 
     def get_attack_fleet(self, origin_planet, target_planet):
         """
+        Get fleet for attacks to inactive targets.
+        Will use small cargos if there is enough of them.
         :param origin_planet: Origin planet
         :param target_planet: Target planet
         :return: Optimized fleet for the mission
-        """
-        """
-        Get fleet for attacks to inactive targets.
-        Will use small cargos if there is enough of them.
         """
 
         resources = target_planet.resources.total()

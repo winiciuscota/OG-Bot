@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-import re
 from general import General
 from scraper import Item, ItemAction, Scraper
 from enum import Enum

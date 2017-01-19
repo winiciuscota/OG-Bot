@@ -13,33 +13,25 @@ class BuilderBot(BaseBot):
         super(BuilderBot, self).__init__(browser, config, planets)
 
     def get_planet_for_construction(self):
-        """
-        Get the weaker planet that is not in construction mode
-        :return: planet object
-        """
-        planets = self.planets
-        planet = self.get_planet_candidate_for_construction(planets)
-        return planet
+        return self.get_candidate_planet_for_construction(self.planets)
 
-    def get_planet_candidate_for_construction(self, planets=None):
+    def get_candidate_planet_for_construction(self, planets=None):
         """
-        Get the weaker planet that is not in construction mode
+        Get the least developed planet that is not in construction mode
         :param planets: planets to search for, use all planets if None
         :return: planet object
         """
 
-        if planets is None:
-            planets = self.planets
+        least_developed_planet = self.get_least_developed_planet()
 
-        weaker_planet = self.buildings_client.get_weaker_planet(planets)
-        construction_mode = self.buildings_client.is_in_construction_mode(weaker_planet)
+        construction_mode = self.buildings_client.is_in_construction_mode(least_developed_planet)
         if construction_mode is False:
-            return weaker_planet
+            return least_developed_planet
 
-        # If the weaker planets is in construction mode make a recursive call
-        # looking for the weaker planet in the other planets
+        # If the least developed planet is in construction mode make a recursive call
+        # looking for the second least developed planet
         planets = planets[:]
-        planets.remove(weaker_planet)
+        planets.remove(least_developed_planet)
 
         # If there is no more planets return None
         if not planets:
@@ -88,26 +80,41 @@ class BuilderBot(BaseBot):
         else:
             self.logger.info("No available buildings on planet %s" % planet)
 
-    @staticmethod
-    def filter_available_buildings(available_buildings, config):
-        """
-        :param available_buildings: list of buildings
-        :param config: configuration object
-        :return: filtered list of available buildings
-        """
+    def get_least_developed_planet(self):
+        return min(self.planets, key=self.get_planet_building_total_lvl)
+
+    def get_planet_building_total_lvl(self, planet):
+        planet_buildings = self.buildings_client.get_buildings(planet)
+        ignored_buildings = self.get_ignored_buildings(self.config)
+        filtered_planet_buildings = filter(lambda x: x.item.id not in ignored_buildings, planet_buildings)
+        return sum(x.amount for x in filtered_planet_buildings)
+
+    def get_ignored_buildings(self, config):
         excluded_buildings = []
 
         if not config.build_solar_plant:
+            self.logger.info("Ignoring solar plant")
             excluded_buildings.append(buildings.BUILDINGS_DATA.get("sp").id)
 
         if not config.build_fusion_reactor:
+            self.logger.info("Ignoring fusion reactor")
             excluded_buildings.append(buildings.BUILDINGS_DATA.get("fr").id)
 
         if not config.build_storage:
+            self.logger.info("Ignoring storage buildings")
             excluded_buildings.append(buildings.BUILDINGS_DATA.get("ms").id)
             excluded_buildings.append(buildings.BUILDINGS_DATA.get("cs").id)
             excluded_buildings.append(buildings.BUILDINGS_DATA.get("dt").id)
 
-        available_buildings = filter(lambda building: building.id not in excluded_buildings, available_buildings)
+        return excluded_buildings
+
+    def filter_available_buildings(self, available_buildings):
+        """
+        :param available_buildings: list of buildings
+        :return: filtered list of available buildings
+        """
+
+        ignored_buildings = self.get_ignored_buildings(self.config)
+        available_buildings = filter(lambda building: building.id not in ignored_buildings, available_buildings)
 
         return available_buildings

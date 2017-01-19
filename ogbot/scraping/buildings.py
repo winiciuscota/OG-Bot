@@ -108,25 +108,6 @@ class Buildings(Scraper):
         else:
             return None
 
-    def get_weaker_planet(self, planets=None):
-        if planets is None:
-            planets = self.general_client.get_planets()
-
-        planet_sum_buildings = []
-        totals = []
-
-        for planet in planets:
-            buildings_sum = sum([bld.amount for bld in self.get_buildings(planet)])
-            planet_sum_buildings.append((planet, buildings_sum))
-            totals.append(buildings_sum)
-
-        weaker_planets = [planet_sum[0]
-                          for planet_sum
-                          in planet_sum_buildings
-                          if planet_sum[1] == min(totals)]
-
-        weaker_planet = next(iter(weaker_planets), None)
-        return weaker_planet
 
     def get_available_building_for_planet(self, planet):
         """ Returns the first structure on planet that has enough resources to be built """

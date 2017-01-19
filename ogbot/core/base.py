@@ -37,31 +37,31 @@ class BaseBot(object):
         else:
             return self.get_player_planet_by_name(planet_name)
 
+    @staticmethod
+    def get_nearest_planet_to_coordinates(coordinates, planets):
+        """Get the nearest planet to the target coordinates"""
 
-def get_nearest_planet_to_coordinates(coordinates, planets):
-    """Get the nearest planet to the target coordinates"""
+        # Get the closest galaxy
+        target_galaxy = int(coordinates.split(':')[0])
+        planet_galaxies = set([int(planet.coordinates.split(':')[0]) for planet in planets])
+        closest_galaxy = min(planet_galaxies, key=lambda x: abs(x - target_galaxy))
 
-    # Get the closest galaxy
-    target_galaxy = int(coordinates.split(':')[0])
-    planet_galaxies = set([int(planet.coordinates.split(':')[0]) for planet in planets])
-    closest_galaxy = min(planet_galaxies, key=lambda x: abs(x - target_galaxy))
+        # Get the closest system
+        target_system = int(coordinates.split(':')[1])
+        planet_systems = [int(planet.coordinates.split(':')[1])
+                          for planet in planets
+                          if planet.coordinates.split(':')[0] == str(closest_galaxy)]
 
-    # Get the closest system
-    target_system = int(coordinates.split(':')[1])
-    planet_systems = [int(planet.coordinates.split(':')[1])
-                      for planet in planets
-                      if planet.coordinates.split(':')[0] == str(closest_galaxy)]
+        closest_system = min(planet_systems, key=lambda x: abs(x - target_system))
 
-    closest_system = min(planet_systems, key=lambda x: abs(x - target_system))
+        planet = next((planet
+                       for planet
+                       in planets
+                       if planet.coordinates.split(":")[0] == str(target_galaxy)
+                       and planet.coordinates.split(":")[1] == str(closest_system)
+                       ), None)
 
-    planet = next((planet
-                   for planet
-                   in planets
-                   if planet.coordinates.split(":")[0] == str(target_galaxy)
-                   and planet.coordinates.split(":")[1] == str(closest_system)
-                   ), None)
-
-    if planet is None:
-        raise EnvironmentError("Error getting closest planet from target")
-    else:
-        return planet
+        if planet is None:
+            raise EnvironmentError("Error getting closest planet from target")
+        else:
+            return planet
