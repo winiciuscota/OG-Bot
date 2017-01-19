@@ -4,9 +4,6 @@ import logging
 from scraping import general
 from core import *
 
-from ogbot.core import defender
-
-
 class OgameBot(object):
     def __init__(self, browser, config):
         # Authenticate and get browser instance
@@ -53,6 +50,10 @@ class OgameBot(object):
 
     def log_fleet_movement(self):
         self.logger_bot.log_fleet_movement()
+
+    def transport_resources_to_least_defended_planet(self):
+        least_defended_planet = self.defender_bot.get_least_defended_planet()
+        self.transporter_bot.transport_resources_to_planet(least_defended_planet)
 
     def transport_resources_to_planet(self):
         self.transporter_bot.transport_resources_to_planet()

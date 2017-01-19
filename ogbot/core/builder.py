@@ -1,6 +1,7 @@
 from base import BaseBot
 from scraping import buildings, defense, general
 
+
 class BuilderBot(BaseBot):
     """Logging functions for the bot"""
 
@@ -10,25 +11,6 @@ class BuilderBot(BaseBot):
         self.general_client = general.General(browser, config)
         self.planets = planets
         super(BuilderBot, self).__init__(browser, config, planets)
-
-    # def auto_build_defenses(self):
-    #     """Auto build defenses on all planets"""
-    #     planets = self.planets
-    #     for planet in planets:
-    #         self.defense_client.auto_build_defenses_to_planet(planet)
-
-    # def auto_build_defenses_to_planet(self):
-    #     """
-    #         Auto build defenses to planet
-    #         :return: None
-    #     """
-    #     origin_planet = self.planet
-    #
-    #     if origin_planet is None:
-    #         self.logger.warning("Planet not found")
-    #         return
-    #
-    #     self.defense_client.auto_build_defenses_to_planet(origin_planet)
 
     def get_planet_for_construction(self):
         """

@@ -60,7 +60,13 @@ class Config(object):
             self.build_storage = config.getboolean('Development', 'Storage')  # build storage structures or not
             self.defense_proportion = self.parse_multiple_value_config(config.get('Development', 'DefenseProportion'))
             self.spend_excess_metal_on_rl = config.getboolean('Development', 'SpendExcessMetalOnRL')
-            # Exploraton config options
+
+            # Transport config options
+            self.transport_metal = config.getboolean('Transport', 'TransportMetal')
+            self.transport_crystal = config.getboolean('Transport', 'TransportCrystal')
+            self.transport_deuterium = config.getboolean('Transport', 'TransportDeuterium')
+
+            # Exploration config options
             self.attack_range = config.getint('Exploration', 'AttackRange')
             self.time_to_wait_for_probes = config.getint('Exploration', 'HowLongToWaitForProbes')
             self.spy_report_life = config.getint('Exploration', 'SpyReportLife')  # Time in which spy report is valid

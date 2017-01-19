@@ -1,5 +1,6 @@
 from base import BaseBot
 from scraping import *
+from core import defender
 
 
 class LoggerBot(BaseBot):
@@ -13,6 +14,7 @@ class LoggerBot(BaseBot):
         self.general_client = general.General(browser, config)
         self.buildings_client = buildings.Buildings(browser, config)
         self.research_client = research.Research(browser, config)
+
         super(LoggerBot, self).__init__(browser, config, planets)
 
     def log_planets(self):
@@ -54,6 +56,8 @@ class LoggerBot(BaseBot):
 
         total_resources = scraper.Resources(0, 0, 0)
 
+
+
         for planet in planets:
             total_resources.sum(planet.resources)
 
@@ -80,6 +84,7 @@ class LoggerBot(BaseBot):
         self.logger.info("Total of resources is: [%s]", total_resources)
 
         self.log_fleet_movement()
+
 
     def log_planets_in_same_system(self):
         """Log planets on same system"""
@@ -127,3 +132,9 @@ class LoggerBot(BaseBot):
     def print_building_item_order(self, item_order):
         if item_order.amount > 0:
             self.logger.info("\t%s - level %d" % (item_order.item.name, item_order.amount))
+
+
+    def log_least_defended_planet(self):
+        defender_bot = defender.DefenderBot(self.browser, self.config, self.planets)
+        least_defended_planet = defender_bot.get_least_defended_planet()
+        self.logger.info("Least defended planet is %s" % least_defended_planet.name)

@@ -75,31 +75,6 @@ class Defense(Scraper):
 
         return defenses
 
-    # def auto_build_defenses_to_planet(self, planet):
-    #     """
-    #     Automatically build defenses to the specified planet
-    #     :param planet: planet to build defenses on
-    #     :return:
-    #     """
-    #
-    #     defense_proportion = self.parse_defense_proportion(self.config.defense_proportion)
-    #
-    #
-    #     defense_items = [ItemAction(DEFENSES_DATA.get(Defenses.PlasmaTurret), 20),
-    #                      ItemAction(DEFENSES_DATA.get(Defenses.GaussCannon), 50),
-    #                      ItemAction(DEFENSES_DATA.get(Defenses.IonCannon), 10),
-    #                      ItemAction(DEFENSES_DATA.get(Defenses.HeavyLaser), 10),
-    #                      ItemAction(DEFENSES_DATA.get(Defenses.LightLaser), 3000),
-    #                      ItemAction(DEFENSES_DATA.get(Defenses.RocketLauncher), 3000)]
-    #
-    #     self.logger.info('Auto building defenses')
-    #     self.redirect_to_page(planet)
-    #     for defense_item in defense_items:
-    #         self.logger.info("building %d %s(s) on planet %s" % (defense_item.amount,
-    #                                                              defense_item.item.name,
-    #                                                              planet.name))
-    #         self.build_defense_on_current_page(defense_item.item.id, defense_item.amount)
-
     def build_defense_to_planet(self, defense_type, amount, planet):
         """
         Build defense on specified planet
@@ -149,10 +124,3 @@ class Defense(Scraper):
         self.logger.info("Submitting build defense request")
         self.submit_request()
 
-
-    @staticmethod
-    def parse_defense_proportion(defense_proportion_str):
-        parsed_defense_proportion = map(lambda x: (DEFENSES_DATA.get(filter(str.isalpha, x)),
-                       int(filter(str.isdigit, x))), defense_proportion_str)
-
-        return filter(lambda x: x[0] is not None and x[1] is not None, parsed_defense_proportion)

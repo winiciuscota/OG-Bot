@@ -164,6 +164,12 @@ class Resources(object):
         self.crystal += resources.crystal
         self.deuterium += resources.deuterium
 
+    def times(self, number):
+        return Resources(self.metal * number, self.crystal * number, self.deuterium * number)
+
+    def get_points(self):
+        return sum([self.metal, self.crystal, self.deuterium])
+
 
 class Planet(object):
     def __init__(self, name, link, coordinates, resources=None, defenses=None, fleet=None, research=None):
@@ -201,8 +207,7 @@ class Item(object):
         self.cost = cost
 
     def __str__(self):
-        return "[Description: %s, Id: %s%s ]" % (
-            self.name, self.id)
+        return "[Description: %s, Id: %s ]" % (self.name, self.id)
 
 
 class ItemAction(object):
@@ -232,10 +237,11 @@ class ResearchItem(Item):
 
 
 class FleetMovement(object):
-    def __init__(self, origin_coordinates, origin_name, destination_coordinates, destination_name, friendly):
+    def __init__(self, origin_coordinates, origin_name, destination_coordinates, destination_name, friendly,
+                 arrival_time=None, countdown_time=None):
         """
         :param origin_coordinates: Coordinates of the origin planet
-        :param origin_name: Name o the origin planet
+        :param origin_name: Name of the origin planet
         :param destination_coordinates: Destination of the destination planet
         """
         self.origin_coords = origin_coordinates
@@ -243,11 +249,18 @@ class FleetMovement(object):
         self.destination_coords = destination_coordinates
         self.destination_name = destination_name
         self.friendly = friendly
+        self.arrival_time = arrival_time
+        self.countdown_time = countdown_time
 
     def __str__(self):
-        return "%s Fleet from planet %s(%s) to planet %s(%s)" % (("friendly" if self.friendly else "hostile"),
-                                                                         self.origin_name, self.origin_coords,
-                                                                         self.destination_name, self.destination_coords)
+        return "%s fleet from planet %s(%s) to planet %s(%s) in %s" % (("Friendly" if self.friendly else "Hostile"),
+                                                                       self.origin_name, self.origin_coords,
+                                                                       self.destination_name, self.destination_coords,
+                                                                       self.countdown_time)
+
+    def get_count_down_time(self, arrival_time):
+        game_time = self.general_client.get_game_datetime()
+        return arrival_time - game_time
 
 
 class PlayerState(Enum):

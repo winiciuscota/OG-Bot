@@ -1,6 +1,7 @@
 __all__ = [
     "attacker",
     "builder",
+    "defender",
     "expeditionary",
     "messages",
     "spy",

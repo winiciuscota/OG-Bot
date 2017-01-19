@@ -1,5 +1,6 @@
 from base import BaseBot
 from scraping import fleet, general, hangar
+from copy import copy
 
 
 class TransporterBot(BaseBot):
@@ -30,4 +31,21 @@ class TransporterBot(BaseBot):
         for planet in [planet for planet in planets if planet != destination_planet]:
             planet.ships = self.hangar_client.get_ships(planet)
             resources = self.general_client.get_resources(planet)
-            self.fleet_client.transport_resources(planet, destination_planet, resources)
+            restricted_resources = self.get_restrict_resources_under_user_preferences(resources)
+            self.fleet_client.transport_resources(planet, destination_planet, restricted_resources)
+
+    def get_restrict_resources_under_user_preferences(self, resources):
+        restricted_resources = copy(resources)
+
+        restricted_resources.energy = 0
+
+        if not self.config.transport_metal:
+            restricted_resources.metal = 0
+
+        if not self.config.transport_crystal:
+            restricted_resources.crystal = 0
+
+        if not self.config.transport_deuterium:
+            restricted_resources.deuterium = 0
+
+        return restricted_resources

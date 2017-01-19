@@ -1,9 +1,26 @@
 from bs4 import BeautifulSoup
+from datetime import datetime
 from scraper import *
+from general import General
+
+
+def get_arrival_time(arrival_time_str):
+    time = datetime.strptime(arrival_time_str.strip(), '%H:%M:%S').time()
+    now = datetime.now()
+    arrival_time = datetime.combine(now, time)
+    return arrival_time
 
 
 class Movement(Scraper):
+    def __init__(self, browser, config):
+        super(Movement, self).__init__(browser, config)
+        self.general_client = General(browser, config)
+
     def get_fleet_movement_from_movement_page(self):
+        """
+        Deprecated, use get_fleet_movement instead
+        :return:
+        """
         url = self.url_provider.get_page_url('movement')
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
@@ -35,10 +52,19 @@ class Movement(Scraper):
             count_down_td = movement_row.find("td", {"class": "countDown"})
             is_friendly = 'friendly' in count_down_td.attrs['class']
 
-            movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly)
+            arrival_time_str = movement_row.find("td", {"class": "arrivalTime"}).text
+            arrival_time = get_arrival_time(arrival_time_str)
+            countdown_time = self.get_countdown_time(arrival_time)
+
+            movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly,
+                                     arrival_time, countdown_time)
             fleet_movements.append(movement)
 
         return fleet_movements
+
+    def get_countdown_time(self, arrival_time):
+        game_time = self.general_client.get_game_datetime()
+        return arrival_time - game_time
 
     @staticmethod
     def parse_coords(text):
