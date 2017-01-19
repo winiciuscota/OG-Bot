@@ -96,7 +96,7 @@ class DefenderBot(BaseBot):
         return False
 
     def get_least_defended_planet(self):
-        least_defended_planet = min(self.planets, key=lambda x: self.get_defense_points_for_planet(x))
+        least_defended_planet = min(self.planets, self.get_defense_points_for_planet(x))
         return least_defended_planet
 
     def get_defense_points_for_planet(self, planet):
