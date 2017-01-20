@@ -17,7 +17,7 @@ class AttackerBot(BaseBot):
     def get_nearest_planet_to_target(self, target_planet):
         """Get the nearest planet to the target planet"""
 
-        return get_nearest_planet_to_coordinates(target_planet.coordinates, self.planets)
+        return self.get_nearest_planet_to_coordinates(target_planet.coordinates, self.planets)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         ships = self.hangar_client.get_ships(origin_planet)

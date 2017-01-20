@@ -85,8 +85,8 @@ class Research(Scraper):
     def get_research_data_from_button(research_button):
         """ Read the research data from the research button """
 
-        id = research_button['ref']
-        research_data = RESEARCH_DATA.get(id)
+        research_id = research_button['ref']
+        research_data = RESEARCH_DATA.get(research_id)
 
         # ensures that execution will not break if there is a new item
         if research_data is not None:

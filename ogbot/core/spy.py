@@ -118,7 +118,7 @@ class SpyBot(BaseBot):
 
         associated_systems = []
         for system in systems:
-            origin_planet = get_nearest_planet_to_coordinates(system + ":1", self.planets)
+            origin_planet = self.get_nearest_planet_to_coordinates(system + ":1", self.planets)
             associated_systems.append((system, origin_planet))
 
         return associated_systems
