@@ -3,7 +3,6 @@ import logging
 import sys
 from bot import OgameBot
 from config import Config
-
 from scraping import authentication
 
 
@@ -39,8 +38,10 @@ switcher = {
     'auto_build_defenses': bot.auto_build_defenses,
     'auto_build_defenses_to_planet': bot.auto_build_defenses_to_planet,
     'transport_resources_to_planet': bot.transport_resources_to_planet,
-    'transport_resources_to_least_developed_planet': bot.transport_resources_to_least_developed_planet,
-    'transport_resources_to_least_defended_planet' : bot.transport_resources_to_least_defended_planet,
+    'transport_resources_to_least_developed_planet':
+        bot.transport_resources_to_least_developed_planet,
+    'transport_resources_to_least_defended_planet':
+        bot.transport_resources_to_least_defended_planet,
     'auto_build_structures': bot.auto_build_structures,
     'auto_research': bot.auto_research
 }

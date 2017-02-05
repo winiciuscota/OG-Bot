@@ -17,40 +17,44 @@ class DefenderBot(BaseBot):
         for planet in planets:
             self.auto_build_defenses_to_planet(planet)
 
-    def auto_build_defenses_to_planet(self, planet):
-
-        while True:
-            result = self.auto_build_defense_to_planet(planet)
-            if result is False:
-                break
-
-    def auto_build_defense_to_planet(self, planet):
+    def auto_build_defenses_to_planet(self, planet, iteration_budget=.5):
         """
                Automatically build defenses to the specified planet
                :param planet: planet to build defenses on
+               :param iteration_budget: percentage of resouces that can be spent at each build iteration
        """
 
-        planet_resources = self.general_client.get_resources(planet)
+        if planet.resources is None:
+            planet.resources = self.general_client.get_resources(planet)
+
+        if planet.defenses is None:
+            planet.defenses = self.defense_client.get_defenses(planet)
 
         defense_proportion_list = self.parse_defense_proportion(self.config.defense_proportion)
-        available_defenses_proportion_list = filter(lambda x: x.item.cost < planet_resources,
+        available_defenses_proportion_list = filter(lambda x: x.item.cost < planet.resources.times(iteration_budget),
                                                     defense_proportion_list)
 
         if self.check_exit_conditions_for_auto_build_defenses(planet, defense_proportion_list,
                                                               available_defenses_proportion_list,
-                                                              planet_resources):
-            return False
+                                                              planet.resources):
+            return
 
-        defenses = self.defense_client.get_defenses(planet)
+        defenses_relation = self.get_defenses_proportion_comparison_table(available_defenses_proportion_list,
+                                                                          planet.defenses)
 
-        defenses_relation = self.get_defenses_proportion_comparison_table(available_defenses_proportion_list, defenses)
-
-        type_and_amount_to_build = self.get_type_and_amount_to_build(defenses_relation, planet_resources)
+        type_and_amount_to_build = self.get_type_and_amount_to_build(defenses_relation, planet.resources.times(iteration_budget))
 
         self.defense_client.build_defense_to_planet(type_and_amount_to_build.item, type_and_amount_to_build.amount,
                                                     planet)
 
-        return True
+        spent_resources = type_and_amount_to_build.item.cost.times(type_and_amount_to_build.amount)
+        planet.resources -= spent_resources
+        planet_defense = filter(lambda x: x.item.id == type_and_amount_to_build.item.id, planet.defenses).pop()
+        planet_defense.amount += type_and_amount_to_build.amount
+
+        next_iteration_budget = min(iteration_budget * 1.25, 1)
+
+        return self.auto_build_defenses_to_planet(planet, next_iteration_budget)
 
     def get_type_and_amount_to_build(self, defenses_relation, planet_resources):
 
