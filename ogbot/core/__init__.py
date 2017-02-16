@@ -7,5 +7,6 @@ __all__ = [
     "spy",
     "transporter",
     "logger",
-    "researcher"
+    "researcher",
+    "movement"
 ]

@@ -1,10 +1,12 @@
 import argparse
 import logging
 import sys
+import traceback
+
 from bot import OgameBot
 from config import Config
+from ogbot.sms import SMSSender
 from scraping import authentication
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-m', help='Mode in which to run the bot', nargs='+')
@@ -24,7 +26,6 @@ logger.addHandler(ch)
 
 logger.info('Starting the bot')
 
-
 auth_client = authentication.AuthenticationProvider(config)
 browser = auth_client.get_browser()
 
@@ -43,8 +44,10 @@ switcher = {
     'transport_resources_to_least_defended_planet':
         bot.transport_resources_to_least_defended_planet,
     'auto_build_structures': bot.auto_build_structures,
-    'auto_research': bot.auto_research
+    'auto_research': bot.auto_research,
+    'check_hostile_activity': bot.check_hostile_activity
 }
+
 
 for mode in config.mode:
     function = switcher.get(mode)
@@ -63,5 +66,12 @@ for mode in config.mode:
         logger.warning("\tauto_research")
     else:
         logger.info("Bot running in %s mode" % mode)
-        function()
+        try:
+            function()
+        except Exception as e:
+            exception_message = traceback.format_exc()
+            logger.error(exception_message)
+            sms_sender = SMSSender(config)
+            sms_sender.send_sms(exception_message)
+
 logger.info("Quiting bot")

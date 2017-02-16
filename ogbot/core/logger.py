@@ -51,12 +51,9 @@ class LoggerBot(BaseBot):
             planet.defenses = self.defense_client.get_defenses(planet)
             planet.fleet = self.hangar_client.get_ships(planet)
             planet.buildings = self.buildings_client.get_buildings(planet)
-
             planet.research = self.research_client.get_research(planet)
 
         total_resources = scraper.Resources(0, 0, 0)
-
-
 
         for planet in planets:
             total_resources.sum(planet.resources)
@@ -75,7 +72,6 @@ class LoggerBot(BaseBot):
             for buildings in planet.buildings:
                 self.print_building_item_order(buildings)
 
-
         # We need the research output only once
         self.logger.info("Research: ")
         for research in planets[0].research:
@@ -84,7 +80,6 @@ class LoggerBot(BaseBot):
         self.logger.info("Total of resources is: [%s]", total_resources)
 
         self.log_fleet_movement()
-
 
     def log_planets_in_same_system(self):
         """Log planets on same system"""

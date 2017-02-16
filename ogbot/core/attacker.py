@@ -60,6 +60,7 @@ class AttackerBot(BaseBot):
         targets = sorted(distinct_inactive_planets, key=get_target_value, reverse=True)
 
         predicted_loot = 0
+        assault_fleets_count = 0
 
         for target in targets:
             if target.defenses != 0:
@@ -77,7 +78,7 @@ class AttackerBot(BaseBot):
                 if result == fleet.FleetResult.Success:
                     predicted_loot += target.get_loot()
                     used_slots += 1
-
+                    assault_fleets_count += 1
                     # Delay - wait a random time before sending fleet, this makes the bot less detectable
                     delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
                     self.logger.info("Waiting for %s seconds" % delay)
@@ -89,7 +90,10 @@ class AttackerBot(BaseBot):
             else:
                 self.logger.info("No more available slots")
                 break
+
         self.logger.info("Predicted loot is %s" % int(predicted_loot))
+        self.sms_sender.send_sms("%d assault fleets were deployed, the predicted loot is %s"
+                                 % (assault_fleets_count, predicted_loot))
         return True
 
     def auto_attack_inactive_planets(self):

@@ -77,6 +77,7 @@ class BuilderBot(BaseBot):
                     self.logger.info("No available resources to build solar plant or fusion reactor")
 
             self.buildings_client.build_structure(building, planet)
+            self.sms_sender.send_sms("Building %s on planet %s" % (building, planet))
         else:
             self.logger.info("No available buildings on planet %s" % planet)
 

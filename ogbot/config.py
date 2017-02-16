@@ -88,6 +88,11 @@ class Config(object):
             self.min_res_to_attack = config.getint('Exploration', 'MinResToSendAttack')  # Min resources to send attack
             self.expedition_range = config.getint('Exploration', 'ExpeditionRange')  # range to send expeditions
 
+            self.enable_twilio_messaging = config.get('Twilio', 'EnableTwilioMessaging')
+            self.twilio_account_sid = config.get('Twilio', 'AccountSid')
+            self.twilio_account_token = config.get('Twilio', 'AccountToken')
+            self.twilio_from_number = config.get('Twilio', 'FromNumber')
+            self.twilio_to_number = config.get('Twilio', 'ToNumber')
 
             # read values from parameters
             mode = parameters.get('m')

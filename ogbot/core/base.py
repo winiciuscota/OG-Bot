@@ -1,4 +1,5 @@
 import logging
+from sms import SMSSender
 
 
 class BaseBot(object):
@@ -18,6 +19,7 @@ class BaseBot(object):
 
         # self.planet will be None if the user doesn't specifies a valid planet name
         self.planet = self.get_player_planet_by_name(config.planet_name)
+        self.sms_sender = SMSSender(config)
 
     # Util functions
     def get_player_planet_by_name(self, planet_name):
