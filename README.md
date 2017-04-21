@@ -44,6 +44,12 @@ python main.py -m transport_resources_to_planet planet_name - will transport all
 - Build structures<br />
 - Research Technologies <br />
 
+#Update
+
+My ogame account has been banned almost 1 month ago due to using a bot. I had been using the bot for more than a year. It was configured to attack inactive planets 6~8 times a day so I was basically asking for someone to report me. I'll likely take a break for now, I don't have the time and motivation required to continue working on the bot. Maybe in the future I will resume the development and work to make the bot smarter, less detectable and support for python 3. <br />
+
+For the players that have used or plan on using the bot: I still don't think that the ogame team has any reliable tool to detect the use of bots. I think they have to rely on someone manually examining the logs. There will always be the risk of other players reporting you, be careful. <br />
+
 #Credits:
 
 Many thanks to Rafał Furmański(http://rafal-furmanski.com/) for letting me use some snippets of his code (https://github.com/r4fek/ogame-bot).<br />
