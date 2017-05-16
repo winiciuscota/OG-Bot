@@ -42,9 +42,9 @@ class General(Scraper):
 
         links = soup(attrs={'class': "planetlink"})
 
-        planets = [Planet((str(link(attrs={'class': "planet-name"})[0].contents[0])),
+        planets = [Planet(((link(attrs={'class': "planet-name"})[0].contents[0]).encode('utf-8')),
                           urlparse.parse_qs(link['href'])['cp'][0],
-                          parse_coordinates(str(link(attrs={'class': "planet-koords"})[0].contents[0])))
+                          parse_coordinates((link(attrs={'class': "planet-koords"})[0].contents[0]).encode('utf-8')))
                    for link in links]
 
         return planets

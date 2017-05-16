@@ -5,7 +5,8 @@ import traceback
 
 from bot import OgameBot
 from config import Config
-from ogbot.sms import SMSSender
+#from ogbot.sms import SMSSender
+from sms import SMSSender
 from scraping import authentication
 
 parser = argparse.ArgumentParser()

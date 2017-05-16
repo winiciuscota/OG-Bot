@@ -58,7 +58,7 @@ class BuilderBot(BaseBot):
         """
         resources = self.general_client.get_resources(planet)
         available_buildings = self.get_available_buildings_for_planet(planet)
-        available_buildings = self.filter_available_buildings(available_buildings, self.config)
+        available_buildings = self.filter_available_buildings(available_buildings)
 
         if len(available_buildings) > 0:
             building = available_buildings[0]
