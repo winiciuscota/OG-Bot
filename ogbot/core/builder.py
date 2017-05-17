@@ -56,30 +56,21 @@ class BuilderBot(BaseBot):
             Build the first available structure on the weaker planet
             If the planet has negative energy will prioritize energy buildings
         """
-        resources = self.general_client.get_resources(planet)
+
         available_buildings = self.get_available_buildings_for_planet(planet)
-        available_buildings = self.filter_available_buildings(available_buildings, self.config)
+        building = None
+        if not self.buildings_client.is_in_construction_mode():
+            if available_buildings > 0:
+                building = self.get_next_building_to_build_on_planet(
+                            planet, available_buildings)
 
-        if len(available_buildings) > 0:
-            building = available_buildings[0]
-            if resources.energy < 0:
-                self.logger.info("Planet has not enough energy, building solar plant or fusion reactor")
-
-                id_energy_buildings = [buildings.BUILDINGS_DATA.get("sp").id,
-                                       buildings.BUILDINGS_DATA.get("fr").id]
-
-                energy_buildings = filter(lambda value: value.id in id_energy_buildings, available_buildings)
-
-                if len(energy_buildings) > 0:
-                    # Get the last element from the list, this way the bot will build fusion reactors first
-                    building = energy_buildings[-1]
-                else:
-                    self.logger.info("No available resources to build solar plant or fusion reactor")
-
-            self.buildings_client.build_structure(building, planet)
-            self.sms_sender.send_sms("Building %s on planet %s" % (building, planet))
+            if building:
+                self.buildings_client.build_structure(building, planet)
+                self.sms_sender.send_sms("Building %s on planet %s" % (building, planet))
+            else:
+                self.logger.info("No available buildings on planet %s" % planet)
         else:
-            self.logger.info("No available buildings on planet %s" % planet)
+            self.logger.info("Planet is already in construction_mode: %s" % planet)
 
     def get_least_developed_planet(self):
         return min(self.planets, key=self.get_planet_building_total_lvl)
@@ -119,3 +110,53 @@ class BuilderBot(BaseBot):
         available_buildings = filter(lambda building: building.id not in ignored_buildings, available_buildings)
 
         return available_buildings
+
+    def get_next_building_to_build_on_planet(self, planet, available_buildings):
+        resources = self.general_client.get_resources(planet)
+        priority_list = [
+            15, #   NaniteFactory
+            14, #   RobotFacotry
+            1,  #   MetalMine
+            2,  #   KristalMine
+            3,  #   DeuteriumSynthesizer
+            21, #   Shipyard
+            31, #   ResearchLab
+            22, #   MetalStorage
+            23, #   CrystalStorage
+            24, #   DeuteriumSynthesizer
+        ]
+
+        building = None
+        if available_buildings:
+            for abuilding in available_buildings:
+                if abuilding.id in priority_list:
+                    building = abuilding
+                    break
+
+            for building_candidate in available_buildings:
+                if building_candidate.id in priority_list:
+                    bc_priority = priority_list.index(building_candidate.id)
+                    b_priority =  priority_list.index(building.id)
+                    if bc_priority < b_priority:
+                        building = building_candidate
+
+                # If energy is below 0, it should be prioritized
+                if resources.energy < 0:
+                    # FusionReactor
+                    if building_candidate.id == 12 and self.config.build_fusion_reactor:
+                        building = building_candidate
+                        break
+                    # SolarPlant
+                    elif building_candidate.id == 4:
+                        building = building_candidate
+                        break
+
+        if building and resources.energy < -100:
+            if not (building.id == 12 or not building.id == 4):
+                self.logger.info("Not much energy waiting to build a power plant")
+                building = None
+
+        if building:
+            self.logger.info("%s selected for building" % building.name)
+
+        return building

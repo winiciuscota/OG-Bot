@@ -5,12 +5,14 @@ import traceback
 
 from bot import OgameBot
 from config import Config
-from ogbot.sms import SMSSender
+from sms import SMSSender
+from scheduler import Scheduler
 from scraping import authentication
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-m', help='Mode in which to run the bot', nargs='+')
 parser.add_argument('-r', help='Range of the bot')
+parser.add_argument('-s', action='store_true', help='Activate scheduler mode')
 parser.add_argument('-p', help='Origin planet')
 
 args = parser.parse_args()
@@ -29,7 +31,11 @@ logger.info('Starting the bot')
 auth_client = authentication.AuthenticationProvider(config)
 browser = auth_client.get_browser()
 
-bot = OgameBot(browser, config)
+bot = None
+if config.scheduler:
+    scheduler = Scheduler(browser, config)
+else:
+    bot = OgameBot(browser, config)
 
 switcher = {
     'overview': bot.overview,
@@ -49,29 +55,30 @@ switcher = {
 }
 
 
-for mode in config.mode:
-    function = switcher.get(mode)
-    if function is None:
-        logger.warning("There is no mode named %s" % mode)
-        logger.warning("The available modes are:")
-        logger.warning("\toverview")
-        logger.warning("\tlog_fleet_movement")
-        logger.warning("\texplore")
-        logger.warning("\tattack_inactive_planets")
-        logger.warning("\tauto_build_defenses")
-        logger.warning("\tauto_build_defenses_to_planet")
-        logger.warning("\ttransport_resources_to_least_developed_planet")
-        logger.warning("\ttransport_resources_to_least_defended_planet")
-        logger.warning("\tauto_build_structures")
-        logger.warning("\tauto_research")
-    else:
-        logger.info("Bot running in %s mode" % mode)
-        try:
-            function()
-        except Exception as e:
-            exception_message = traceback.format_exc()
-            logger.error(exception_message)
-            sms_sender = SMSSender(config)
-            sms_sender.send_sms(exception_message)
+if not config.scheduler:
+    for mode in config.mode:
+        function = switcher.get(mode)
+        if function is None:
+            logger.warning("There is no mode named %s" % mode)
+            logger.warning("The available modes are:")
+            logger.warning("\toverview")
+            logger.warning("\tlog_fleet_movement")
+            logger.warning("\texplore")
+            logger.warning("\tattack_inactive_planets")
+            logger.warning("\tauto_build_defenses")
+            logger.warning("\tauto_build_defenses_to_planet")
+            logger.warning("\ttransport_resources_to_least_developed_planet")
+            logger.warning("\ttransport_resources_to_least_defended_planet")
+            logger.warning("\tauto_build_structures")
+            logger.warning("\tauto_research")
+        else:
+            logger.info("Bot running in %s mode" % mode)
+            try:
+                function()
+            except Exception as e:
+                exception_message = traceback.format_exc()
+                logger.error(exception_message)
+                sms_sender = SMSSender(config)
+                sms_sender.send_sms(exception_message)
 
 logger.info("Quiting bot")

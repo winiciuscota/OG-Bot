@@ -151,4 +151,7 @@ class DefenderBot(BaseBot):
             self.current_amount = current_amount
 
         def proportion_rate(self):
-            return self.target_amount / float(self.current_amount)
+            curAmount = float(self.current_amount)
+            if curAmount == 0:
+            	return 1
+            return self.target_amount / curAmount

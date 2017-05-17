@@ -54,6 +54,7 @@ class AuthenticationProvider(Scraper):
         # Enter Username and password
         self.browser['login'] = self.username
         self.browser['pass'] = self.password
+
         self.browser['uni'] = ['s%s-%s.ogame.gameforge.com' % (self.universe, self.country)]
         self.logger.info('Logging in to server: %s' % self.browser['uni'])
         self.submit_request()

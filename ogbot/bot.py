@@ -12,9 +12,9 @@ class OgameBot(object):
         self.config = config
         self.logger = logging.getLogger('OGBot')
 
-        # Get planets and remove excluded planets in the config file
-        planets = general.General(browser, config).get_planets()
-        planets = filter(lambda x: x.name.lower() not in config.excluded_planets, planets)
+        self.general_client = general.General(browser, config)
+        planets = self.general_client.get_planets()
+        self.planets = planets
 
         self.attacker_bot = attacker.AttackerBot(browser, config, planets)
         self.defender_bot = defender.DefenderBot(browser, config, planets)
@@ -27,6 +27,11 @@ class OgameBot(object):
         self.researcher_bot = researcher.ResearcherBot(browser, config, planets)
         self.movement_bot = movement.MovementBot(browser, config, planets)
         self.sms_sender = sms.SMSSender(config)
+
+    def print_resources(self):
+        for planet in self.planets:
+            res = self.general_client.get_resources(planet)
+            self.logger.info("%s : %s" % (planet, res))
 
     def explore(self):
         self.expeditionary_bot.auto_send_expeditions()

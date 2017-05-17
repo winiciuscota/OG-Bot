@@ -21,7 +21,7 @@ class General(Scraper):
         return game_datetime
 
     def get_resources(self, planet):
-        self.logger.info('Getting resources data for planet %s' % planet.name)
+        self.logger.debug('Getting resources data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('resources', planet)
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
@@ -42,9 +42,9 @@ class General(Scraper):
 
         links = soup(attrs={'class': "planetlink"})
 
-        planets = [Planet((str(link(attrs={'class': "planet-name"})[0].contents[0])),
+        planets = [Planet(((link(attrs={'class': "planet-name"})[0].contents[0]).encode('utf-8')),
                           urlparse.parse_qs(link['href'])['cp'][0],
-                          parse_coordinates(str(link(attrs={'class': "planet-koords"})[0].contents[0])))
+                          parse_coordinates((link(attrs={'class': "planet-koords"})[0].contents[0]).encode('utf-8')))
                    for link in links]
 
         return planets
