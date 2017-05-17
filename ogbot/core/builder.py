@@ -133,29 +133,30 @@ class BuilderBot(BaseBot):
                     building = abuilding
                     break
 
-            for building_canidate in available_buildings:
-                if building_canidate.id in priority_list:
-                    bc_priority = priority_list.index(building_canidate.id)
+            for building_candidate in available_buildings:
+                if building_candidate.id in priority_list:
+                    bc_priority = priority_list.index(building_candidate.id)
                     b_priority =  priority_list.index(building.id)
                     if bc_priority < b_priority:
-                        building = building_canidate
+                        building = building_candidate
 
                 # If energy is below 0, it should be prioritized
                 if resources.energy < 0:
                     # FusionReactor
-                    if building_canidate.id == 12 and self.config.build_fusion_reactor:
-                        building = building_canidate
+                    if building_candidate.id == 12 and self.config.build_fusion_reactor:
+                        building = building_candidate
                         break
                     # SolarPlant
-                    elif building_canidate.id == 4:
-                        building = building_canidate
+                    elif building_candidate.id == 4:
+                        building = building_candidate
                         break
-        if resources.energy < -100:
+
+        if building and resources.energy < -100:
             if not (building.id == 12 or not building.id == 4):
                 self.logger.info("Not much energy waiting to build a power plant")
                 building = None
 
-
         if building:
             self.logger.info("%s selected for building" % building.name)
+
         return building
