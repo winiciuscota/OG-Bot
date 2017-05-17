@@ -22,7 +22,14 @@ class BuildingTypes(Enum):
     MetalStorage = "22"
     CrystalStorage = "23"
     DeuteriumTank = "24"
-
+    RobotFacotry = "14"
+    NaniteFactory = "15"
+    Shipyard = "21"
+    ResearchLab = "31"
+    Terraformer = "33"
+    AllicanceDepot = "34"
+    Spacedock = "36"
+    MissileSilo = "44"
 
 BUILDINGS_DATA = {
 
@@ -40,9 +47,18 @@ BUILDINGS_DATA = {
     "3": BuildingItem(3, "Deuterium Synthesizer"),
     "4": BuildingItem(4, "Solar Plant"),
     "12": BuildingItem(12, "Fusion Reactor"),
-    "102": BuildingItem(22, "Metal Storage"),
+    "22": BuildingItem(22, "Metal Storage"),
     "23": BuildingItem(23, "Crystal Storage"),
-    "24": BuildingItem(24, "Deuterium Tank")
+    "24": BuildingItem(24, "Deuterium Tank"),
+
+    "14": BuildingItem(14, "Robot Factory"),
+    "15": BuildingItem(15, "Nanite Factory"),
+    "21": BuildingItem(21, "Shipyard"),
+    "31": BuildingItem(31, "Research Lab"),
+    "33": BuildingItem(33, "Terraformer"),
+    "34": BuildingItem(34, "Alliance Depot"),
+    "36": BuildingItem(36, "Spacedock"),
+    "44": BuildingItem(44, "Missile Silo")
 
 }
 
@@ -71,8 +87,14 @@ class Buildings(Scraper):
         return planet_buildings
 
     def get_buildings(self, planet):
-        self.logger.info('Getting buildings data for planet %s' % planet.name)
-        url = self.url_provider.get_page_url('resources', planet)
+        buildings_resources = self.get_page_buildings(planet,'resources')
+        buildings_station = self.get_page_buildings(planet, 'station')
+
+        return buildings_resources + buildings_station
+
+    def get_page_buildings(self, planet, page):
+        self.logger.info('Getting buildings data for planet %s from %s' % (planet.name, page))
+        url = self.url_provider.get_page_url(page, planet)
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
         building_buttons = soup(attrs={'class': "detail_button"})
@@ -117,10 +139,10 @@ class Buildings(Scraper):
 
         return building
 
-    def get_available_buildings_for_planet(self, planet):
-        """ Returns the the structures on planet that has enough resources to be built """
+    def get_available_buildings_for_planet_page(self, planet, page):
+        """ Returns the the structures on the page of the planetthat has enough resources to be built """
 
-        url = self.url_provider.get_page_url('resources', planet)
+        url = self.url_provider.get_page_url(page, planet)
         resp = self.open_url(url)
 
         soup = BeautifulSoup(resp.read(), "lxml")
@@ -130,12 +152,34 @@ class Buildings(Scraper):
 
         for build_image in build_images:
             parent_block = build_image.parent
-            building_btn = parent_block.find("a", {"id": "details"})
-            building = self.get_building_data_from_button(building_btn)
+
+            if page is "station":
+                for i in ["14", "15", "21", "31", "33", "34", "36", "44"]:
+                    details = "details" + i
+                    building_btn = parent_block.find("a", {"id": details})
+                    if building_btn is not None:
+                        building = self.get_building_data_from_button(building_btn)
+                        if building is not None:
+                            buildings.append(building.item)
+            else:
+                building_btn = parent_block.find("a", {"id": "details"})
+
+            building = None
+            if building_btn is not None:
+                building = self.get_building_data_from_button(building_btn)
+
+
             if building is not None:
                 buildings.append(building.item)
 
         return buildings
+
+    def get_available_buildings_for_planet(self, planet):
+        """ Returns the the structures on planet that has enough resources to be built """
+        resources = self.get_available_buildings_for_planet_page(planet, "resources")
+        station = self.get_available_buildings_for_planet_page(planet, "station")
+        return resources + station
+
 
     def build_structure(self, building_data, planet):
         if self.is_in_construction_mode(planet):
