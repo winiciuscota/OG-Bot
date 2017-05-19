@@ -119,8 +119,8 @@ class Buildings(Scraper):
             try:
                 building_info = "".join(building_button.find("span", {"class": "level"})
                                         .findAll(text=True, recursive=False)[1])
-            # If we get an exception here it means the building is in construction mode, so we
-            # the info we need will be at index 0
+            # If we get an exception here it means the building is in construction mode,
+            # so we know the info we need will be at index 0
             except IndexError:
                 building_info = "".join(building_button.find("span", {"class": "level"})
                                         .findAll(text=True, recursive=False)[0])
