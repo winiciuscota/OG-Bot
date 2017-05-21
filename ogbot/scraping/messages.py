@@ -116,7 +116,7 @@ class Messages(Scraper):
                     resources = None
                     loot = None
 
-                report = SpyReport(str(planet_name), player_name, player_state, str(coordinates), resources, fleet,
+                report = SpyReport(planet_name.encode('utf-8'), player_name, player_state, coordinates.encode('utf-8'), resources, fleet,
                                    defenses, loot, message_datetime)
                 spy_reports.append(report)
 
