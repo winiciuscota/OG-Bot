@@ -5,7 +5,8 @@ from general import General
 
 
 def get_arrival_time(arrival_time_str):
-    time = datetime.strptime(arrival_time_str.strip(), '%H:%M:%S').time()
+    arrival_time_strip = arrival_time_str.split(' ')[0]
+    time = datetime.strptime(arrival_time_strip, '%H:%M:%S').time()
     now = datetime.now()
     arrival_time = datetime.combine(now, time)
     return arrival_time

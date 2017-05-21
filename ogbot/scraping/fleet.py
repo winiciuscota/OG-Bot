@@ -227,4 +227,4 @@ class Fleet(Scraper):
 
 
 def get_ships_list(ships):
-    return ", ".join([ships.get(ship).encode('utf-8') + ' ' + ship.name for ship in ships])
+    return ", ".join([str(ships.get(ship)) + ' ' + ship.name for ship in ships])
