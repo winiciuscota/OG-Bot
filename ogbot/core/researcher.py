@@ -61,9 +61,20 @@ class ResearcherBot(BaseBot):
         return available_research_item
 
     def auto_research_next_item(self):
-        planet = self.get_planet_for_research(self.planets)
-        research = self.get_next_research_item(planet)
-        if research is not None:
-            self.research_client.research_item(research, planet)
-        else:
-            self.logger.info("Nothing to research on planet %s" % planet)
+        #planet = self.get_planet_for_research(self.planets)
+
+        # Attempt research on each planet until one is started
+        for planet in self.planets:
+
+            try:
+                research = self.get_next_research_item(planet)
+
+                if research is not None:
+                    self.research_client.research_item(research, planet)
+                    break;
+
+                else:
+                    self.logger.info("Nothing to research on planet %s" % planet)
+
+            except Exception:
+                pass
