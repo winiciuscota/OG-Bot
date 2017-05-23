@@ -15,7 +15,11 @@ class DefenderBot(BaseBot):
         """Auto build defenses on all planets"""
         planets = self.planets
         for planet in planets:
-            self.auto_build_defenses_to_planet(planet)
+            try:
+                self.auto_build_defenses_to_planet(planet)
+
+            except Exception:
+                pass
 
     def auto_build_defenses_to_planet(self, planet, iteration_budget=.5):
         """

@@ -49,7 +49,10 @@ class BuilderBot(BaseBot):
         """
 
         for planet in self.planets:
-            self.auto_build_structures_to_planet(planet)
+            try:
+                self.auto_build_structures_to_planet(planet)
+            except Exception:
+                pass
 
     def auto_build_structures_to_planet(self, planet):
         """
