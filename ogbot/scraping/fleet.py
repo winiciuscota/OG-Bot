@@ -230,6 +230,9 @@ class Fleet(Scraper):
         if sel_recycler_count:
             fleet[ self.SHIPS_DATA.get('209') ] = sel_recycler_count
 
+        if len(fleet) == 0:
+            fleet[ self.SHIPS_DATA.get('lg') ] = 0
+
         return fleet
 
 
