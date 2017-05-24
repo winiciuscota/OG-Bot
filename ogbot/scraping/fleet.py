@@ -219,11 +219,16 @@ class Fleet(Scraper):
 
         self.logger.info("Leftover resources : %d" % left_count)
 
-        fleet = {
-            self.SHIPS_DATA.get('lg'): sel_lg_count,
-            self.SHIPS_DATA.get('sg'): sel_sg_count,
-            self.SHIPS_DATA.get('209'): sel_recycler_count,
-        }
+        fleet = {}
+
+        if sel_sg_count:
+            fleet[ self.SHIPS_DATA.get('sg') ] = sel_sg_count
+
+        if sel_lg_count:
+            fleet[ self.SHIPS_DATA.get('lg') ] = sel_lg_count
+
+        if sel_recycler_count:
+            fleet[ self.SHIPS_DATA.get('209') ] = sel_recycler_count
 
         return fleet
 
