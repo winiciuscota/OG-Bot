@@ -1,4 +1,4 @@
-﻿from __future__ import division
+from __future__ import division
 from bs4 import BeautifulSoup
 import general
 import math
@@ -197,21 +197,25 @@ class Fleet(Scraper):
         :param resources_count: Amount of resources to transport
         :return: Get fleet of cargos for the mission
         """
-        small_cargos_count = self.get_ships_count(origin_planet, "sg")
 
-        self.logger.info("Checking if there is enough small cargos for the mission")
-        if (small_cargos_count * 5000) > resources_count:
-            self.logger.info("Using small cargos")
-            ships_count = int(math.ceil(resources_count / 5000))
-            return {self.SHIPS_DATA.get('sg'): ships_count}
-        else:
-            self.logger.info("Not enough Small Cargos, using Large Cargos instead")
-            ships_count = int(math.ceil(resources_count / 25000))
-            large_cargos_count = self.get_ships_count(origin_planet, "lg")
-            if ships_count > large_cargos_count:
-                ships_count = large_cargos_count
-            fleet = {self.SHIPS_DATA.get('lg'): ships_count}
-            return fleet
+        small_cargos_count = self.get_ships_count(origin_planet, "sg")
+        large_cargos_count = self.get_ships_count(origin_planet, "lg")
+        recyclers_count = self.get_ships_count(origin_planet, "209")
+
+        self.logger.info("Computing small cargos / recyclers / large cargos for the mission")
+
+        sel_lg_count, left_count = update_count(large_cargos_count, resources_count, 25000, False)
+        sel_recycler_count, left_count = update_count(recyclers_count, left_count, 20000, False)
+        sel_sg_count, left_count = update_count(small_cargos_count, left_count, 5000, True)
+
+        fleet = {
+            self.SHIPS_DATA.get('lg'): sel_lg_count,
+            self.SHIPS_DATA.get('sg'): sel_sg_count,
+            self.SHIPS_DATA.get('209'): sel_recycler_count,
+        }
+
+        return fleet
+
 
     def get_ships_count(self, planet, ship_type):
         """
@@ -228,3 +232,24 @@ class Fleet(Scraper):
 
 def get_ships_list(ships):
     return ", ".join([str(ships.get(ship)) + ' ' + ship.name for ship in ships])
+
+
+def update_count(sel_count, res_count, sel_size, getCeil):
+    if sel_count == 0:
+        return 0, res_count
+
+    count = float(res_count) / sel_size
+    count = math.ceil(count) if getCeil \
+            else math.floor(count)
+    count = int(count)
+
+    if count > sel_count:
+        count = sel_count
+
+    left = res_count - count * sel_size
+
+    if left < 0:
+        left = 0
+
+    return count, left
+
