@@ -155,7 +155,7 @@ class BuilderBot(BaseBot):
                         break
 
         if building and resources.energy < -100:
-            if not (building.id == 12 or not building.id == 4):
+            if not (building.id == 12 or building.id == 4):
                 self.logger.info("Not much energy waiting to build a power plant")
                 building = None
 
