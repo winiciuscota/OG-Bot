@@ -8,10 +8,22 @@ class Config(object):
     def __init__(self, args):
         config = ConfigParser.ConfigParser()
 
+        parameters = vars(args)
+        config_file = parameters.get('c')
+
         current_file = os.path.abspath(os.path.dirname(__file__))
         path = os.path.join(current_file, '../')
         os.chdir(path)
-        cfg = config.read('user.cfg')
+
+        if config_file is None:
+            config_file = 'user.cfg'
+
+        cfg = config.read(config_file)
+
+        if len(cfg) == 0:
+            print 'Error while parsing config file \'' + config_file + "'"
+            exit()
+
         self.logger = logging.getLogger('OGBot')
         self.WRONG_ARGUMENTS_MESSAGE = """
             You must pass at least 3 arguments:
@@ -29,17 +41,15 @@ class Config(object):
                 HowLongToWaitForProbes = 60
                 """
 
-        parameters = vars(args)
 
         if not cfg:
             # Config file is empty, log error
             self.logger.error(self.WRONG_ARGUMENTS_MESSAGE)
-
             exit()
+
         else:
             # Set configuration from config file
-
-            self.logger.info('Getting user info from config file')
+            self.logger.info('Getting user info from config file %s', config_file)
 
             # User config options
             self.username = config.get('UserInfo', 'Username')

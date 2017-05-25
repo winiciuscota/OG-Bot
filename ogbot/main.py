@@ -10,6 +10,7 @@ from scheduler import Scheduler
 from scraping import authentication
 
 parser = argparse.ArgumentParser()
+parser.add_argument('-c', help='Configuration file')
 parser.add_argument('-m', help='Mode in which to run the bot', nargs='+')
 parser.add_argument('-r', help='Range of the bot')
 parser.add_argument('-s', action='store_true', help='Activate scheduler mode')
