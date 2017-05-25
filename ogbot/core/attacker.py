@@ -68,6 +68,7 @@ class AttackerBot(BaseBot):
 
                     # Get the nearest planets from target
                     nearest_planets = BaseBot.get_nearest_planets_to_target(target, self.planets)
+                    noShips = 0
 
                     # Attempt attack from each planet ordered by proximity until success
                     for planet in nearest_planets:
@@ -77,6 +78,7 @@ class AttackerBot(BaseBot):
                             predicted_loot += target.get_loot()
                             used_slots += 1
                             assault_fleets_count += 1
+
                             # Delay - wait a random time before sending fleet, this makes the bot less detectable
                             delay = random.randint(self.config.attack_fleet_min_delay, self.config.attack_fleet_max_delay)
                             self.logger.info("Waiting for %s seconds" % delay)
@@ -87,6 +89,16 @@ class AttackerBot(BaseBot):
                             self.logger.warning("There is no fleet slot available")
                             self.logger.info("Predicted loot is %s" % predicted_loot)
                             return True
+
+                        # Count the number of planets without any ship left
+                        if result == fleet.FleetResult.NoAvailableShips:
+                            noShips = noShips + 1
+
+                            # If no ships on all planets, stop attacking
+                            if noShips >= len(self.planets):
+                                self.logger.warning("No ships on all planets, attack finished")
+                                return True
+
 
                 else:
                     self.logger.info("No more available slots")

@@ -69,7 +69,15 @@ class Scraper(object):
         for attempt in range(0, self.attempts):
             try:
                 res = self.browser.open(url, data, self.timeout)
+
+                # Detect authentication loss
+                if url.startswith(self.url_provider.main_url) \
+                    and not res.geturl().startswith(self.url_provider.main_url):
+                    self.logger.error('Authentication lost, exiting the bot')
+                    exit()
+
                 return res
+
             except mechanize.URLError:
                 self.logger.warning("URLError opening url, trying again for the %dth time" % (attempt + 1))
 
@@ -85,6 +93,7 @@ class Scraper(object):
             try:
                 res = self.browser.submit()
                 return res
+
             except mechanize.URLError:
                 self.logger.warning("URLError submitting form, trying again for the %dth time" % (attempt + 1))
 
