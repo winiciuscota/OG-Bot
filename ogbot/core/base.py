@@ -56,14 +56,38 @@ class BaseBot(object):
 
         closest_system = min(planet_systems, key=lambda x: abs(x - target_system))
 
+        # Get the closest position
+        target_pos = int(coordinates.split(':')[2])
+        planet_positions = [int(planet.coordinates.split(':')[2])
+                            for planet in planets
+                            if planet.coordinates.split(':')[0] == str(closest_galaxy)
+                            and planet.coordinates.split(":")[1] == str(closest_system)]
+
+        closest_pos = min(planet_positions, key=lambda x: abs(x - target_pos))
+
         planet = next((planet
                        for planet
                        in planets
-                       if planet.coordinates.split(":")[0] == str(target_galaxy)
+                       if planet.coordinates.split(":")[0] == str(closest_galaxy)
                        and planet.coordinates.split(":")[1] == str(closest_system)
+                       and planet.coordinates.split(":")[2] == str(closest_pos)
                        ), None)
 
         if planet is None:
             raise EnvironmentError("Error getting closest planet from target")
         else:
             return planet
+
+    @staticmethod
+    def get_nearest_planets_to_coordinates(coordinates, planets):
+        """Order the given planets by proximity to the given coordinates"""
+
+        lplanets = planets[:]
+        oplanets = []
+
+        while len(lplanets) > 0:
+            nearest = BaseBot.get_nearest_planet_to_coordinates(coordinates, lplanets)
+            oplanets.append(nearest)
+            lplanets.remove(nearest)
+
+        return oplanets

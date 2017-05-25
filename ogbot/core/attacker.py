@@ -14,10 +14,10 @@ class AttackerBot(BaseBot):
 
         super(AttackerBot, self).__init__(browser, config, planets)
 
-    def get_nearest_planet_to_target(self, target_planet):
+    def get_nearest_planets_to_target(self, target_planet):
         """Get the nearest planet to the target planet"""
 
-        return self.get_nearest_planet_to_coordinates(target_planet.coordinates, self.planets)
+        return self.get_nearest_planets_to_coordinates(target_planet.coordinates, self.planets)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         ships = self.hangar_client.get_ships(origin_planet)
@@ -71,17 +71,12 @@ class AttackerBot(BaseBot):
                 if used_slots < available_slots:
                     self.logger.info("Slot usage: %d/%d" % (used_slots, slot_usage[1]))
 
-                    # Get the nearest planet from target
-                    if self.planet is None:
-                        origin_planet = self.get_nearest_planet_to_target(target)
-                    else:
-                        origin_planet = self.planet
+                    # Get the nearest planets from target
+                    nearest_planets = self.get_nearest_planets_to_target(target)
 
-                    # Attempt attack from each planet until it works
-                    # TODO : Order planets by proximity to keep attacking from nearest like before
-                    for planet in self.planets:
-                        origin_planet = planet
-                        result = self.attack_inactive_planet(origin_planet, target)
+                    # Attempt attack from each planet ordered by proximity until success
+                    for planet in nearest_planets:
+                        result = self.attack_inactive_planet(planet, target)
 
                         if result == fleet.FleetResult.Success:
                             predicted_loot += target.get_loot()
