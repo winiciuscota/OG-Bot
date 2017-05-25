@@ -30,7 +30,15 @@ class AuthenticationProvider(Scraper):
         # self.path = os.path.dirname(os.path.realpath(__file__))
         # name of the cookies file
         # self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
-        self.cookies_file_name = 'cookies.tmp'
+
+        cookies_dir = 'cookies/'
+
+        if not os.path.isdir(cookies_dir):
+            os.mkdir(cookies_dir)
+
+        cookies_id = self.country + '-' + self.universe + '-' + self.username
+
+        self.cookies_file_name = cookies_dir + cookies_id + '.tmp'
         super(AuthenticationProvider, self).__init__(br, config)
 
     def verify_connection(self):
