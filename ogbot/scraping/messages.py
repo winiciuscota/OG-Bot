@@ -44,7 +44,8 @@ class Messages(Scraper):
                 soup = BeautifulSoup(res.read(), "lxml")
                 page_reports = self.parse_spy_reports(soup)
                 spy_reports.extend(page_reports)
-            except Exception:
+            except Exception as e:
+                print e
                 pass
 
         return spy_reports
@@ -127,7 +128,8 @@ class Messages(Scraper):
                                        defenses, loot, message_datetime)
                     spy_reports.append(report)
 
-            except Exception:
+            except Exception as e:
+                print e
                 pass
 
         return spy_reports

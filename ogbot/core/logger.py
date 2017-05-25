@@ -7,7 +7,7 @@ class LoggerBot(BaseBot):
     """Logging functions for the bot"""
 
     def __init__(self, browser, config, planets):
-        self.fleet_client = fleet.Fleet(browser, config)
+        self.fleet_client = fleet.Fleet(browser, config, planets)
         self.movement_client = movement.Movement(browser, config)
         self.defense_client = defense.Defense(browser, config)
         self.hangar_client = hangar.Hangar(browser, config)

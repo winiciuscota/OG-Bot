@@ -3,20 +3,37 @@ from bs4 import BeautifulSoup
 import general
 import math
 from scraper import *
+from core.base import BaseBot
 
 
 class Fleet(Scraper):
-    def __init__(self, browser, config):
+    def __init__(self, browser, config, planets):
         super(Fleet, self).__init__(browser, config)
 
         self.general_client = general.General(browser, config)
+        self.planets = planets
 
-    def spy_planet(self, origin_planet, destination_planet, spy_probes_count):
+    def spy_planet_from(self, origin_planet, destination_planet, spy_probes_count):
 
         self.logger.info("Spying planet %s (%s)", destination_planet.name, destination_planet.coordinates)
 
         result = self.send_fleet(origin_planet, destination_planet.coordinates,
                                  self.missions["spy"], {self.SHIPS_DATA.get('ep'): spy_probes_count})
+
+        return result
+
+    def spy_planet(self, destination_planet, spy_probes_count):
+
+        # Get the nearest planets from target
+        nearest_planets = BaseBot.get_nearest_planets_to_target(destination_planet, self.planets)
+
+        # Spy from each planet ordered by proximity until success or error
+        for planet in nearest_planets:
+            result = self.spy_planet_from(planet, destination_planet, spy_probes_count)
+
+            # Stop on success or no more slots
+            if result == FleetResult.Success or result == FleetResult.NoAvailableSlots:
+                break
 
         return result
 

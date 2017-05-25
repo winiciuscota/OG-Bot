@@ -18,7 +18,8 @@ class DefenderBot(BaseBot):
             try:
                 self.auto_build_defenses_to_planet(planet)
 
-            except Exception:
+            except Exception as e:
+                print e
                 pass
 
     def auto_build_defenses_to_planet(self, planet, iteration_budget=.5):

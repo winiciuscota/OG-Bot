@@ -8,7 +8,7 @@ class SpyBot(BaseBot):
     """Logging functions for the bot"""
 
     def __init__(self, browser, config, planets):
-        self.fleet_client = fleet.Fleet(browser, config)
+        self.fleet_client = fleet.Fleet(browser, config, planets)
         self.galaxy_client = galaxy.Galaxy(browser, config)
 
         super(SpyBot, self).__init__(browser, config, planets)
@@ -77,7 +77,7 @@ class SpyBot(BaseBot):
         target_planets = self.get_nearest_planets(origin_planet, nr_range)
 
         for target_planet in target_planets:
-            self.fleet_client.spy_planet(origin_planet, target_planet, self.config.spy_probes_count)
+            self.fleet_client.spy_planet(target_planet, self.config.spy_probes_count)
 
     def spy_nearest_inactive_planets(self, origin_planet=None, nr_range=3):
         """ Spy the nearest inactive planets from origin"""
@@ -90,7 +90,7 @@ class SpyBot(BaseBot):
         target_planets = self.get_nearest_inactive_planets(origin_planet, nr_range)
 
         for target_planet in target_planets:
-            self.fleet_client.spy_planet(origin_planet, target_planet, self.config.spy_probes_count)
+            self.fleet_client.spy_planet(target_planet, self.config.spy_probes_count)
 
     def get_systems_in_range(self, nr_range, planet=None):
         """Return the systems in range"""
@@ -163,7 +163,7 @@ class SpyBot(BaseBot):
                                 time.sleep(delay)
 
                             while True:
-                                result = self.fleet_client.spy_planet(planet, target_planet, self.config.spy_probes_count)
+                                result = self.fleet_client.spy_planet(target_planet, self.config.spy_probes_count)
                                 if result == fleet.FleetResult.NoAvailableSlots:
                                     delay = int(self.config.time_to_wait_for_probes / 8)
                                     self.logger.info(
@@ -172,10 +172,12 @@ class SpyBot(BaseBot):
                                 else:
                                     break
 
-                    except Exception:
+                    except Exception as e:
+                        print e
                         pass
 
-            except Exception:
+            except Exception as e:
+                print e
                 pass
 
         return False

@@ -40,6 +40,12 @@ class BaseBot(object):
             return self.get_player_planet_by_name(planet_name)
 
     @staticmethod
+    def get_nearest_planets_to_target(target_planet, planets):
+        """Get the nearest planet to the target planet"""
+
+        return BaseBot.get_nearest_planets_to_coordinates(target_planet.coordinates, planets)
+
+    @staticmethod
     def get_nearest_planet_to_coordinates(coordinates, planets):
         """Get the nearest planet to the target coordinates"""
 

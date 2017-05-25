@@ -51,7 +51,9 @@ class BuilderBot(BaseBot):
         for planet in self.planets:
             try:
                 self.auto_build_structures_to_planet(planet)
-            except Exception:
+
+            except Exception as e:
+                print e
                 pass
 
     def auto_build_structures_to_planet(self, planet):

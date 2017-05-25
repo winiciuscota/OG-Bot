@@ -76,5 +76,6 @@ class ResearcherBot(BaseBot):
                 else:
                     self.logger.info("Nothing to research on planet %s" % planet)
 
-            except Exception:
+            except Exception as e:
+                print e
                 pass

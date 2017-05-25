@@ -7,17 +7,12 @@ class AttackerBot(BaseBot):
     """Logging functions for the bot"""
 
     def __init__(self, browser, config, planets):
-        self.fleet_client = fleet.Fleet(browser, config)
+        self.fleet_client = fleet.Fleet(browser, config, planets)
         self.general_client = general.General(browser, config)
         self.movement_client = movement.Movement(browser, config)
         self.hangar_client = hangar.Hangar(browser, config)
 
         super(AttackerBot, self).__init__(browser, config, planets)
-
-    def get_nearest_planets_to_target(self, target_planet):
-        """Get the nearest planet to the target planet"""
-
-        return self.get_nearest_planets_to_coordinates(target_planet.coordinates, self.planets)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         ships = self.hangar_client.get_ships(origin_planet)
@@ -72,7 +67,7 @@ class AttackerBot(BaseBot):
                     self.logger.info("Slot usage: %d/%d" % (used_slots, slot_usage[1]))
 
                     # Get the nearest planets from target
-                    nearest_planets = self.get_nearest_planets_to_target(target)
+                    nearest_planets = BaseBot.get_nearest_planets_to_target(target, self.planets)
 
                     # Attempt attack from each planet ordered by proximity until success
                     for planet in nearest_planets:
@@ -97,7 +92,8 @@ class AttackerBot(BaseBot):
                     self.logger.info("No more available slots")
                     break
 
-            except Exception:
+            except Exception as e:
+                print e
                 pass
 
         self.logger.info("Predicted loot is %s" % int(predicted_loot))
