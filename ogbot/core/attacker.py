@@ -113,7 +113,11 @@ class AttackerBot(BaseBot):
     def auto_attack_inactive_planets(self):
         result = self.attack_inactive_planets_from_spy_reports()
         if not result:
-            self.auto_spy_inactive_planets(self.config.attack_range)
+            error = self.spy_bot.auto_spy_inactive_planets(self.config.attack_range)
+
+            if error:
+                return True
+
             self.logger.info("Waiting %f seconds for probes to return" % self.config.time_to_wait_for_probes)
             time.sleep(self.config.time_to_wait_for_probes)
             self.attack_inactive_planets_from_spy_reports()

@@ -126,6 +126,16 @@ class SpyBot(BaseBot):
     def auto_spy_inactive_planets(self, nr_range=None):
         self.logger.info("Sending Spy Probes")
 
+        # Stop if there is no fleet slot available
+        slot_usage = self.fleet_client.get_fleet_slots_usage()
+
+        used_slots = slot_usage[0]
+        available_slots = slot_usage[1]
+
+        if used_slots >= available_slots:
+            self.logger.error("There is no fleet slot available")
+            return True
+
         if nr_range is None:
             nr_range = self.config.attack_range
 
@@ -167,3 +177,5 @@ class SpyBot(BaseBot):
 
             except Exception:
                 pass
+
+        return False
