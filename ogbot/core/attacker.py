@@ -43,6 +43,8 @@ class AttackerBot(BaseBot):
                             if report.player_state == scraper.PlayerState.Inactive
                             # Don't attack planets that are already being attacked
                             and report.coordinates not in movements
+                            # Only attack planets with enough resources
+                            and get_target_value(report) >= self.config.min_res_to_attack
                             # Don't attack defended planets
                             # and report.defenses == 0
                             and report.fleet == 0]
@@ -127,7 +129,7 @@ class AttackerBot(BaseBot):
 
 
 def get_distinct_targets(targets):
-    """Given an list that possibly contains repeated targets, returns a list of distinct targets"""
+    """Given a list that possibly contains repeated targets, returns a list of distinct targets"""
     dict_targets = {}
     for obj in targets:
         dict_targets[obj.coordinates] = obj
