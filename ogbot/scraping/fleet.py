@@ -230,25 +230,25 @@ class Fleet(Scraper):
         sel_recycler_count, left_count = update_count(recyclers_count, left_count, 20000, False)
         sel_sg_count, left_count = update_count(small_cargos_count, left_count, 5000, True)
 
-        self.logger.info("Small cargos : %d " % sel_sg_count)
-        self.logger.info("Large cargos : %d " % sel_lg_count)
-        self.logger.info("Recyclers : %d " % sel_recycler_count)
-
-        self.logger.info("Leftover resources : %d" % left_count)
 
         fleet = {}
 
         if sel_sg_count:
+            self.logger.info("Small cargos : %d " % sel_sg_count)
             fleet[ self.SHIPS_DATA.get('sg') ] = sel_sg_count
 
         if sel_lg_count:
+            self.logger.info("Large cargos : %d " % sel_lg_count)
             fleet[ self.SHIPS_DATA.get('lg') ] = sel_lg_count
 
         if sel_recycler_count:
+            self.logger.info("Recyclers : %d " % sel_recycler_count)
             fleet[ self.SHIPS_DATA.get('209') ] = sel_recycler_count
 
         if len(fleet) == 0:
             fleet[ self.SHIPS_DATA.get('lg') ] = 0
+
+        self.logger.info("Leftover resources : %d" % left_count)
 
         return fleet
 
