@@ -15,8 +15,7 @@ class AttackerBot(BaseBot):
         super(AttackerBot, self).__init__(browser, config, planets)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
-        ships = self.hangar_client.get_ships(origin_planet)
-        origin_planet.ships = ships
+        origin_planet.ships = self.hangar_client.get_ships(origin_planet)
         result = self.fleet_client.attack_inactive_planet(origin_planet, target_planet)
         return result
 
@@ -72,44 +71,8 @@ class AttackerBot(BaseBot):
                     nearest_planets = BaseBot.get_nearest_planets_to_target(target, self.planets)
                     noShips = 0
 
-                    for planet in self.planets:
-                        planet.ships = self.hangar_client.get_ships(planet)
-                        planet.loot = self.fleet_client.get_attack_loot(planet, target)
-
-                    ordered_planets = sorted(self.planets, key=lambda x: x.loot, reverse=True)
-
-                    maxLoot = max(self.planets, key=lambda x: x.loot)
-                    planets_by_loot = []
-
-                    last = None
-                    cList = []
-
-                    for planet in ordered_planets:
-
-                        loot = planet.loot
-
-                        if last is None:
-                            last = loot
-
-                        if loot == last:
-                            cList.append(planet)
-
-                        else:
-                            planets_by_loot.append(cList)
-                            cList = [ planet ]
-
-                        last = loot
-
-                    planets_by_loot.append(cList)
-
-
-                    origin_planets = [planet
-                                      for planets in planets_by_loot
-                                      for planet in BaseBot.get_nearest_planets_to_target(target, planets)]
-
-
                     # Attempt attack from each planet until success
-                    for planet in origin_planets:
+                    for planet in nearest_planets:
                         result = self.attack_inactive_planet(planet, target)
 
                         if result == fleet.FleetResult.Success:
@@ -133,7 +96,7 @@ class AttackerBot(BaseBot):
                             noShips = noShips + 1
 
                             # If no ships on all planets, stop attacking
-                            if noShips >= len(origin_planets):
+                            if noShips >= len(nearest_planets):
                                 self.logger.warning("No ships on all planets, attack finished")
                                 return True
 
@@ -169,6 +132,46 @@ class AttackerBot(BaseBot):
             self.logger.info("Waiting %f seconds for probes to return" % self.config.time_to_wait_for_probes)
             time.sleep(self.config.time_to_wait_for_probes)
             self.attack_inactive_planets_from_spy_reports()
+
+
+    # Sorts planets by loot then proximity
+    def planetsByLootThenProximity(self, target):
+
+        for planet in self.planets:
+            planet.ships = self.hangar_client.get_ships(planet)
+            planet.loot = self.fleet_client.get_attack_loot(planet, target)
+
+        ordered_planets = sorted(self.planets, key=lambda x: x.loot, reverse=True)
+        maxLoot = max(self.planets, key=lambda x: x.loot)
+
+        planets_by_loot = []
+        cList = []
+        last = None
+
+        for planet in ordered_planets:
+
+            loot = planet.loot
+
+            if last is None:
+                last = loot
+
+            if loot == last:
+                cList.append(planet)
+
+            else:
+                planets_by_loot.append(cList)
+                cList = [ planet ]
+
+            last = loot
+
+        planets_by_loot.append(cList)
+
+
+        origin_planets = [planet
+                          for planets in planets_by_loot
+                          for planet in BaseBot.get_nearest_planets_to_target(target, planets)]
+
+        return origin_planets
 
 
 def get_distinct_targets(targets):
