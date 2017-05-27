@@ -145,8 +145,6 @@ def parse_resource(text):
     try:
         value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("M", "000"))
     except Exception as e:
-        exception_message = traceback.format_exc()
-        print exception_message
         print 'Failed to parse resources string "' + text + '"'
         raise e
 
