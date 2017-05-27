@@ -7,6 +7,7 @@ import urllib
 import galaxy
 import general
 import datetime
+import traceback
 from scraper import Scraper
 
 
@@ -47,7 +48,7 @@ class Messages(Scraper):
 
             except Exception as e:
                 exception_message = traceback.format_exc()
-                logger.error(exception_message)
+                self.logger.error(exception_message)
                 pass
 
         return spy_reports
@@ -132,7 +133,7 @@ class Messages(Scraper):
 
             except Exception as e:
                 exception_message = traceback.format_exc()
-                logger.error(exception_message)
+                self.logger.error(exception_message)
                 pass
 
         return spy_reports
@@ -145,8 +146,8 @@ def parse_resource(text):
         value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("M", "000"))
     except Exception as e:
         exception_message = traceback.format_exc()
-        logger.error(exception_message)
-        self.logger.error('Failed to parse resources string "%s"' % text)
+        print exception_message
+        print 'Failed to parse resources string "' + text + '"'
         raise e
 
     return value

@@ -1,7 +1,7 @@
 from base import BaseBot
 from scraping import galaxy, fleet
 import random
-import time
+import time, traceback
 
 
 class SpyBot(BaseBot):
@@ -174,12 +174,12 @@ class SpyBot(BaseBot):
 
                     except Exception as e:
                         exception_message = traceback.format_exc()
-                        logger.error(exception_message)
+                        self.logger.error(exception_message)
                         pass
 
             except Exception as e:
                 exception_message = traceback.format_exc()
-                logger.error(exception_message)
+                self.logger.error(exception_message)
                 pass
 
         return False

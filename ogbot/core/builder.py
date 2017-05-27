@@ -1,5 +1,6 @@
 from base import BaseBot
 from scraping import buildings, defense, general
+import traceback
 
 
 class BuilderBot(BaseBot):
@@ -54,7 +55,7 @@ class BuilderBot(BaseBot):
 
             except Exception as e:
                 exception_message = traceback.format_exc()
-                logger.error(exception_message)
+                self.logger.error(exception_message)
                 pass
 
     def auto_build_structures_to_planet(self, planet):

@@ -2,6 +2,7 @@ from base import *
 from scraping import fleet, movement, general, scraper, hangar
 import random
 import time
+import traceback
 
 class AttackerBot(BaseBot):
     """Logging functions for the bot"""
@@ -109,7 +110,7 @@ class AttackerBot(BaseBot):
 
             except Exception as e:
                 exception_message = traceback.format_exc()
-                logger.error(exception_message)
+                self.logger.error(exception_message)
                 pass
 
 

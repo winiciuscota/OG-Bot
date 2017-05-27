@@ -2,6 +2,7 @@ from base import BaseBot
 from scraping import general, defense, scraper
 
 import sys
+import traceback
 
 
 class DefenderBot(BaseBot):
@@ -20,7 +21,7 @@ class DefenderBot(BaseBot):
 
             except Exception as e:
                 exception_message = traceback.format_exc()
-                logger.error(exception_message)
+                self.logger.error(exception_message)
                 pass
 
     def auto_build_defenses_to_planet(self, planet, iteration_budget=.5):

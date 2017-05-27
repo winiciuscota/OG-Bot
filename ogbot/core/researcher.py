@@ -1,6 +1,7 @@
 from base import BaseBot
 
 from scraping import research, general
+import traceback
 
 
 class ResearcherBot(BaseBot):
@@ -78,5 +79,5 @@ class ResearcherBot(BaseBot):
 
             except Exception as e:
                 exception_message = traceback.format_exc()
-                logger.error(exception_message)
+                self.logger.error(exception_message)
                 pass
