@@ -127,17 +127,34 @@ class Fleet(Scraper):
             self.logger.error('The planet has no available ships')
             return FleetResult.NoAvailableShips
 
+        ss = self.SHIPS_DATA.get('ss')
+        sent = 0
+
         # set ships to send
         for ship, amount in ships.iteritems():
+
+            # Ignore ships with 0 amount and solar satellites
+            if amount <= 0 or ship.id == ss.id:
+                continue
+
             self.logger.info("Adding %d %s to the mission fleet" % (amount, ship.name))
             control_name = "am" + str(ship.id)
             control = self.browser.form.find_control(control_name)
+
             # If there is no available ships exit
             if not control.readonly:
                 self.browser[control_name] = str(amount)
+
             else:
                 self.logger.warning("Not enough %s to send" % ship.name)
                 return FleetResult.NoAvailableShips
+
+            sent = sent + amount
+
+        if sent <= 0:
+            self.logger.error('The planet has no available ships')
+            return FleetResult.NoAvailableShips
+
         self.submit_request()
 
         # set target planet
