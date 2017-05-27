@@ -4,6 +4,7 @@ import general
 import math
 from scraper import *
 from core.base import BaseBot
+import hangar
 
 
 class Fleet(Scraper):
@@ -12,6 +13,7 @@ class Fleet(Scraper):
 
         self.general_client = general.General(browser, config)
         self.planets = planets
+        self.hangar_client = hangar.Hangar(browser, config)
 
     def spy_planet_from(self, origin_planet, destination_planet, spy_probes_count):
 
@@ -56,6 +58,23 @@ class Fleet(Scraper):
         result = self.send_fleet(origin_planet, target_planet.coordinates,
                                  self.missions["attack"], fleet)
         return result
+
+    def fleet_escape(self, target):
+        resources = self.general_client.get_resources(target)
+        ships = self.hangar_client.get_ships(target)
+
+        fleet = {ship.item: ship.amount
+                 for ship in ships
+                 if ship.amount > 0}
+
+        safe_planets = [planet for planet in self.planets
+                        if planet.coordinates != target.coordinates
+                        and planet.safe]
+
+        nearest = BaseBot.get_nearest_planet_to_target(target, safe_planets)
+
+        self.send_fleet(target, nearest.coordinates,
+                        self.missions["transfer"], fleet, resources)
 
     def transport_resources(self, origin_planet, destination_planet, resources):
         planet_resources = self.general_client.get_resources(origin_planet)

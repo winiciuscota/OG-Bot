@@ -33,11 +33,29 @@ class BaseBot(object):
                             if planet.name.lower() == planet_name.lower()]), None)
         return planet
 
+    # Util functions
+    def get_player_planet_by_coordinates(self, coordinates):
+        """Get player planet by coordinates. If there is no match returns None"""
+        planets = self.planets
+        if coordinates is None:
+            return None
+
+        planet = next(iter([planet for planet
+                            in planets
+                            if planet.coordinates == coordinates]), None)
+        return planet
+
     def get_default_origin_planet(self, planet_name):
         if planet_name is None:
             return self.planets[0]
         else:
             return self.get_player_planet_by_name(planet_name)
+
+    @staticmethod
+    def get_nearest_planet_to_target(target_planet, planets):
+        """Get the nearest planet to the target planet"""
+
+        return BaseBot.get_nearest_planet_to_coordinates(target_planet.coordinates, planets)
 
     @staticmethod
     def get_nearest_planets_to_target(target_planet, planets):

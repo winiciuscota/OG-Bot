@@ -197,6 +197,7 @@ class Planet(object):
         self.defenses = defenses
         self.fleet = fleet
         self.research = research
+        self.safe = True
 
     def __str__(self):
         return "[Planet: %s, Link: %s, Coordinates: %s]" % (self.name, self.link, self.coordinates)
