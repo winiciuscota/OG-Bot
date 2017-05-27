@@ -63,7 +63,7 @@ class AttackerBot(BaseBot):
 
             try:
                 if target.defenses != 0:
-                    self.logger.warning("Found a inactive defended planet %s(%s) with %s" % (target.planet_name, target.coordinates, target.resources))
+                    self.logger.warning("Found an inactive defended planet %s(%s) with %s" % (target.planet_name, target.coordinates, target.resources))
                     continue
                 if used_slots < available_slots:
                     self.logger.info("Slot usage: %d/%d" % (used_slots, slot_usage[1]))
@@ -72,21 +72,44 @@ class AttackerBot(BaseBot):
                     nearest_planets = BaseBot.get_nearest_planets_to_target(target, self.planets)
                     noShips = 0
 
-                    # for planet in self.planets:
-                    #     planet.ships = self.hangar_client.get_ships(planet)
+                    for planet in self.planets:
+                        planet.ships = self.hangar_client.get_ships(planet)
+                        planet.loot = self.fleet_client.get_attack_loot(planet, target)
 
-                    # def get_attack_loot(planet):
-                    #     return self.fleet_client.get_attack_loot(planet, target)
+                    ordered_planets = sorted(self.planets, key=lambda x: x.loot, reverse=True)
 
-                    # ordered_planets = sorted(self.planets, key=get_attack_loot, reverse=True)
+                    maxLoot = max(self.planets, key=lambda x: x.loot)
+                    planets_by_loot = []
 
-                    # maxLoot = max(self.planets, key=get_attack_loot)
-                    # ideal_planets = [planet
-                    #                  for planet in ordered_planets
-                    #                  if get_attack_loot(planet) == maxLoot]
+                    last = None
+                    cList = []
 
-                    # Attempt attack from each planet ordered by proximity until success
-                    for planet in nearest_planets:
+                    for planet in ordered_planets:
+
+                        loot = planet.loot
+
+                        if last is None:
+                            last = loot
+
+                        if loot == last:
+                            cList.append(planet)
+
+                        else:
+                            planets_by_loot.append(cList)
+                            cList = [ planet ]
+
+                        last = loot
+
+                    planets_by_loot.append(cList)
+
+
+                    origin_planets = [planet
+                                      for planets in planets_by_loot
+                                      for planet in BaseBot.get_nearest_planets_to_target(target, planets)]
+
+
+                    # Attempt attack from each planet until success
+                    for planet in origin_planets:
                         result = self.attack_inactive_planet(planet, target)
 
                         if result == fleet.FleetResult.Success:
@@ -110,7 +133,7 @@ class AttackerBot(BaseBot):
                             noShips = noShips + 1
 
                             # If no ships on all planets, stop attacking
-                            if noShips >= len(self.planets):
+                            if noShips >= len(origin_planets):
                                 self.logger.warning("No ships on all planets, attack finished")
                                 return True
 
