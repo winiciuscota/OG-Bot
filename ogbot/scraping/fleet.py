@@ -264,7 +264,7 @@ class Fleet(Scraper):
         maxLoot = 0
 
         for ship, amount in fleet.iteritems():
-            maxLoot += self.SHIPS_SIZE.get(ship.id) * amount
+            maxLoot += self.SHIPS_SIZE.get(str(ship.id)) * amount
 
         if resources_count >= maxLoot:
             return maxLoot
