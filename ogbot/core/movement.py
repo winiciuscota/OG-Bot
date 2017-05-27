@@ -13,12 +13,12 @@ class MovementBot(BaseBot):
 
     def check_hostile_activity(self):
         fleet_movement = self.movement_scraper.get_fleet_movement()
-        hostile_movements = filter(lambda x: not x.friendly, fleet_movement)
+        hostile_movements = filter(lambda x: not x.friendly and x.mission in {'attack', 'allianceAttack'}, fleet_movement)
 
         if len(hostile_movements) == 0:
             self.logger.info("There is no hostile activity now")
 
-        targets = []
+        targets = {}
 
         for hostile_movement in hostile_movements:
             self.logger.warning(hostile_movement)
@@ -28,7 +28,7 @@ class MovementBot(BaseBot):
             cTarget = hostile_movement.destination_coords
             target = self.get_player_planet_by_coordinates(cTarget)
             target.safe = False
-            targets.append(target)
+            targets[cTarget] = target
 
-        for target in targets:
+        for coords, target in targets.iteritems():
             self.fleet_client.fleet_escape(target)

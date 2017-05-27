@@ -28,11 +28,14 @@ class Movement(Scraper):
         movement_nodes = soup.findAll("div", {"class": "fleetDetails detailsOpened"})
         fleet_movements = []
         for movement_node in movement_nodes:
+            mission_code = int( movement_node['data-mission-type'] )
+            mission_type = self.mission_types[ mission_code ]
             origin_planet_coords = self.parse_coords(movement_node.find("span", {"class": "originCoords"}).text)
             origin_planet_name = movement_node.find("span", {"class": "originPlanet"}).text.strip()
             destination_coords = self.parse_coords(
                 movement_node.find("span", {"class": "destinationCoords tooltip"}).text)
             movement = FleetMovement(origin_planet_coords, origin_planet_name, destination_coords)
+            movement.mission = mission_type
             fleet_movements.append(movement)
         return fleet_movements
 
@@ -46,6 +49,8 @@ class Movement(Scraper):
 
         fleet_movements = []
         for movement_row in movement_rows:
+            mission_code = int( movement_row['data-mission-type'] )
+            mission_type = self.mission_types[ mission_code ]
             origin_coords = self.parse_coords(movement_row.find("td", {"class": "coordsOrigin"}).text.strip())
             origin_planet_name = movement_row.find("td", {"class": "originFleet"}).text.strip()
             dest_coords = self.parse_coords(movement_row.find("td", {"class": "destCoords"}).text.strip())
@@ -58,7 +63,7 @@ class Movement(Scraper):
             countdown_time = self.get_countdown_time(arrival_time)
 
             movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly,
-                                     arrival_time, countdown_time)
+                                     arrival_time, countdown_time, mission_type)
             fleet_movements.append(movement)
 
         return fleet_movements

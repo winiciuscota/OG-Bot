@@ -67,6 +67,10 @@ class Fleet(Scraper):
                  for ship in ships
                  if ship.amount > 0}
 
+        if len(fleet) == 0:
+            self.logger.warning('No fleet available, aborting escape')
+            return True
+
         safe_planets = [planet for planet in self.planets
                         if planet.coordinates != target.coordinates
                         and planet.safe]

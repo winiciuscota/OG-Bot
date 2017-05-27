@@ -70,6 +70,19 @@ class Scraper(object):
             "destroyStar": 9
         }
 
+        self.mission_types = {
+            15 : "expedition",
+            7 : "colonization",
+            8 : "recycle",
+            3 : "transport",
+            4 : "transfer",
+            6 : "spy",
+            5 : "defend",
+            1 : "attack",
+            2 : "allianceAttack",
+            9 : "destroyStar"
+        }
+
     def open_url(self, url, data=None):
         """
         Redirect to the url, makes up to 3 attempts
@@ -258,7 +271,7 @@ class ResearchItem(Item):
 
 class FleetMovement(object):
     def __init__(self, origin_coordinates, origin_name, destination_coordinates, destination_name, friendly,
-                 arrival_time=None, countdown_time=None):
+                 arrival_time=None, countdown_time=None, mission='attack'):
         """
         :param origin_coordinates: Coordinates of the origin planet
         :param origin_name: Name of the origin planet
@@ -271,12 +284,13 @@ class FleetMovement(object):
         self.friendly = friendly
         self.arrival_time = arrival_time
         self.countdown_time = countdown_time
+        self.mission = mission
 
     def __str__(self):
-        return "%s fleet from planet %s(%s) to planet %s(%s) in %s" % (("Friendly" if self.friendly else "Hostile"),
+        return "%s fleet from planet %s(%s) to planet %s(%s) in %s with %s mission" % (("Friendly" if self.friendly else "Hostile"),
                                                                        self.origin_name, self.origin_coords,
                                                                        self.destination_name, self.destination_coords,
-                                                                       self.countdown_time)
+                                                                       self.countdown_time, self.mission)
 
     def get_count_down_time(self, arrival_time):
         game_time = self.general_client.get_game_datetime()
