@@ -47,6 +47,16 @@ class Scraper(object):
             "212": ShipItem(212, "Solar Satellite"),
         }
 
+        self.SHIPS_SIZE = {
+            "sg": 5000,
+            "lg": 25000,
+            "r": 20000,
+
+            "202": 5000,
+            "203": 25000,
+            "209": 20000
+        }
+
         self.missions = {
             "expedition": 15,
             "colonization": 7,

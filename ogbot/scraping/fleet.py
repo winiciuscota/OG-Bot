@@ -227,6 +227,30 @@ class Fleet(Scraper):
 
         return self.get_cargo_fleet_for_mission(origin_planet, resources_count)
 
+    def get_attack_loot(self, origin_planet, target_planet):
+        """
+        Get loot for attacks to inactive targets.
+        :param origin_planet: Origin planet
+        :param target_planet: Target planet
+        :return: Predicted loot
+        """
+
+        resources = target_planet.resources.total()
+        resources_count = resources * target_planet.loot
+
+        fleet = self.get_attack_fleet(origin_planet, target_planet)
+
+        maxLoot = 0
+
+        for ship, amount in fleet.iteritems():
+            maxLoot += self.SHIPS_SIZE.get(ship.id) * amount
+
+        if resources_count >= maxLoot:
+            return maxLoot
+
+        return resources_count
+
+
     def get_cargo_fleet_for_mission(self, origin_planet, resources_count):
         """
         :param origin_planet: Origin to check for cargos
@@ -236,14 +260,14 @@ class Fleet(Scraper):
 
         small_cargos_count = self.get_ships_count(origin_planet, "sg")
         large_cargos_count = self.get_ships_count(origin_planet, "lg")
-        recyclers_count = self.get_ships_count(origin_planet, "209")
+        recyclers_count = self.get_ships_count(origin_planet, "r")
 
-        self.logger.info("Computing small cargos / recyclers / large cargos for the mission")
-        self.logger.info("Resources : %d" % resources_count)
+        # self.logger.info("Computing small cargos / recyclers / large cargos for the mission")
+        # self.logger.info("Resources : %d" % resources_count)
 
-        self.logger.info("Available small cargos : %d" % small_cargos_count)
-        self.logger.info("Available large cargos : %d " % large_cargos_count)
-        self.logger.info("Available recyclers : %d " % recyclers_count)
+        # self.logger.info("Available small cargos : %d" % small_cargos_count)
+        # self.logger.info("Available large cargos : %d " % large_cargos_count)
+        # self.logger.info("Available recyclers : %d " % recyclers_count)
 
         sel_lg_count, left_count = update_count(large_cargos_count, resources_count, 25000, False)
         sel_recycler_count, left_count = update_count(recyclers_count, left_count, 20000, False)
@@ -253,21 +277,21 @@ class Fleet(Scraper):
         fleet = {}
 
         if sel_sg_count:
-            self.logger.info("Small cargos : %d " % sel_sg_count)
+            #self.logger.info("Small cargos : %d " % sel_sg_count)
             fleet[ self.SHIPS_DATA.get('sg') ] = sel_sg_count
 
         if sel_lg_count:
-            self.logger.info("Large cargos : %d " % sel_lg_count)
+            #self.logger.info("Large cargos : %d " % sel_lg_count)
             fleet[ self.SHIPS_DATA.get('lg') ] = sel_lg_count
 
         if sel_recycler_count:
-            self.logger.info("Recyclers : %d " % sel_recycler_count)
-            fleet[ self.SHIPS_DATA.get('209') ] = sel_recycler_count
+            #self.logger.info("Recyclers : %d " % sel_recycler_count)
+            fleet[ self.SHIPS_DATA.get('r') ] = sel_recycler_count
 
         if len(fleet) == 0:
             fleet[ self.SHIPS_DATA.get('lg') ] = 0
 
-        self.logger.info("Leftover resources : %d" % left_count)
+        #self.logger.info("Leftover resources : %d" % left_count)
 
         return fleet
 

@@ -72,6 +72,19 @@ class AttackerBot(BaseBot):
                     nearest_planets = BaseBot.get_nearest_planets_to_target(target, self.planets)
                     noShips = 0
 
+                    # for planet in self.planets:
+                    #     planet.ships = self.hangar_client.get_ships(planet)
+
+                    # def get_attack_loot(planet):
+                    #     return self.fleet_client.get_attack_loot(planet, target)
+
+                    # ordered_planets = sorted(self.planets, key=get_attack_loot, reverse=True)
+
+                    # maxLoot = max(self.planets, key=get_attack_loot)
+                    # ideal_planets = [planet
+                    #                  for planet in ordered_planets
+                    #                  if get_attack_loot(planet) == maxLoot]
+
                     # Attempt attack from each planet ordered by proximity until success
                     for planet in nearest_planets:
                         result = self.attack_inactive_planet(planet, target)
