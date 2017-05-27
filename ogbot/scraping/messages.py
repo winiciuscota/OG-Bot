@@ -44,8 +44,10 @@ class Messages(Scraper):
                 soup = BeautifulSoup(res.read(), "lxml")
                 page_reports = self.parse_spy_reports(soup)
                 spy_reports.extend(page_reports)
+
             except Exception as e:
-                print e
+                exception_message = traceback.format_exc()
+                logger.error(exception_message)
                 pass
 
         return spy_reports
@@ -129,7 +131,8 @@ class Messages(Scraper):
                     spy_reports.append(report)
 
             except Exception as e:
-                print e
+                exception_message = traceback.format_exc()
+                logger.error(exception_message)
                 pass
 
         return spy_reports
@@ -141,6 +144,8 @@ def parse_resource(text):
     try:
         value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("M", "000"))
     except Exception as e:
+        exception_message = traceback.format_exc()
+        logger.error(exception_message)
         self.logger.error('Failed to parse resources string "%s"' % text)
         raise e
 

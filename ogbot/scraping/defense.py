@@ -95,6 +95,8 @@ class Defense(Scraper):
 
             self.build_defense_on_current_page(defense_type.id, amount)
         except Exception as e:
+            exception_message = traceback.format_exc()
+            logger.error(exception_message)
             self.logger.info('Error building defense')
             self.logger.info(e)
 

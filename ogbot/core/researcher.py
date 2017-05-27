@@ -77,5 +77,6 @@ class ResearcherBot(BaseBot):
                     self.logger.info("Nothing to research on planet %s" % planet)
 
             except Exception as e:
-                print e
+                exception_message = traceback.format_exc()
+                logger.error(exception_message)
                 pass

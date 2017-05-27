@@ -173,11 +173,13 @@ class SpyBot(BaseBot):
                                     break
 
                     except Exception as e:
-                        print e
+                        exception_message = traceback.format_exc()
+                        logger.error(exception_message)
                         pass
 
             except Exception as e:
-                print e
+                exception_message = traceback.format_exc()
+                logger.error(exception_message)
                 pass
 
         return False
