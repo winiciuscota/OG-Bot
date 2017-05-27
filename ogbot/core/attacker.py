@@ -123,6 +123,13 @@ class AttackerBot(BaseBot):
                 print e
                 pass
 
+
+            # Update fleet slot counters (could change for various reasons)
+            slot_usage = self.fleet_client.get_fleet_slots_usage()
+            used_slots = slot_usage[0]
+            available_slots = slot_usage[1]
+
+
         self.logger.info("Predicted loot is %s" % int(predicted_loot))
         self.sms_sender.send_sms("%d assault fleets were deployed, the predicted loot is %s"
                                  % (assault_fleets_count, predicted_loot))
