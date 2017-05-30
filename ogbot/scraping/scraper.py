@@ -204,7 +204,7 @@ class Resources(object):
 
 
 class Planet(object):
-    def __init__(self, name, link, coordinates, resources=None, defenses=None, fleet=None, research=None):
+    def __init__(self, name, link, spaceUsed, spaceMax, coordinates, resources=None, defenses=None, fleet=None, research=None):
         """
         :param name: Planet name
         :param link: Planet link
@@ -221,9 +221,11 @@ class Planet(object):
         self.fleet = fleet
         self.research = research
         self.safe = True
+        self.spaceUsed = spaceUsed
+        self.spaceMax = spaceMax
 
     def __str__(self):
-        return "[Planet: %s, Link: %s, Coordinates: %s]" % (self.name, self.link, self.coordinates)
+        return "[Planet: %s, Link: %s, Coordinates: %s, Space: %d/%d]" % (self.name, self.link, self.coordinates, self.spaceUsed, self.spaceMax)
 
 
 class FleetResult(Enum):

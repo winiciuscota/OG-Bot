@@ -91,7 +91,7 @@ class AttackerBot(BaseBot):
 
                         if result == fleet.FleetResult.NoAvailableSlots:
                             self.logger.warning("There is no fleet slot available")
-                            self.logger.info("Predicted total loot is %s" % predicted_loot)
+                            self.logger.info("Total predicted loot is %s" % predicted_loot)
                             return True
 
                         # Count the number of planets without any ship left
@@ -120,7 +120,7 @@ class AttackerBot(BaseBot):
             available_slots = slot_usage[1]
 
 
-        self.logger.info("Predicted loot is %s" % int(predicted_loot))
+        self.logger.info("Total predicted loot is %s" % int(predicted_loot))
         self.sms_sender.send_sms("%d assault fleets were deployed, the predicted loot is %s"
                                  % (assault_fleets_count, predicted_loot))
         return True
