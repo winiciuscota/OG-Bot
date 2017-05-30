@@ -65,7 +65,7 @@ class BuilderBot(BaseBot):
         """
         if planet.spaceUsed >= self.config.maxFields \
            or (planet.spaceMax - planet.spaceUsed) <= self.config.minFreeFields:
-            self.logger.warning("Too many buildings already on planet %s")
+            self.logger.warning("Too many buildings already on planet %s" % planet)
             return True
 
         available_buildings = self.get_available_buildings_for_planet(planet)
