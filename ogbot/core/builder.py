@@ -63,7 +63,8 @@ class BuilderBot(BaseBot):
             Build the first available structure on the weaker planet
             If the planet has negative energy will prioritize energy buildings
         """
-        if planet.spaceUsed >= 150:
+        if planet.spaceUsed >= self.config.maxFields
+           or (planet.spaceMax - planet.spaceUsed) <= self.config.minFreeFields:
             self.logger.warning("Too many buildings already on planet %s")
             return True
 

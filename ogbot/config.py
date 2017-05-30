@@ -71,6 +71,18 @@ class Config(object):
             self.defense_proportion = self.parse_multiple_value_config(config.get('Development', 'DefenseProportion'))
             self.spend_excess_metal_on_rl = config.getboolean('Development', 'SpendExcessMetalOnRL')
 
+            try:
+                self.maxFields = config.getint('Development', 'MaxUsedFields')
+
+            except Exception:
+                self.maxFields = 150
+
+            try:
+                self.minFreeFields = config.getint('Development', 'MinFreeFields')
+
+            except Exception:
+                self.minFreeFields = 20
+
             # Transport config options
             self.transport_metal = config.getboolean('Transport', 'TransportMetal')
             self.transport_crystal = config.getboolean('Transport', 'TransportCrystal')
