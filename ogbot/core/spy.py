@@ -176,11 +176,9 @@ class SpyBot(BaseBot):
                     except Exception as e:
                         exception_message = traceback.format_exc()
                         self.logger.error(exception_message)
-                        pass
 
             except Exception as e:
                 exception_message = traceback.format_exc()
                 self.logger.error(exception_message)
-                pass
 
         return False

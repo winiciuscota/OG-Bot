@@ -111,7 +111,6 @@ class AttackerBot(BaseBot):
             except Exception as e:
                 exception_message = traceback.format_exc()
                 self.logger.error(exception_message)
-                pass
 
 
             # Update fleet slot counters (could change for various reasons)

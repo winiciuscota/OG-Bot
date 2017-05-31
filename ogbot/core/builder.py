@@ -56,7 +56,6 @@ class BuilderBot(BaseBot):
             except Exception as e:
                 exception_message = traceback.format_exc()
                 self.logger.error(exception_message)
-                pass
 
     def auto_build_structures_to_planet(self, planet):
         """

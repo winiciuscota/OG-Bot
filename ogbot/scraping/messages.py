@@ -49,7 +49,6 @@ class Messages(Scraper):
             except Exception as e:
                 exception_message = traceback.format_exc()
                 self.logger.error(exception_message)
-                pass
 
         return spy_reports
 
@@ -134,7 +133,6 @@ class Messages(Scraper):
             except Exception as e:
                 exception_message = traceback.format_exc()
                 self.logger.error(exception_message)
-                pass
 
         return spy_reports
 
@@ -146,14 +144,29 @@ def parse_resource(text):
         value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("Mn", "000").replace("M", "000"))
     except Exception as e:
         print 'Failed to parse resources string "' + text + '"'
-        raise e
+        exception_message = traceback.format_exc()
+        self.logger.error(exception_message)
+
+        # Default to 0
+        value = 0
 
     return value
 
 
 def parse_loot_percentage(text):
     """Use to parse loot percentage string, ie: Roubo: 50% becomes 0.5"""
-    percentage = float(text.split(':')[1].strip("%")) / 100
+
+    try:
+        percentage = float(text.split(':')[1].strip("%")) / 100
+
+    except Exception as e:
+        print 'Failed to parse loot string "' + text + '"'
+        exception_message = traceback.format_exc()
+        self.logger.error(exception_message)
+
+        # Default to 50 %
+        percentage = 0.5
+
     return percentage
 
 
