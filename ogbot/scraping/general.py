@@ -57,8 +57,22 @@ def parse_coordinates(coords):
     return coords.replace('[', '').replace(']', '')
 
 def parse_space(title):
-    data = title.split('(')[1]
-    data = data.split(')')[0]
-    data = data.split('/')
-    return int(data[0]), int(data[1])
+
+    try:
+        data = title.split('(')[1]
+        data = data.split(')')[0]
+        data = data.split('/')
+
+        used, total = data[0], data[1]
+
+        if 'overmark' in used:
+            used = total
+
+        used, total = int(used), int(total)
+
+    # Default to 0
+    except Exception:
+        used, total = 0, 0
+
+    return used, total
 

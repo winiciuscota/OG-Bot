@@ -143,7 +143,7 @@ def parse_resource(text):
     """Use to parse resources values to int, ex: metal: 2.492M becomes 2492000"""
 
     try:
-        value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("M", "000"))
+        value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("Mn", "000").replace("M", "000"))
     except Exception as e:
         print 'Failed to parse resources string "' + text + '"'
         raise e
