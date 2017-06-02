@@ -28,7 +28,7 @@ class AttackerBot(BaseBot):
         used_slots = slot_usage[0]
         available_slots = slot_usage[1]
 
-        if used_slots >= available_slots:
+        if used_slots >= available_slots-1:
             self.logger.warning("There is no fleet slot available")
             return True
 
@@ -65,7 +65,9 @@ class AttackerBot(BaseBot):
                 if target.defenses != 0:
                     self.logger.warning("Found an inactive defended planet %s(%s) with %s" % (target.planet_name, target.coordinates, target.resources))
                     continue
-                if used_slots < available_slots:
+
+                # Keep a free slot in case we need one
+                if used_slots < available_slots-1:
                     self.logger.info("Slot usage: %d/%d" % (used_slots, slot_usage[1]))
 
                     # Get the nearest planets from target
