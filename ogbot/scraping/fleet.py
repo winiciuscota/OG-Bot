@@ -66,14 +66,14 @@ class Fleet(Scraper):
         ss = self.SHIPS_DATA.get('ss')
         lf = self.SHIPS_DATA.get('lf')
 
-        fleet = {ship.item: ship.amount
-                 for ship in ships
-                 if ship.amount > 0
+        fleet = {ship: amount
+                 for ship, amount in ships.iteritems()
+                 if amount > 0
                  # Ignore solar satellites
                  and not ship.id == ss.id
                  # Allow moon fleet destruction
                  and not (ship.id == lf.id
-                    and ship.amount > 1500)}
+                    and amount > 1500)}
 
         if len(fleet) == 0:
             self.logger.warning('No fleet available, aborting escape')
