@@ -65,7 +65,10 @@ class Fleet(Scraper):
 
         fleet = {ship.item: ship.amount
                  for ship in ships
-                 if ship.amount > 0}
+                 if ship.amount > 0
+                 # Allow moon fleets destruction
+                 and not (ship.id == self.SHIPS_DATA.get('lf').id
+                    and ship.amount > 1500)}
 
         if len(fleet) == 0:
             self.logger.warning('No fleet available, aborting escape')
