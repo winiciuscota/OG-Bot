@@ -24,6 +24,24 @@ class SpyBot(BaseBot):
     def get_inactive_planets_in_systems(self, systems):
         """Get nearest inactive planets in the given systems"""
 
+        # debug
+        # print 'Min rank :', self.config.minimum_inactive_target_rank
+        # print 'Max rank :', self.config.maximum_inactive_target_rank
+
+        # for planet in self.get_planets_in_systems(systems):
+            
+        #     print planet.player_state
+        #     print galaxy.PlayerState.Inactive
+        #     print planet.player_rank
+
+        #     if planet.player_state == galaxy.PlayerState.Inactive \
+        #     and planet.player_rank >= self.config.minimum_inactive_target_rank \
+        #     and planet.player_rank <= self.config.maximum_inactive_target_rank:
+        #         print 'Valid  target'
+
+        #     else:
+        #     	print 'Invalid target'
+
         planets = [planet for planet
                    in self.get_planets_in_systems(systems)
                    if planet.player_state == galaxy.PlayerState.Inactive

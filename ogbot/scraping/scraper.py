@@ -225,6 +225,9 @@ class Planet(object):
         self.spaceMax = spaceMax
 
     def __str__(self):
+        return unicode(self).encode('utf-8')
+
+    def __unicode__(self):
         return "[Planet: %s, Link: %s, Coordinates: %s, Space: %d/%d]" % (self.name, self.link, self.coordinates, self.spaceUsed, self.spaceMax)
 
 
