@@ -63,11 +63,16 @@ class Fleet(Scraper):
         resources = self.general_client.get_resources(target)
         ships = self.hangar_client.get_ships(target)
 
+        ss = self.SHIPS_DATA.get('ss')
+        lf = self.SHIPS_DATA.get('lf')
+
         fleet = {ship.item: ship.amount
                  for ship in ships
                  if ship.amount > 0
-                 # Allow moon fleets destruction
-                 and not (ship.id == self.SHIPS_DATA.get('lf').id
+                 # Ignore solar satellites
+                 and not ship.id == ss.id
+                 # Allow moon fleet destruction
+                 and not (ship.id == lf.id
                     and ship.amount > 1500)}
 
         if len(fleet) == 0:
