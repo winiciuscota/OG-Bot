@@ -176,7 +176,7 @@ class SpyBot(BaseBot):
                     try:
                         # Check hostile activity every 35 systems
                         if check_count > 35:
-                            movement_bot.check_hostile_activity()
+                            self.movement_bot.check_hostile_activity()
                             check_count = 0
 
                         else:
