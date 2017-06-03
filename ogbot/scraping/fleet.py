@@ -47,13 +47,13 @@ class Fleet(Scraper):
             self.SHIPS_DATA.get('ep'): 1
         }
 
-        self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.name, coordinates)
+        self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.coordinates, coordinates)
         self.send_fleet(origin_planet, coordinates, self.missions.get("expedition"), fleet)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         fleet = self.get_attack_fleet(origin_planet, target_planet)
 
-        self.logger.info("Attacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
+        self.logger.info("Attacking planet %s from planet %s", target_planet.coordinates, origin_planet.coordinates)
 
         result = self.send_fleet(origin_planet, target_planet.coordinates,
                                  self.missions["attack"], fleet)
