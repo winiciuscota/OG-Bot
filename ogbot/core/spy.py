@@ -164,6 +164,7 @@ class SpyBot(BaseBot):
         systems = self.get_systems_in_range(nr_range, self.planet)
         self.logger.info("there is a total of %d systems in the range %d" % (len(systems), self.config.attack_range))
         associated_systems = self.associate_systems_to_origin_planet(systems);
+        check_count = 0
 
         for planet in self.planets:
 
@@ -173,8 +174,13 @@ class SpyBot(BaseBot):
 
                 for system in systems:
                     try:
-                        # Check hostile activity regularly
-                        movement_bot.check_hostile_activity()
+                        # Check hostile activity every 35 systems
+                        if check_count > 35:
+                            movement_bot.check_hostile_activity()
+                            check_count = 0
+
+                        else:
+                            check_count = check_count + 1
 
                         target_planets = self.get_inactive_planets_in_systems([system])
 
