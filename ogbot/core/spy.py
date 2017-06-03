@@ -1,7 +1,7 @@
 from base import BaseBot
 from scraping import galaxy, fleet
-import random
-import time, traceback
+import random, time, traceback
+import movement
 
 
 class SpyBot(BaseBot):
@@ -10,6 +10,7 @@ class SpyBot(BaseBot):
     def __init__(self, browser, config, planets):
         self.fleet_client = fleet.Fleet(browser, config, planets)
         self.galaxy_client = galaxy.Galaxy(browser, config)
+        self.movement_bot = movement.MovementBot(browser, config, planets)
 
         super(SpyBot, self).__init__(browser, config, planets)
 
@@ -40,7 +41,7 @@ class SpyBot(BaseBot):
         #         print 'Valid  target'
 
         #     else:
-        #     	print 'Invalid target'
+        #       print 'Invalid target'
 
         planets = [planet for planet
                    in self.get_planets_in_systems(systems)
@@ -172,6 +173,9 @@ class SpyBot(BaseBot):
 
                 for system in systems:
                     try:
+                        # Check hostile activity regularly
+                        movement_bot.check_hostile_activity()
+
                         target_planets = self.get_inactive_planets_in_systems([system])
 
                         for index, target_planet in enumerate(target_planets):
