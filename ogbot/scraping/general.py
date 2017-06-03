@@ -45,9 +45,9 @@ class General(Scraper):
 
         for link in links:
             spaceUsed, spaceMax = parse_space(link['title'])
-            planet = Planet(((link(attrs={'class': "planet-name"})[0].contents[0]).encode('utf-8')),
+            planet = Planet(((link(attrs={'class': "planet-name"})[0].contents[0]).decode('utf-8')),
                           urlparse.parse_qs(link['href'])['cp'][0], spaceUsed, spaceMax,
-                          parse_coordinates((link(attrs={'class': "planet-koords"})[0].contents[0]).encode('utf-8')))
+                          parse_coordinates((link(attrs={'class': "planet-koords"})[0].contents[0]).decode('utf-8')))
             planets.append(planet)
 
         return planets

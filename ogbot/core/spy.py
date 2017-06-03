@@ -133,7 +133,8 @@ class SpyBot(BaseBot):
         used_slots = slot_usage[0]
         available_slots = slot_usage[1]
 
-        if used_slots >= available_slots:
+        # One slot is meant to stay free
+        if used_slots >= available_slots-1:
             self.logger.error("There is no fleet slot available")
             return True
 
