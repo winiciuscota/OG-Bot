@@ -63,6 +63,8 @@ class Fleet(Scraper):
         resources = self.general_client.get_resources(target)
         ships = self.hangar_client.get_ships(target)
 
+        resources.energy = 0
+
         ss = self.SHIPS_DATA.get('ss')
         lf = self.SHIPS_DATA.get('lf')
 
@@ -346,10 +348,16 @@ def update_count(sel_count, res_count, sel_size, getCeil):
     if sel_count == 0:
         return 0, res_count
 
-    count = float(res_count) / sel_size
-    count = math.ceil(count) if getCeil \
-            else math.floor(count)
+    fCount = float(res_count) / sel_size
+    count = math.ceil(fCount) if getCeil \
+            else math.floor(fCount)
     count = int(count)
+
+    if not getCeil:
+        left = res_count - count * sel_size
+
+        if float(left)/sel_size > 0.7:
+            count = math.ceil(fCount)
 
     if count > sel_count:
         count = sel_count
