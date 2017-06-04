@@ -351,7 +351,6 @@ def update_count(sel_count, res_count, sel_size, getCeil):
     fCount = float(res_count) / sel_size
     count = math.ceil(fCount) if getCeil \
             else math.floor(fCount)
-    count = int(count)
 
     if not getCeil:
         left = res_count - count * sel_size
@@ -361,6 +360,8 @@ def update_count(sel_count, res_count, sel_size, getCeil):
 
     if count > sel_count:
         count = sel_count
+
+    count = int(count)
 
     left = res_count - count * sel_size
 
