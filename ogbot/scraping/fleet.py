@@ -293,12 +293,12 @@ class Fleet(Scraper):
         large_cargos_count = self.get_ships_count(origin_planet, "lg")
         recyclers_count = self.get_ships_count(origin_planet, "r")
 
-        self.logger.info("Computing small cargos / recyclers / large cargos for the mission")
-        self.logger.info("Resources : %d" % resources_count)
+        # self.logger.info("Computing small cargos / recyclers / large cargos for the mission")
+        # self.logger.info("Resources : %d" % resources_count)
 
-        self.logger.info("Available small cargos : %d" % small_cargos_count)
-        self.logger.info("Available large cargos : %d " % large_cargos_count)
-        self.logger.info("Available recyclers : %d " % recyclers_count)
+        # self.logger.info("Available small cargos : %d" % small_cargos_count)
+        # self.logger.info("Available large cargos : %d " % large_cargos_count)
+        # self.logger.info("Available recyclers : %d " % recyclers_count)
 
         sel_lg_count, left_count = update_count(large_cargos_count, resources_count, 25000, False)
         sel_recycler_count, left_count = update_count(recyclers_count, left_count, 20000, False)
@@ -308,21 +308,21 @@ class Fleet(Scraper):
         fleet = {}
 
         if sel_sg_count:
-            self.logger.info("Small cargos : %d " % sel_sg_count)
+            # self.logger.info("Small cargos : %d " % sel_sg_count)
             fleet[ self.SHIPS_DATA.get('sg') ] = sel_sg_count
 
         if sel_lg_count:
-            self.logger.info("Large cargos : %d " % sel_lg_count)
+            # self.logger.info("Large cargos : %d " % sel_lg_count)
             fleet[ self.SHIPS_DATA.get('lg') ] = sel_lg_count
 
         if sel_recycler_count:
-            self.logger.info("Recyclers : %d " % sel_recycler_count)
+            # self.logger.info("Recyclers : %d " % sel_recycler_count)
             fleet[ self.SHIPS_DATA.get('r') ] = sel_recycler_count
 
         if len(fleet) == 0:
             fleet[ self.SHIPS_DATA.get('lg') ] = 0
 
-        self.logger.info("Leftover resources : %d" % left_count)
+        # self.logger.info("Leftover resources : %d" % left_count)
 
         return fleet
 
