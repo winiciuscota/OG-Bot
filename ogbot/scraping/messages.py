@@ -53,6 +53,7 @@ class Messages(Scraper):
         return spy_reports
 
     def clear_spy_reports(self):
+        #return True
         url = self.url_provider.get_page_url('messages')
         data = urllib.urlencode({'tab': 20, 'messageId': -1, 'action': 103, 'ajax': 1})
         self.open_url(url, data)
