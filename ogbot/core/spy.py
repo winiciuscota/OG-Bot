@@ -1,5 +1,6 @@
 from base import BaseBot
 from scraping import galaxy, fleet
+from random import shuffle
 import random, time, traceback
 import movement
 
@@ -130,8 +131,8 @@ class SpyBot(BaseBot):
                 systems.append("%s:%s" % (p.coordinates.split(":")[0], str(previous_system)))
                 systems.append("%s:%s" % (p.coordinates.split(":")[0], str(later_system)))
 
-        # Return the list without duplicate systems
-        return list(set(systems))
+        # Return the list without duplicate systems in a random order
+        return shuffle(list(set(systems)))
 
     def associate_systems_to_origin_planet(self, systems):
         """Associate systems to the nearest player planet"""
