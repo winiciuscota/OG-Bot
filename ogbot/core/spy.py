@@ -132,7 +132,10 @@ class SpyBot(BaseBot):
                 systems.append("%s:%s" % (p.coordinates.split(":")[0], str(later_system)))
 
         # Return the list without duplicate systems in a random order
-        return shuffle(list(set(systems)))
+        res = list(set(systems))
+        shuffle(res)
+
+        return res
 
     def associate_systems_to_origin_planet(self, systems):
         """Associate systems to the nearest player planet"""
