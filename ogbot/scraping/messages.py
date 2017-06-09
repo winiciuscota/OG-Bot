@@ -87,16 +87,24 @@ class Messages(Scraper):
                     if len(coordinates_data) <= 1:
                         self.logger.info("Hmm, I found a destroyed planet")
                         continue
+
                     coordinates = coordinates_data[1].replace(']', '').strip()
                     # find inactive player name
                     player_node = message_box.find("span", {"class": "status_abbr_longinactive"})
+
+                    # If not long inactive, check for simply inactive
+                    if player_node is None:
+                        player_node = message_box.find("span", {"class": "status_abbr_inactive"})
+
                     if player_node is not None:
                         player_name = player_node.text.strip()
                         player_state = galaxy.PlayerState.Inactive
+
                     else:
                         # if the player isn't inactive I don't care about the name
                         player_name = 'unknown'
                         player_state = galaxy.PlayerState.Active
+
                     message_content = message_box.findAll("div", {"class": "compacting"})
 
                     if len(message_content) > 0:
