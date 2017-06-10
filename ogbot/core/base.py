@@ -70,7 +70,7 @@ class BaseBot(object):
         # Get the closest galaxy
         target_galaxy = int(coordinates.split(':')[0])
         planet_galaxies = set([int(planet.coordinates.split(':')[0]) for planet in planets])
-        closest_galaxy = min(planet_galaxies, key=lambda x: abs(x - target_galaxy))
+        closest_galaxy = min(planet_galaxies, key=lambda x: circ_dist(x, target_galaxy, 7)) # Assuming max 7 galaxies
 
         # Get the closest system
         target_system = int(coordinates.split(':')[1])
@@ -78,7 +78,7 @@ class BaseBot(object):
                           for planet in planets
                           if planet.coordinates.split(':')[0] == str(closest_galaxy)]
 
-        closest_system = min(planet_systems, key=lambda x: abs(x - target_system))
+        closest_system = min(planet_systems, key=lambda x: circ_dist(x, target_system, 499)) # Assuming max 499 systems
 
         # Get the closest position
         target_pos = int(coordinates.split(':')[2])
@@ -115,3 +115,13 @@ class BaseBot(object):
             lplanets.remove(nearest)
 
         return oplanets
+
+def abs_dist(pos0, pos1):
+    return abs(pos0 - pos1)
+
+def circ_dist(pos0, pos1, maxVal):
+    minPos = min(pos0, pos1)
+    maxPos = max(pos0, pos1)
+    minEq = minPos + maxVal
+
+    return min( abs_dist(minPos, maxPos), abs_dist(minEq, maxPos) )

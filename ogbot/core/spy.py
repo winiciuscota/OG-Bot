@@ -126,8 +126,8 @@ class SpyBot(BaseBot):
             systems.append("%s:%s" % (p.coordinates.split(":")[0], p.coordinates.split(":")[1]))
 
             for i in range(1, nr_range + 1):
-                previous_system = get_circular_system( int(p.coordinates.split(":")[1]) + i, 499 )
-                later_system = get_circular_system( int(p.coordinates.split(":")[1]) - i, 499 )
+                previous_system = get_circular_system( int(p.coordinates.split(":")[1]) + i )
+                later_system = get_circular_system( int(p.coordinates.split(":")[1]) - i )
                 systems.append("%s:%s" % (p.coordinates.split(":")[0], str(previous_system)))
                 systems.append("%s:%s" % (p.coordinates.split(":")[0], str(later_system)))
 
@@ -216,5 +216,5 @@ class SpyBot(BaseBot):
 
         return False
 
-def get_circular_system(sysPos, sysMax):
-    return (sysPos - 1) % sysMax + 1
+def get_circular_system(sysPos):
+    return (sysPos - 1) % 499 + 1
