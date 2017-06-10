@@ -68,7 +68,7 @@ class Fleet(Scraper):
         ss = self.SHIPS_DATA.get('ss')
         lf = self.SHIPS_DATA.get('lf')
 
-        fleet = {ship.item: ship.amount
+        fleet = {ship.item: ship.amount if not (ship.item.id == lf.id and ship.amount > 1667) else (ship.amount - 1667)
                  for ship in ships
                  if ship.amount > 0
                  # Ignore solar satellites
