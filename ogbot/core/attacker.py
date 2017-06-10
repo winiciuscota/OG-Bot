@@ -63,7 +63,8 @@ class AttackerBot(BaseBot):
 
             try:
                 if target.defenses != 0:
-                    self.logger.warning("Found an inactive defended planet %s(%s) with %s" % (target.planet_name, target.coordinates, target.resources))
+                    self.logger.warning("Found an inactive defended planet at %s with %s" % (target.coordinates, target.resources))
+                    #self.logger.warning("Found an inactive defended planet %s(%s) with %s" % (target.planet_name, target.coordinates, target.resources))
                     continue
 
                 # Keep a free slot in case we need one
