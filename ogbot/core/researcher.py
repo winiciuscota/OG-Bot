@@ -24,19 +24,22 @@ class ResearcherBot(BaseBot):
         available_research_item = None
 
         priority_list = [
-            109,    #WeaponTech
+            199,    #Graviton
+            108,    #ComputerTech
+            106,    #EspionageTech
+            113,    #EnergyTech
+            124,    #AstroPhysics
+            118,    #HyperspaceDrive
+            114,    #HyperspaceTech
+            115,    #CombustionDrive
+            117,    #ImpulseDrive
             110,    #ShieldTech
             111,    #ArmourTech
-            106,    #EspionageTech
-            108,    #ComputerTech
-            113,    #EnergyTech
+            109,    #WeaponTech
+            122,    #PlasmaTech
             120,    #LaserTech
-            115,    #CombustionDrive
+            123,    #ResearchNetwork
             121,    #IonTech
-            117,    #ImpulseDrive
-            124,    #AstroPhysics
-            114,    #HyperspaceTech
-            118,    #HyperspaceDrive
 
         ]
 

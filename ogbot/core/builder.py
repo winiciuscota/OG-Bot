@@ -125,7 +125,7 @@ class BuilderBot(BaseBot):
         resources = self.general_client.get_resources(planet)
         priority_list = [
             15, #   NaniteFactory
-            14, #   RobotFacotry
+            14, #   RobotFactory
             1,  #   MetalMine
             2,  #   KristalMine
             3,  #   DeuteriumSynthesizer
@@ -133,7 +133,7 @@ class BuilderBot(BaseBot):
             31, #   ResearchLab
             22, #   MetalStorage
             23, #   CrystalStorage
-            24, #   DeuteriumSynthesizer
+            24, #   DeuteriumStorage
         ]
 
         building = None
