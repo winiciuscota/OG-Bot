@@ -223,12 +223,13 @@ class Planet(object):
         self.safe = True
         self.spaceUsed = spaceUsed
         self.spaceMax = spaceMax
+        self.isMoon = False
 
     def __str__(self):
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        return "[Planet: %s, Link: %s, Coordinates: %s, Space: %d/%d]" % (self.name, self.link, self.coordinates, self.spaceUsed, self.spaceMax)
+        return "[Planet: %s, Link: %s, Coordinates: %s, Space: %d/%d, Moon: %s]" % (self.name, self.link, self.coordinates, self.spaceUsed, self.spaceMax, 'Yes' if self.isMoon else 'No')
 
 
 class FleetResult(Enum):
