@@ -73,6 +73,8 @@ class Messages(Scraper):
         message_boxes += soup.findAll("li", {"class": "msg msg_new"})
         spy_reports = []
 
+        game_date = self.general_client.get_game_datetime()
+
         for message_box in message_boxes:
 
             try:
@@ -85,8 +87,6 @@ class Messages(Scraper):
                 msg_date_node = message_box.find("span", {"class": "msg_date fright"})
                 message_datetime = parse_report_datetime(
                     msg_date_node.text if msg_date_node is not None else "1.1.2016 00:00:00")
-
-                game_date = self.general_client.get_game_datetime()
 
                 if message_datetime < (game_date - timedelta(minutes=self.config.spy_report_life)):
                     self.done = True
