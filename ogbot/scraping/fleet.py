@@ -76,10 +76,10 @@ class Fleet(Scraper):
                  and not ship.item.id == ss.id
                  # Allow moon fleet destruction
                  and not (ship.item.id == lf.id
-                    and ship.amount > 550)
+                    and ship.amount > 550)}
                  # Keep cruisers to destroy potential moon fleets
-                 and not (ship.item.id == cr.id
-                    and ship.amount > 150)}
+                 #and not (ship.item.id == cr.id
+                 #   and ship.amount > 150)}
 
         if len(fleet) == 0:
             self.logger.warning('No fleet available, aborting escape')
