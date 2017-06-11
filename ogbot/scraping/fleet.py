@@ -181,7 +181,10 @@ class Fleet(Scraper):
         except mechanize.FormNotFoundError:
             self.logger.error('Error sending ships')
             return FleetResult.NoAvailableShips
+
+        self.browser.form.set_all_readonly(False)
         self.browser["type"] = '1' # Target type : 1 for planet, 2 for debris, 3 for moon
+
         self.browser["galaxy"] = coordinates.split(':')[0]
         self.browser["system"] = coordinates.split(':')[1]
         self.browser["position"] = coordinates.split(':')[2]
