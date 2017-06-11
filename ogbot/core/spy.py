@@ -167,48 +167,46 @@ class SpyBot(BaseBot):
         self.logger.info("Getting systems in range")
         systems = self.get_systems_in_range(nr_range, self.planet)
         self.logger.info("there is a total of %d systems in the range %d" % (len(systems), self.config.attack_range))
-        associated_systems = self.associate_systems_to_origin_planet(systems);
+        # associated_systems = self.associate_systems_to_origin_planet(systems);
         check_count = 0
 
-        for planet in self.planets:
+        # for planet in planets:
+
+        #     try:
+                # systems = [system[0] for system in associated_systems if system[1] == planet]
+                # self.logger.info("Getting inactive planets in range(%d) from %s" % (len(systems), planet.name))
+
+        for system in systems:
 
             try:
-                systems = [system[0] for system in associated_systems if system[1] == planet]
-                self.logger.info("Getting inactive planets in range(%d) from %s" % (len(systems), planet.name))
+                # Check hostile activity every 35 systems
+                if check_count > 35:
+                    self.movement_bot.check_hostile_activity()
+                    check_count = 0
 
-                for system in systems:
-                    try:
-                        # Check hostile activity every 35 systems
-                        if check_count > 35:
-                            self.movement_bot.check_hostile_activity()
-                            check_count = 0
+                else:
+                    check_count = check_count + 1
 
+                target_planets = self.get_inactive_planets_in_systems([system])
+
+                for index, target_planet in enumerate(target_planets):
+
+                    # delay before sending mission
+                    if index > 1:
+                        # Delay - wait a random time before sending fleet, this makes the bot less detectable
+                        delay = random.randint(self.config.spy_fleet_min_delay, self.config.spy_fleet_max_delay)
+                        self.logger.info("Waiting for random time(%s seconds) before sending fleet " % delay)
+                        time.sleep(delay)
+
+                    while True:
+                        result = self.fleet_client.spy_planet(target_planet, self.config.spy_probes_count)
+                        if result == fleet.FleetResult.NoAvailableSlots:
+                            delay = int(self.config.time_to_wait_for_probes / 8)
+                            self.logger.info(
+                                "Waiting %d seconds for spy probes to return and free up some slots" % delay)
+                            time.sleep(delay)
                         else:
-                            check_count = check_count + 1
-
-                        target_planets = self.get_inactive_planets_in_systems([system])
-
-                        for index, target_planet in enumerate(target_planets):
-                            # delay before sending mission
-                            if index > 1:
-                                # Delay - wait a random time before sending fleet, this makes the bot less detectable
-                                delay = random.randint(self.config.spy_fleet_min_delay, self.config.spy_fleet_max_delay)
-                                self.logger.info("Waiting for random time(%s seconds) before sending fleet " % delay)
-                                time.sleep(delay)
-
-                            while True:
-                                result = self.fleet_client.spy_planet(target_planet, self.config.spy_probes_count)
-                                if result == fleet.FleetResult.NoAvailableSlots:
-                                    delay = int(self.config.time_to_wait_for_probes / 8)
-                                    self.logger.info(
-                                        "Waiting %d seconds for spy probes to return and free up some slots" % delay)
-                                    time.sleep(delay)
-                                else:
-                                    break
-
-                    except Exception as e:
-                        exception_message = traceback.format_exc()
-                        self.logger.error(exception_message)
+                            break
 
             except Exception as e:
                 exception_message = traceback.format_exc()

@@ -61,10 +61,11 @@ class General(Scraper):
                 mID = urlparse.parse_qs(mlink['href'])['cp'][0]
                 spaceUsed, spaceMax = parse_space(mlink['title'])
 
-                planet = Planet(name, mID, spaceUsed, spaceMax, coords)
-                planet.isMoon = True
+                moon = Planet(name, mID, spaceUsed, spaceMax, coords)
+                moon.isMoon = True
 
-                planets.append(planet)
+                planet.moon = moon
+                planets.append(moon)
 
 
 
