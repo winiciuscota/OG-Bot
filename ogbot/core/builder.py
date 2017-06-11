@@ -124,9 +124,9 @@ class BuilderBot(BaseBot):
     def get_next_building_to_build_on_planet(self, planet, available_buildings):
         resources = self.general_client.get_resources(planet)
         priority_list = [
-            43, #   JumpGate
-            42, #   SensorPhalynx
             41, #   LunarBase
+            42, #   SensorPhalynx
+            43, #   JumpGate
             15, #   NaniteFactory
             14, #   RobotFactory
             1,  #   MetalMine

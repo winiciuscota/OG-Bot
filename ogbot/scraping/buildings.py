@@ -30,6 +30,9 @@ class BuildingTypes(Enum):
     AllicanceDepot = "34"
     Spacedock = "36"
     MissileSilo = "44"
+    LunarBase = "41"
+    SensorPhalynx = "42"
+    JumpGate = "43"
 
 BUILDINGS_DATA = {
 
@@ -51,6 +54,9 @@ BUILDINGS_DATA = {
     "23": BuildingItem(23, "Crystal Storage"),
     "24": BuildingItem(24, "Deuterium Tank"),
 
+    "41": BuildingItem(41, "LunarBase"),
+    "42": BuildingItem(42, "SensorPhalynx"),
+    "43": BuildingItem(43, "JumpGate"),
     "14": BuildingItem(14, "Robot Factory"),
     "15": BuildingItem(15, "Nanite Factory"),
     "21": BuildingItem(21, "Shipyard"),
