@@ -40,15 +40,33 @@ class General(Scraper):
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
 
+        elems = soup(attrs={'class': "smallplanet"})
         links = soup(attrs={'class': ["planetlink", 'moonlink']})
         planets = []
 
-        for link in links:
+        for elem in elems:
+            link = elem.find('a', {"class": "planetlink"})
+            mlink = elem.find('a', {"class": "moonlink"})
+
             spaceUsed, spaceMax = parse_space(link['title'])
+            coords = parse_coordinates((link(attrs={'class': "planet-koords"})[0].contents[0]).decode('utf-8'))
+            pID = urlparse.parse_qs(link['href'])['cp'][0]
+
             planet = Planet(((link(attrs={'class': "planet-name"})[0].contents[0]).decode('utf-8')),
-                          urlparse.parse_qs(link['href'])['cp'][0], spaceUsed, spaceMax,
-                          parse_coordinates((link(attrs={'class': "planet-koords"})[0].contents[0]).decode('utf-8')))
+                          pID, spaceUsed, spaceMax, coords)
             planets.append(planet)
+
+            if mlink is not None:
+                name = mlink.find('img')['alt']
+                mID = urlparse.parse_qs(mlink['href'])['cp'][0]
+                spaceUsed, spaceMax = parse_space(mlink['title'])
+
+                planet = Planet(name, mID, spaceUsed, spaceMax, coords)
+                planet.isMoon = True
+
+                planets.append(planet)
+
+
 
         return planets
 
