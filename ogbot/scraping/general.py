@@ -40,7 +40,7 @@ class General(Scraper):
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
 
-        links = soup(attrs={'class': "planetlink"})
+        links = soup(attrs={'class': ["planetlink", 'moonlink']})
         planets = []
 
         for link in links:
