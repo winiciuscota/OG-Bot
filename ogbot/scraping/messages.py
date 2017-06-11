@@ -9,10 +9,12 @@ import general
 import datetime
 import traceback
 from scraper import Scraper
+from datetime import timedelta
 
 
 class Messages(Scraper):
     def __init__(self, browser, config):
+        self.general_client = general.General(browser, config)
         super(Messages, self).__init__(browser, config)
 
     def get_messages(self):
@@ -34,6 +36,8 @@ class Messages(Scraper):
         pagination_info = soup.find('li', {"class": "curPage"}).text
         page_count = int(pagination_info.split('/')[1])
 
+        self.done = False
+
         # add messages from the other pages
         for page in range(1, page_count):
 
@@ -45,6 +49,9 @@ class Messages(Scraper):
                 soup = BeautifulSoup(res.read(), "lxml")
                 page_reports = self.parse_spy_reports(soup)
                 spy_reports.extend(page_reports)
+
+                if self.done:
+                    break
 
             except Exception as e:
                 exception_message = traceback.format_exc()
@@ -77,6 +84,12 @@ class Messages(Scraper):
                 msg_date_node = message_box.find("span", {"class": "msg_date fright"})
                 message_datetime = parse_report_datetime(
                     msg_date_node.text if msg_date_node is not None else "1.1.2016 00:00:00")
+
+                game_date = self.general_client.get_game_datetime()
+
+                if message_datetime < (game_date - timedelta(minutes=self.config.spy_report_life)):
+                    self.done = True
+                    return spy_reports
 
                 if is_spy_report:
                     planet_info = message_box.find("a", {"class": "txt_link"}).text
