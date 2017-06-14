@@ -214,5 +214,7 @@ class SpyBot(BaseBot):
 
         return False
 
-def get_circular_system(sysPos):
-    return (sysPos - 1) % 499 + 1
+    def get_circular_system(self, sysPos):
+        maxSystm = config.server.systems
+        return (sysPos - 1) % maxSystm + 1
+

@@ -69,14 +69,22 @@ class Fleet(Scraper):
         ss = self.SHIPS_DATA.get('ss')
         lf = self.SHIPS_DATA.get('lf')
 
-        fleet = {ship.item: ship.amount if not (ship.item.id == lf.id and ship.amount > 1667) else (ship.amount - 1667)
+        resLF = (3 + 1) * 1000
+        bestMoonDebris = 2 * 1000 * 1000
+        debrisFactor = self.config.server.debrisFactor
+        bestMoonLF = int(math.ceil( bestMoonDebris / float(debrisFactor * resLF) ))
+        self.logger.info("bestMoonLF : %d", bestMoonLF)
+
+        minMoonLF = bestMoonLF * 0.8
+
+        fleet = {ship.item: ship.amount if not (ship.item.id == lf.id and ship.amount > bestMoonLF) else (ship.amount - bestMoonLF)
                  for ship in ships
                  if ship.amount > 0
                  # Ignore solar satellites
                  and not ship.item.id == ss.id
-                 # Allow moon fleet destruction
+                 # Allow moon fleet destruction once minimum ship amount available
                  and not (ship.item.id == lf.id
-                    and ship.amount > 550)}
+                    and ship.amount > minMoonLF)}
                  # Keep cruisers to destroy potential moon fleets
                  #and not (ship.item.id == cr.id
                  #   and ship.amount > 150)}

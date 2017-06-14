@@ -4,13 +4,14 @@ from bs4 import BeautifulSoup
 import cookielib
 import os
 from scraper import Scraper
+import urllib2
 
 
 class AuthenticationProvider(Scraper):
     def __init__(self, config):
         self.login_url = 'http://%s.ogame.gameforge.com/' % config.country
-        # http://s114-br.ogame.gameforge.com/game/index.php?page=overview
-        self.index_url = 'http://s%s-%s.ogame.gameforge.com' % (config.universe, config.country) + '/game/index.php'
+        self.server_url = 'http://s%s-%s.ogame.gameforge.com' % (config.universe, config.country)
+        self.index_url = self.server_url + '/game/index.php'
         headers = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) \
         AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36')]
         # Authentication data
@@ -30,6 +31,8 @@ class AuthenticationProvider(Scraper):
         # self.path = os.path.dirname(os.path.realpath(__file__))
         # name of the cookies file
         # self.cookies_file_name = os.path.join(self.path, 'cookies.tmp')
+
+        self.parseServerConfig(br, config)
 
         cookies_dir = 'cookies/'
 
@@ -88,3 +91,43 @@ class AuthenticationProvider(Scraper):
 
         self.cj.save(self.cookies_file_name, ignore_discard=True)
         return self.browser
+
+    def parseServerConfig(self, browser, config):
+        resp = urllib2.urlopen(self.server_url + '/api/serverData.xml')
+        print self.server_url + '/api/serverData.xml'
+
+        soup = BeautifulSoup(resp.read(), "xml")
+
+        server = Server()
+        config.server = server
+
+        server.name = soup.find("name").string
+        server.timezone = soup.find("timezone").string
+        server.timezoneOffset = soup.find("timezoneOffset").string
+        server.version = soup.find("version").string
+        server.speed = int(soup.find("speed").string)
+        server.speedFleet = int(soup.find("speedFleet").string)
+        server.galaxies = int(soup.find("galaxies").string)
+        server.systems = int(soup.find("systems").string)
+        server.acs = bool(int(soup.find("acs").string))
+        server.rapidFire = bool(int(soup.find("rapidFire").string))
+        server.defToTF = bool(int(soup.find("defToTF").string))
+        server.debrisFactor = float(soup.find("debrisFactor").string)
+        server.debrisFactorDef = float(soup.find("debrisFactorDef").string)
+        server.repairFactor = float(soup.find("repairFactor").string)
+        server.newbieProtectionLimit = int(soup.find("newbieProtectionLimit").string)
+        server.newbieProtectionHigh = int(soup.find("newbieProtectionHigh").string)
+        server.topScore = int(soup.find("topScore").string)
+        server.bonusFields = int(soup.find("bonusFields").string)
+        server.donutGalaxy = bool(int(soup.find("donutGalaxy").string))
+        server.donutSystem = bool(int(soup.find("donutSystem").string))
+        server.wfEnabled = bool(int(soup.find("wfEnabled").string))
+        server.wfMinimumRessLost = int(soup.find("wfMinimumRessLost").string)
+        server.wfMinimumLossPercentage = int(soup.find("wfMinimumLossPercentage").string)
+        server.wfBasicPercentageRepairable = int(soup.find("wfBasicPercentageRepairable").string)
+        server.globalDeuteriumSaveFactor = int(soup.find("globalDeuteriumSaveFactor").string)
+
+        #print vars(server)
+
+class Server():
+    pass
