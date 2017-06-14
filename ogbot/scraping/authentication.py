@@ -94,7 +94,6 @@ class AuthenticationProvider(Scraper):
 
     def parseServerConfig(self, browser, config):
         resp = urllib2.urlopen(self.server_url + '/api/serverData.xml')
-        print self.server_url + '/api/serverData.xml'
 
         soup = BeautifulSoup(resp.read(), "xml")
 
