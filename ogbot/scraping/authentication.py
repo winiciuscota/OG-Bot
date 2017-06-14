@@ -93,40 +93,47 @@ class AuthenticationProvider(Scraper):
         return self.browser
 
     def parseServerConfig(self, browser, config):
-        resp = urllib2.urlopen(self.server_url + '/api/serverData.xml')
-
-        soup = BeautifulSoup(resp.read(), "xml")
 
         server = Server()
         config.server = server
 
-        server.name = soup.find("name").string
-        server.timezone = soup.find("timezone").string
-        server.timezoneOffset = soup.find("timezoneOffset").string
-        server.version = soup.find("version").string
-        server.speed = int(soup.find("speed").string)
-        server.speedFleet = int(soup.find("speedFleet").string)
-        server.galaxies = int(soup.find("galaxies").string)
-        server.systems = int(soup.find("systems").string)
-        server.acs = bool(int(soup.find("acs").string))
-        server.rapidFire = bool(int(soup.find("rapidFire").string))
-        server.defToTF = bool(int(soup.find("defToTF").string))
-        server.debrisFactor = float(soup.find("debrisFactor").string)
-        server.debrisFactorDef = float(soup.find("debrisFactorDef").string)
-        server.repairFactor = float(soup.find("repairFactor").string)
-        server.newbieProtectionLimit = int(soup.find("newbieProtectionLimit").string)
-        server.newbieProtectionHigh = int(soup.find("newbieProtectionHigh").string)
-        server.topScore = int(soup.find("topScore").string)
-        server.bonusFields = int(soup.find("bonusFields").string)
-        server.donutGalaxy = bool(int(soup.find("donutGalaxy").string))
-        server.donutSystem = bool(int(soup.find("donutSystem").string))
-        server.wfEnabled = bool(int(soup.find("wfEnabled").string))
-        server.wfMinimumRessLost = int(soup.find("wfMinimumRessLost").string)
-        server.wfMinimumLossPercentage = int(soup.find("wfMinimumLossPercentage").string)
-        server.wfBasicPercentageRepairable = int(soup.find("wfBasicPercentageRepairable").string)
-        server.globalDeuteriumSaveFactor = int(soup.find("globalDeuteriumSaveFactor").string)
+        try:
+            resp = urllib2.urlopen(self.server_url + '/api/serverData.xml')
 
-        #print vars(server)
+            soup = BeautifulSoup(resp.read(), "xml")
+
+            server.name = soup.find("name").string
+            server.timezone = soup.find("timezone").string
+            server.timezoneOffset = soup.find("timezoneOffset").string
+            server.version = soup.find("version").string
+            server.speed = int(soup.find("speed").string)
+            server.speedFleet = int(soup.find("speedFleet").string)
+            server.galaxies = int(soup.find("galaxies").string)
+            server.systems = int(soup.find("systems").string)
+            server.acs = bool(int(soup.find("acs").string))
+            server.rapidFire = bool(int(soup.find("rapidFire").string))
+            server.defToTF = bool(int(soup.find("defToTF").string))
+            server.debrisFactor = float(soup.find("debrisFactor").string)
+            server.debrisFactorDef = float(soup.find("debrisFactorDef").string)
+            server.repairFactor = float(soup.find("repairFactor").string)
+            server.newbieProtectionLimit = int(soup.find("newbieProtectionLimit").string)
+            server.newbieProtectionHigh = int(soup.find("newbieProtectionHigh").string)
+            server.topScore = int(soup.find("topScore").string)
+            server.bonusFields = int(soup.find("bonusFields").string)
+            server.donutGalaxy = bool(int(soup.find("donutGalaxy").string))
+            server.donutSystem = bool(int(soup.find("donutSystem").string))
+            server.wfEnabled = bool(int(soup.find("wfEnabled").string))
+            server.wfMinimumRessLost = int(soup.find("wfMinimumRessLost").string)
+            server.wfMinimumLossPercentage = int(soup.find("wfMinimumLossPercentage").string)
+            server.wfBasicPercentageRepairable = int(soup.find("wfBasicPercentageRepairable").string)
+            server.globalDeuteriumSaveFactor = float(soup.find("globalDeuteriumSaveFactor").string)
+
+        except Exception:
+            server.debrisFactor = 0.3
+            server.systems = 499
+            server.galaxies = 7
+
+        print vars(server)
 
 class Server():
     pass
