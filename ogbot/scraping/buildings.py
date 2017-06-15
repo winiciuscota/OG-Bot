@@ -160,7 +160,7 @@ class Buildings(Scraper):
             parent_block = build_image.parent
 
             if page is "station":
-                for i in ["14", "15", "21", "31", "33", "34", "36", "44"]:
+                for i in ["14", "15", "21", "31", "33", "34", "36", "41", "42", "43", "44"]:
                     details = "details" + i
                     building_btn = parent_block.find("a", {"id": details})
                     if building_btn is not None:
