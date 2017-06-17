@@ -34,7 +34,7 @@ class BaseBot(object):
         return planet
 
     # Util functions
-    def get_player_planet_by_coordinates(self, coordinates):
+    def get_player_planet_by_coordinates(self, coordinates, isMoon=False):
         """Get player planet by coordinates. If there is no match returns None"""
         planets = self.planets
         if coordinates is None:
@@ -42,7 +42,8 @@ class BaseBot(object):
 
         planet = next(iter([planet for planet
                             in planets
-                            if planet.coordinates == coordinates]), None)
+                            if planet.coordinates == coordinates
+                            and planet.isMoon == isMoon]), None)
         return planet
 
     def get_default_origin_planet(self, planet_name):

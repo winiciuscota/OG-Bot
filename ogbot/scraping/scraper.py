@@ -277,7 +277,7 @@ class ResearchItem(Item):
 
 class FleetMovement(object):
     def __init__(self, origin_coordinates, origin_name, destination_coordinates, destination_name, friendly,
-                 arrival_time=None, countdown_time=None, mission='attack'):
+                 arrival_time=None, countdown_time=None, mission='attack', isMoon=False):
         """
         :param origin_coordinates: Coordinates of the origin planet
         :param origin_name: Name of the origin planet
@@ -291,6 +291,7 @@ class FleetMovement(object):
         self.arrival_time = arrival_time
         self.countdown_time = countdown_time
         self.mission = mission
+        self.isMoon = isMoon
 
     def __str__(self):
         return "%s fleet from planet %s(%s) to planet %s(%s) in %s with %s mission" % (("Friendly" if self.friendly else "Hostile"),

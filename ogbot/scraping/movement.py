@@ -54,7 +54,9 @@ class Movement(Scraper):
             origin_coords = self.parse_coords(movement_row.find("td", {"class": "coordsOrigin"}).text.strip())
             origin_planet_name = movement_row.find("td", {"class": "originFleet"}).text.strip()
             dest_coords = self.parse_coords(movement_row.find("td", {"class": "destCoords"}).text.strip())
+            dest_planet_data = movement_row.find("td", {"class": "destFleet"})
             dest_planet_name = movement_row.find("td", {"class": "destFleet"}).text.strip()
+            isMoon = False if dest_planet_data.find("figure", {"class": "moon"}) is None else True
             count_down_td = movement_row.find("td", {"class": "countDown"})
             is_friendly = 'friendly' in count_down_td.attrs['class']
 
@@ -63,7 +65,7 @@ class Movement(Scraper):
             countdown_time = self.get_countdown_time(arrival_time)
 
             movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly,
-                                     arrival_time, countdown_time, mission_type)
+                                     arrival_time, countdown_time, mission_type, isMoon)
             fleet_movements.append(movement)
 
         return fleet_movements
