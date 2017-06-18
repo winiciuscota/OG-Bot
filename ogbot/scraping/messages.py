@@ -168,10 +168,10 @@ def parse_resource(text):
     except Exception as e:
         print 'Failed to parse resources string "' + text + '"'
         exception_message = traceback.format_exc()
-        self.logger.error(exception_message)
+        print exception_message
 
-        # Default to 0
-        value = 0
+        # Default to 1
+        value = 1
 
     return value
 
@@ -185,7 +185,7 @@ def parse_loot_percentage(text):
     except Exception as e:
         print 'Failed to parse loot string "' + text + '"'
         exception_message = traceback.format_exc()
-        self.logger.error(exception_message)
+        print exception_message
 
         # Default to 50 %
         percentage = 0.5

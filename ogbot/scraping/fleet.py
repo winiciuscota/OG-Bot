@@ -83,8 +83,7 @@ class Fleet(Scraper):
                  # Ignore solar satellites
                  and not ship.item.id == ss.id
                  # Allow moon fleet destruction once minimum ship amount available
-                 and not (ship.item.id == lf.id
-                    and ship.amount > minMoonLF)}
+                 and not (ship.item.id == lf.id and minMoonLF < ship.amount and ship.amount <= bestMoonLF)}
                  # Keep cruisers to destroy potential moon fleets
                  #and not (ship.item.id == cr.id
                  #   and ship.amount > 150)}
