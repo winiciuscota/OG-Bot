@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from scraper import *
 from general import General
+import traceback
 
 
 def get_arrival_time(arrival_time_str):
@@ -49,24 +50,30 @@ class Movement(Scraper):
 
         fleet_movements = []
         for movement_row in movement_rows:
-            mission_code = int( movement_row['data-mission-type'] )
-            mission_type = self.mission_types[ mission_code ]
-            origin_coords = self.parse_coords(movement_row.find("td", {"class": "coordsOrigin"}).text.strip())
-            origin_planet_name = movement_row.find("td", {"class": "originFleet"}).text.strip()
-            dest_coords = self.parse_coords(movement_row.find("td", {"class": "destCoords"}).text.strip())
-            dest_planet_data = movement_row.find("td", {"class": "destFleet"})
-            dest_planet_name = movement_row.find("td", {"class": "destFleet"}).text.strip()
-            isMoon = False if dest_planet_data.find("figure", {"class": "moon"}) is None else True
-            count_down_td = movement_row.find("td", {"class": "countDown"})
-            is_friendly = 'friendly' in count_down_td.attrs['class']
 
-            arrival_time_str = movement_row.find("td", {"class": "arrivalTime"}).text
-            arrival_time = get_arrival_time(arrival_time_str)
-            countdown_time = self.get_countdown_time(arrival_time)
+            try:
+                mission_code = int( movement_row['data-mission-type'] )
+                mission_type = self.mission_types[ mission_code ]
+                origin_coords = self.parse_coords(movement_row.find("td", {"class": "coordsOrigin"}).text.strip())
+                origin_planet_name = movement_row.find("td", {"class": "originFleet"}).text.strip()
+                dest_coords = self.parse_coords(movement_row.find("td", {"class": "destCoords"}).text.strip())
+                dest_planet_data = movement_row.find("td", {"class": "destFleet"})
+                dest_planet_name = movement_row.find("td", {"class": "destFleet"}).text.strip()
+                isMoon = False if dest_planet_data.find("figure", {"class": "moon"}) is None else True
+                count_down_td = movement_row.find("td", {"class": "countDown"})
+                is_friendly = 'friendly' in count_down_td.attrs['class']
 
-            movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly,
-                                     arrival_time, countdown_time, mission_type, isMoon)
-            fleet_movements.append(movement)
+                arrival_time_str = movement_row.find("td", {"class": "arrivalTime"}).text
+                arrival_time = get_arrival_time(arrival_time_str)
+                countdown_time = self.get_countdown_time(arrival_time)
+
+                movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly,
+                                         arrival_time, countdown_time, mission_type, isMoon)
+                fleet_movements.append(movement)
+
+            except Exception as e:
+                exception_message = traceback.format_exc()
+                self.logger.error(exception_message)
 
         return fleet_movements
 

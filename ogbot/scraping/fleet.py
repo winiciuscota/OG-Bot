@@ -5,6 +5,7 @@ import math
 from scraper import *
 from core.base import BaseBot
 import hangar
+import traceback
 
 
 class Fleet(Scraper):
