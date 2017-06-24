@@ -78,13 +78,13 @@ class Fleet(Scraper):
 
         minMoonLF = bestMoonLF * 0.8
 
-        fleet = {ship.item: ship.amount if not (ship.item.id == lf.id and ship.amount > bestMoonLF) else (ship.amount - bestMoonLF)
+        fleet = {ship.item: ship.amount if not (ship.item.id == lf.id and not target.hasMoon and ship.amount > bestMoonLF) else (ship.amount - bestMoonLF)
                  for ship in ships
                  if ship.amount > 0
                  # Ignore solar satellites
                  and not ship.item.id == ss.id
                  # Allow moon fleet destruction once minimum ship amount available
-                 and not (ship.item.id == lf.id and minMoonLF < ship.amount and ship.amount <= bestMoonLF)}
+                 and not (ship.item.id == lf.id and not target.hasMoon and minMoonLF < ship.amount and ship.amount <= bestMoonLF)}
                  # Keep cruisers to destroy potential moon fleets
                  #and not (ship.item.id == cr.id
                  #   and ship.amount > 150)}

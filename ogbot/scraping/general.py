@@ -63,8 +63,10 @@ class General(Scraper):
 
                 moon = Planet(name, mID, spaceUsed, spaceMax, coords)
                 moon.isMoon = True
+                moon.hasMoon = True
 
                 planet.moon = moon
+                planet.hasMoon = True
                 planets.append(moon)
 
 
