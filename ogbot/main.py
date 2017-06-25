@@ -57,29 +57,35 @@ switcher = {
 
 
 if not config.scheduler:
-    for mode in config.mode:
-        function = switcher.get(mode)
-        if function is None:
-            logger.warning("There is no mode named %s" % mode)
-            logger.warning("The available modes are:")
-            logger.warning("\toverview")
-            logger.warning("\tlog_fleet_movement")
-            logger.warning("\texplore")
-            logger.warning("\tattack_inactive_planets")
-            logger.warning("\tauto_build_defenses")
-            logger.warning("\tauto_build_defenses_to_planet")
-            logger.warning("\ttransport_resources_to_least_developed_planet")
-            logger.warning("\ttransport_resources_to_least_defended_planet")
-            logger.warning("\tauto_build_structures")
-            logger.warning("\tauto_research")
-        else:
-            logger.info("Bot running in %s mode" % mode)
-            try:
-                function()
-            except Exception as e:
-                exception_message = traceback.format_exc()
-                logger.error(exception_message)
-                sms_sender = SMSSender(config)
-                sms_sender.send_sms(exception_message)
+
+    while True:
+        for mode in config.mode:
+            function = switcher.get(mode)
+            if function is None:
+                logger.warning("There is no mode named %s" % mode)
+                logger.warning("The available modes are:")
+                logger.warning("\toverview")
+                logger.warning("\tlog_fleet_movement")
+                logger.warning("\texplore")
+                logger.warning("\tattack_inactive_planets")
+                logger.warning("\tauto_build_defenses")
+                logger.warning("\tauto_build_defenses_to_planet")
+                logger.warning("\ttransport_resources_to_least_developed_planet")
+                logger.warning("\ttransport_resources_to_least_defended_planet")
+                logger.warning("\tauto_build_structures")
+                logger.warning("\tauto_research")
+            else:
+                logger.info("Bot running in %s mode" % mode)
+                try:
+                    function()
+                except Exception as e:
+                    exception_message = traceback.format_exc()
+                    logger.error(exception_message)
+                    sms_sender = SMSSender(config)
+                    sms_sender.send_sms(exception_message)
+
+        if not config.loop:
+            break
+
 
 logger.info("Quiting bot")

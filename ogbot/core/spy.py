@@ -170,6 +170,8 @@ class SpyBot(BaseBot):
         # associated_systems = self.associate_systems_to_origin_planet(systems);
         check_count = 0
 
+        start = time.time()
+
         # for planet in planets:
 
         #     try:
@@ -190,6 +192,10 @@ class SpyBot(BaseBot):
                 target_planets = self.get_inactive_planets_in_systems([system])
 
                 for index, target_planet in enumerate(target_planets):
+
+                	# Exit after 20 minutes
+                	if time.time() > (start + 20 * 60):
+                		return False
 
                     # delay before sending mission
                     if index > 1:

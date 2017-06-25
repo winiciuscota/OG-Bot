@@ -63,6 +63,7 @@ class Config(object):
             self.excluded_planets = map(lambda x: x.strip().lower(),
                                         config.get('General', 'ExcludedPlanets').split(','))
             self.log_level = config.get('General', 'LogLevel')  # Get loglevel
+            self.loop = config.getboolean('General', 'Loop')  # Get loop mode
 
             # Development config options
             self.build_fusion_reactor = config.getboolean('Development', 'FusionReactor')  # build fusion reactor or not
