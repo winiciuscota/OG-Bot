@@ -1,7 +1,7 @@
 from base import BaseBot
 from scraping import buildings, defense, general
 import traceback, urllib, json
-
+from random import shuffle
 
 class BuilderBot(BaseBot):
     """Logging functions for the bot"""
@@ -92,29 +92,40 @@ class BuilderBot(BaseBot):
         token = res[tkPos:tkEnd]
         # print token
 
-        bids = {}
-        bidPlanets = {}
-
-        # planets = self.planets[:]
-        # shuffle(planets)
+        data = {}
 
         for planet in self.planets:
-            bidPlanet = {}
-            bidPlanet[ 'metal' ] = 0
-            bidPlanet[ 'crystal' ] = 0
-            bidPlanet[ 'deuterium' ] = 200000
-            bidPlanets[ planet.link ] = bidPlanet
+            planet.resources = self.general_client.get_resources(planet)
 
-        bids['planets'] = bidPlanets
-        bids['honor'] = 0
+        planets = sorted(self.planets, key=lambda p: p.resources.deuterium, reverse=True)
+        total = 0
 
-        data = {}
+        for planet in planets:
+
+            cDeuterium = planet.resources.deuterium
+            next_bid = cDeuterium
+
+            varName = 'bid[planets][' + planet.link + ']'
+
+            if total > 200000:
+                next_bid = 0
+
+            # data[ varName + '[metal]' ] = resources.metal
+            # data[ varName + '[crystal]' ] = resources.crystal
+            data[ varName + '[metal]' ] = 0
+            data[ varName + '[crystal]' ] = 0
+            data[ varName + '[deuterium]' ] = next_bid
+
+            total = total + next_bid
+
+
         data['token'] = token
         data['ajax'] = 1
         data['action'] = 'trade'
-        data['bid'] = bids
+        data['bid[honor]'] = 0
 
         data = urllib.urlencode(data)
+        # print data
 
         url = main + '?page=import'
         resp = self.general_client.open_url(url, data)
@@ -123,8 +134,11 @@ class BuilderBot(BaseBot):
         jsonData = json.loads(res)
         error = jsonData['error']
         token = jsonData['newToken']
+        # print jsonData
 
         if error:
+            self.logger.info('Unable to buy a new object : %s', jsonData['message'])
+            # print data
             return False
 
         data = {}
@@ -140,12 +154,18 @@ class BuilderBot(BaseBot):
 
         jsonData = json.loads(res)
         error = jsonData['error']
-        token = jsonData['newToken']
+        # print jsonData
 
         if error:
+            self.logger.info('Error : unable to collect a new object')
+            print jsonData
             return False
 
-        self.logger.info('Item successfully obtained')
+        token = jsonData['newToken']
+        item = jsonData['item']
+        itemName = item['name'].encode('utf8')
+
+        self.logger.info('Item %s successfully obtained', itemName)
         return True
 
 
