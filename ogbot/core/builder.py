@@ -10,6 +10,7 @@ class BuilderBot(BaseBot):
         self.defense_client = defense.Defense(browser, config)
         self.buildings_client = buildings.Buildings(browser, config)
         self.general_client = general.General(browser, config)
+        self.url_provider = self.general_client.url_provider
         self.planets = planets
         super(BuilderBot, self).__init__(browser, config, planets)
 
@@ -51,11 +52,28 @@ class BuilderBot(BaseBot):
 
         for planet in self.planets:
             try:
+                self.force_repair_ships(planet)
                 self.auto_build_structures_to_planet(planet)
 
             except Exception as e:
                 exception_message = traceback.format_exc()
                 self.logger.error(exception_message)
+
+    def force_repair_ships(self, planet):
+        self.collect_repaired_ships(planet)
+        self.repair_ships(planet)
+
+    def collect_repaired_ships(self, planet):
+        if planet is not None:
+            self.logger.info("Collecting ships on planet %s", planet)
+            url = self.url_provider.get_page_url('collectShips', planet)
+            self.general_client.open_url(url)
+
+    def repair_ships(self, planet):
+        if planet is not None:
+            self.logger.info("Repairing ships on planet %s", planet)
+            url = self.url_provider.get_page_url('repairShips', planet)
+            self.general_client.open_url(url)
 
     def auto_build_structures_to_planet(self, planet):
         """

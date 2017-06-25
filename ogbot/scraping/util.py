@@ -20,6 +20,8 @@ class UrlProvider:
             'movement': self.main_url + '?page=movement',
             'missileAtack': self.main_url + '?page=missileattacklayer',
             'eventList': self.main_url + '?page=eventList&ajax=1',
+            'collectShips': self.main_url + '?page=repairlayer&component=repairlayer&ajax=1&reCommission=1',
+            'repairShips': self.main_url + '?page=repairlayer&component=repairlayer&ajax=1&startRepairs=1',
             'station': self.main_url + '?page=station'
         }
 
