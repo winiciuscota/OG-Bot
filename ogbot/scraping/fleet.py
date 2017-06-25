@@ -307,7 +307,7 @@ class Fleet(Scraper):
 
         small_cargos_count = self.get_ships_count(origin_planet, "sg")
         large_cargos_count = self.get_ships_count(origin_planet, "lg")
-        recyclers_count = self.get_ships_count(origin_planet, "r")
+        #recyclers_count = self.get_ships_count(origin_planet, "r")
 
         # self.logger.info("Computing small cargos / recyclers / large cargos for the mission")
         # self.logger.info("Resources : %d" % resources_count)
@@ -317,7 +317,7 @@ class Fleet(Scraper):
         # self.logger.info("Available recyclers : %d " % recyclers_count)
 
         sel_lg_count, left_count = update_count(large_cargos_count, resources_count, 25000, False)
-        sel_recycler_count, left_count = update_count(recyclers_count, left_count, 20000, False)
+        #sel_recycler_count, left_count = update_count(recyclers_count, left_count, 20000, False)
         sel_sg_count, left_count = update_count(small_cargos_count, left_count, 5000, True)
 
 
