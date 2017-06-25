@@ -87,7 +87,7 @@ if not config.scheduler:
         if not config.loop:
             break
 
-        time.sleep(7 * 60)
+        time.sleep(5 * 60)
 
 
 logger.info("Quiting bot")
