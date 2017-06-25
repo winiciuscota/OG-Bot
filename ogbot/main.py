@@ -1,6 +1,6 @@
 import argparse
 import logging
-import sys
+import sys, time
 import traceback
 
 from bot import OgameBot
@@ -86,6 +86,8 @@ if not config.scheduler:
 
         if not config.loop:
             break
+
+        time.sleep(7 * 60)
 
 
 logger.info("Quiting bot")
