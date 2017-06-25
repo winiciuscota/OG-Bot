@@ -193,9 +193,9 @@ class SpyBot(BaseBot):
 
                 for index, target_planet in enumerate(target_planets):
 
-                	# Exit after 20 minutes
-                	if time.time() > (start + 20 * 60):
-                		return False
+                    # Exit after 20 minutes
+                    if time.time() > (start + 20 * 60):
+                        return False
 
                     # delay before sending mission
                     if index > 1:
