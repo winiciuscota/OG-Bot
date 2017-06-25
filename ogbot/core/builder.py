@@ -1,6 +1,6 @@
 from base import BaseBot
 from scraping import buildings, defense, general
-import traceback
+import traceback, urllib, json
 
 
 class BuilderBot(BaseBot):
@@ -49,6 +49,7 @@ class BuilderBot(BaseBot):
         """
             Auto build structures on all planets
         """
+        self.buy_item()
 
         for planet in self.planets:
             try:
@@ -74,6 +75,79 @@ class BuilderBot(BaseBot):
             self.logger.info("Repairing ships on planet %s", planet)
             url = self.url_provider.get_page_url('repairShips', planet)
             self.general_client.open_url(url)
+
+    def buy_item(self):
+        main = self.url_provider.get_main_url()
+
+        url = main + '?page=traderOverview&show=importexport&ajax=1'
+        resp = self.general_client.open_url(url)
+        res = resp.read()
+        # print res
+
+        tkName = 'importToken'
+        tkNamePos = res.find(tkName)
+        tkPos = res.find('"', tkNamePos) + 1
+        tkEnd = res.find('"', tkPos)
+
+        token = res[tkPos:tkEnd]
+        # print token
+
+        bids = {}
+        bidPlanets = {}
+
+        # planets = self.planets[:]
+        # shuffle(planets)
+
+        for planet in self.planets:
+            bidPlanet = {}
+            bidPlanet[ 'metal' ] = 0
+            bidPlanet[ 'crystal' ] = 0
+            bidPlanet[ 'deuterium' ] = 200000
+            bidPlanets[ planet.link ] = bidPlanet
+
+        bids['planets'] = bidPlanets
+        bids['honor'] = 0
+
+        data = {}
+        data['token'] = token
+        data['ajax'] = 1
+        data['action'] = 'trade'
+        data['bid'] = bids
+
+        data = urllib.urlencode(data)
+
+        url = main + '?page=import'
+        resp = self.general_client.open_url(url, data)
+        res = resp.read()
+
+        jsonData = json.loads(res)
+        error = jsonData['error']
+        token = jsonData['newToken']
+
+        if error:
+            return False
+
+        data = {}
+        data['token'] = token
+        data['ajax'] = 1
+        data['action'] = 'takeItem'
+
+        data = urllib.urlencode(data)
+
+        url = main + '?page=import'
+        resp = self.general_client.open_url(url, data)
+        res = resp.read()
+
+        jsonData = json.loads(res)
+        error = jsonData['error']
+        token = jsonData['newToken']
+
+        if error:
+            return False
+
+        self.logger.info('Item successfully obtained')
+        return True
+
 
     def auto_build_structures_to_planet(self, planet):
         """

@@ -331,9 +331,9 @@ class Fleet(Scraper):
             # self.logger.info("Large cargos : %d " % sel_lg_count)
             fleet[ self.SHIPS_DATA.get('lg') ] = sel_lg_count
 
-        if sel_recycler_count:
-            # self.logger.info("Recyclers : %d " % sel_recycler_count)
-            fleet[ self.SHIPS_DATA.get('r') ] = sel_recycler_count
+        # if sel_recycler_count:
+        #     # self.logger.info("Recyclers : %d " % sel_recycler_count)
+        #     fleet[ self.SHIPS_DATA.get('r') ] = sel_recycler_count
 
         if len(fleet) == 0:
             fleet[ self.SHIPS_DATA.get('lg') ] = 0
