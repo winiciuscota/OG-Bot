@@ -54,6 +54,18 @@ class AuthenticationProvider(Scraper):
             self.logger.info('Logged in as %s ' % soup.find("meta", {"name": "ogame-player-name"})['content'])
             self.logger.info('Language is %s ' % soup.find("meta", {"name": "ogame-language"})['content'])
             self.logger.info('Game version is %s ' % soup.find("meta", {"name": "ogame-version"})['content'])
+
+            try:
+                rank = soup.find("div", {"id": "bar"}).findAll('li')[1].text
+                rank = rank.split('(')[1]
+                rank = rank.split(')')[0]
+
+            # Default to 0
+            except Exception:
+                rank = '??'
+
+            self.logger.info('Current rank : %s' % rank)
+
             return True
 
     def connect(self):
