@@ -28,6 +28,10 @@ class MovementBot(BaseBot):
             cTarget = hostile_movement.destination_coords
             target = self.get_player_planet_by_coordinates(cTarget)
             target.safe = False
+
+            if target.moon is not None:
+                target.moon.safe = False
+
             targets[cTarget + str(hostile_movement.isMoon)] = target
 
         for coords, target in targets.iteritems():

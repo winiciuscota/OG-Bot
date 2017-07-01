@@ -223,6 +223,7 @@ class Planet(object):
         self.safe = True
         self.spaceUsed = spaceUsed
         self.spaceMax = spaceMax
+        self.moon = None
         self.isMoon = False
         self.hasMoon = False
 
