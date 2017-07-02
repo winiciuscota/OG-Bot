@@ -87,6 +87,7 @@ if not config.scheduler:
         if not config.loop:
             break
 
+        logger.info("Waiting 5 minutes before next loop")
         time.sleep(5 * 60)
 
 
