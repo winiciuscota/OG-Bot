@@ -194,6 +194,11 @@ class BuilderBot(BaseBot):
                     self.logger.warning("Too many buildings already on moon %s" % planet)
                     return True
 
+                # Last built field gotta be lunar base for moons
+                if planet.isMoon and building.id in [22, 23, 24]:
+                    self.logger.warning("Ignoring storage buildings for moon  %s" % planet)
+                    return True
+
                 self.buildings_client.build_structure(building, planet)
                 self.sms_sender.send_sms("Building %s on planet %s" % (building, planet))
             else:
