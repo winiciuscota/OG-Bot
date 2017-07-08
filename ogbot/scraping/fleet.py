@@ -61,8 +61,8 @@ class Fleet(Scraper):
         return result
 
     def fleet_escape(self, target):
-        resources = self.general_client.get_resources(target)
         ships = self.hangar_client.get_ships(target)
+        resources = self.general_client.get_resources(target)
 
         resources.energy = 0
 
