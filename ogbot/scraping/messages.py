@@ -30,16 +30,19 @@ class Messages(Scraper):
         soup = BeautifulSoup(res.read(), "lxml")
         spy_reports = []
 
+        self.done = False
+
         # add messages from the first page
         spy_reports.extend(self.parse_spy_reports(soup))
 
         pagination_info = soup.find('li', {"class": "curPage"}).text
         page_count = int(pagination_info.split('/')[1])
 
-        self.done = False
-
         # add messages from the other pages
         for page in range(1, page_count):
+
+            if self.done:
+                break
 
             try:
                 page_number = page + 1
@@ -49,9 +52,6 @@ class Messages(Scraper):
                 soup = BeautifulSoup(res.read(), "lxml")
                 page_reports = self.parse_spy_reports(soup)
                 spy_reports.extend(page_reports)
-
-                if self.done:
-                    break
 
             except Exception as e:
                 exception_message = traceback.format_exc()

@@ -174,10 +174,6 @@ class BuilderBot(BaseBot):
             Build the first available structure on the weaker planet
             If the planet has negative energy will prioritize energy buildings
         """
-        if not planet.isMoon and (planet.spaceUsed >= self.config.maxFields \
-           or (planet.spaceMax - planet.spaceUsed) <= self.config.minFreeFields):
-            self.logger.warning("Too many buildings already on planet %s" % planet)
-            return True
 
         available_buildings = self.get_available_buildings_for_planet(planet)
         building = None
@@ -194,9 +190,16 @@ class BuilderBot(BaseBot):
                     self.logger.warning("Too many buildings already on moon %s" % planet)
                     return True
 
-                # Last built field gotta be lunar base for moons
+                # Ignore storage buildings for moons
                 if planet.isMoon and building.id in [22, 23, 24]:
                     self.logger.warning("Ignoring storage buildings for moon  %s" % planet)
+                    return True
+
+                # Only build metal / crystal mines or solar plant when not much space left
+                if not planet.isMoon and (planet.spaceUsed >= self.config.maxFields \
+                   or (planet.spaceMax - planet.spaceUsed) <= self.config.minFreeFields) \
+                   and building.id not in [1, 2, 4]:
+                    self.logger.warning("Too many buildings already on planet %s" % planet)
                     return True
 
                 self.buildings_client.build_structure(building, planet)
