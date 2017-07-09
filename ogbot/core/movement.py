@@ -21,23 +21,23 @@ class MovementBot(BaseBot):
 
         targets = {}
 
-        for hostile_movement in hostile_movements:
+        for move in hostile_movements:
 
             # Any long espionnage could be an attack
-            if x.mission != 'spy' or hostile_movement.countdown_time > datetime.timedelta(minutes=4):
+            if move.mission != 'spy' or move.countdown_time > datetime.timedelta(minutes=4):
 
-                self.logger.warning(hostile_movement)
-                self.logger.warning('Incoming attack on planet %s, attempting fleet escape', hostile_movement.destination_name)
-                self.sms_sender.send_sms(hostile_movement)
+                self.logger.warning(move)
+                self.logger.warning('Incoming attack on planet %s, attempting fleet escape', move.destination_name)
+                self.sms_sender.send_sms(move)
 
-                cTarget = hostile_movement.destination_coords
+                cTarget = move.destination_coords
                 target = self.get_player_planet_by_coordinates(cTarget)
                 target.safe = False
 
                 if target.moon is not None:
                     target.moon.safe = False
 
-                targets[cTarget + str(hostile_movement.isMoon)] = target
+                targets[cTarget + str(move.isMoon)] = target
 
 
         for coords, target in targets.iteritems():
