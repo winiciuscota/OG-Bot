@@ -21,7 +21,7 @@ The currently supported modes are: <br />
 - transport_resources_to_planet - transport resources from all of your planets to planet x(must be one of your planets) <br />
 - transport_resources_to_weaker_planet - transport resources from all of your planets to the planet that has less buldings <br />
 - auto_build_structure_to_weaker_planet - Build structure on the weaker planet
-- auto_build_structures - Build structures on planets
+- auto_build_structures - Build structures on planets, auto repair & collect ships, auto-buy new day item
 - auto_research - Research on your homeplanet
 
 e.g.: <br />
