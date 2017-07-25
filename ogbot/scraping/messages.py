@@ -7,11 +7,14 @@ import urllib
 import galaxy
 import general
 import datetime
+import traceback
 from scraper import Scraper
+from datetime import timedelta
 
 
 class Messages(Scraper):
     def __init__(self, browser, config):
+        self.general_client = general.General(browser, config)
         super(Messages, self).__init__(browser, config)
 
     def get_messages(self):
@@ -27,6 +30,8 @@ class Messages(Scraper):
         soup = BeautifulSoup(res.read(), "lxml")
         spy_reports = []
 
+        self.done = False
+
         # add messages from the first page
         spy_reports.extend(self.parse_spy_reports(soup))
 
@@ -35,16 +40,28 @@ class Messages(Scraper):
 
         # add messages from the other pages
         for page in range(1, page_count):
-            page_number = page + 1
-            self.logger.info("Getting messages for page %d" % page_number)
-            data = urllib.urlencode({'messageId': -1, 'tabid': 20, 'action': 107, 'pagination': page_number, 'ajax': 1})
-            res = self.open_url(url, data)
-            soup = BeautifulSoup(res.read(), "lxml")
-            page_reports = self.parse_spy_reports(soup)
-            spy_reports.extend(page_reports)
+
+            if self.done:
+                break
+
+            try:
+                page_number = page + 1
+                self.logger.info("Getting messages for page %d" % page_number)
+                data = urllib.urlencode({'messageId': -1, 'tabid': 20, 'action': 107, 'pagination': page_number, 'ajax': 1})
+                res = self.open_url(url, data)
+                soup = BeautifulSoup(res.read(), "lxml")
+                page_reports = self.parse_spy_reports(soup)
+                spy_reports.extend(page_reports)
+
+            except Exception as e:
+                exception_message = traceback.format_exc()
+                self.logger.error(exception_message)
+
         return spy_reports
 
     def clear_spy_reports(self):
+        # No need to clear
+        return True
         url = self.url_provider.get_page_url('messages')
         data = urllib.urlencode({'tab': 20, 'messageId': -1, 'action': 103, 'ajax': 1})
         self.open_url(url, data)
@@ -56,82 +73,123 @@ class Messages(Scraper):
         message_boxes += soup.findAll("li", {"class": "msg msg_new"})
         spy_reports = []
 
+        game_date = self.general_client.get_game_datetime()
+
         for message_box in message_boxes:
 
-            # We already are in the espionage tab, there is only spy reports and reports from other
-            # players spying on us here. If the report is from other player spying on us the message div
-            # should contain an span with the class espionageDefText
-            is_spy_report = True if message_box.find("span", {"class": "espionageDefText"}) is None else False
+            try:
 
-            msg_date_node = message_box.find("span", {"class": "msg_date fright"})
-            message_datetime = parse_report_datetime(
-                msg_date_node.text if msg_date_node is not None else "1.1.2016 00:00:00")
+                # We already are in the espionage tab, there is only spy reports and reports from other
+                # players spying on us here. If the report is from other player spying on us the message div
+                # should contain an span with the class espionageDefText
+                is_spy_report = True if message_box.find("span", {"class": "espionageDefText"}) is None else False
 
-            if is_spy_report:
-                planet_info = message_box.find("a", {"class": "txt_link"}).text
-                planet_name = planet_info.split('[')[0].strip()
-                coordinates_data = planet_info.split('[')
+                msg_date_node = message_box.find("span", {"class": "msg_date fright"})
+                message_datetime = parse_report_datetime(
+                    msg_date_node.text if msg_date_node is not None else "1.1.2016 00:00:00")
 
-                # If there is nothing after an '[' character it means the planet has been destroyed
-                if len(coordinates_data) <= 1:
-                    self.logger.info("Hmm, I found a destroyed planet")
-                    continue
-                coordinates = coordinates_data[1].replace(']', '').strip()
-                # find inactive player name
-                player_node = message_box.find("span", {"class": "status_abbr_longinactive"})
-                if player_node is not None:
-                    player_name = player_node.text.strip()
-                    player_state = galaxy.PlayerState.Inactive
-                else:
-                    # if the player isn't inactive I don't care about the name
-                    player_name = 'unknown'
-                    player_state = galaxy.PlayerState.Active
-                message_content = message_box.findAll("div", {"class": "compacting"})
+                if message_datetime < (game_date - timedelta(minutes=self.config.spy_report_life)):
+                    self.done = True
+                    return spy_reports
 
-                if len(message_content) > 0:
-                    resources_row = message_content[1]
-                    resources_data = resources_row.findAll("span", {"class": "resspan"})
-                    resources = None
-                    if resources_data is not None:
-                        metal = parse_resource(resources_data[0].text)
-                        crystal = parse_resource(resources_data[1].text)
-                        deuterium = parse_resource(resources_data[2].text)
-                        resources = general.Resources(metal, crystal, deuterium)
-                    loot_row = message_content[2]
-                    loot_data = loot_row.find("span", {"class": "ctn ctn4"})
-                    loot = parse_loot_percentage(loot_data.text)
-                    defense_row = message_content[3]
-                    fleet_data = defense_row.find("span", {"class": "ctn ctn4 tooltipLeft"})
-                    defenses_data = defense_row.find("span", {"class": "ctn ctn4 fright tooltipRight"})
+                if is_spy_report:
+                    planet_info = message_box.find("a", {"class": "txt_link"}).text
+                    planet_name = planet_info.split('[')[0].strip()
+                    coordinates_data = planet_info.split('[')
 
-                    if fleet_data is not None and defenses_data is not None:
-                        fleet = parse_resource(fleet_data.text)
-                        defenses = parse_resource(defenses_data.text)
+                    # If there is nothing after an '[' character it means the planet has been destroyed
+                    if len(coordinates_data) <= 1:
+                        self.logger.info("Hmm, I found a destroyed planet")
+                        continue
+
+                    coordinates = coordinates_data[1].replace(']', '').strip()
+                    # find inactive player name
+                    player_node = message_box.find("span", {"class": "status_abbr_longinactive"})
+
+                    # If not long inactive, check for simply inactive
+                    if player_node is None:
+                        player_node = message_box.find("span", {"class": "status_abbr_inactive"})
+
+                    if player_node is not None:
+                        player_name = player_node.text.strip()
+                        player_state = galaxy.PlayerState.Inactive
+
+                    else:
+                        # if the player isn't inactive I don't care about the name
+                        player_name = 'unknown'
+                        player_state = galaxy.PlayerState.Active
+
+                    message_content = message_box.findAll("div", {"class": "compacting"})
+
+                    if len(message_content) > 0:
+                        resources_row = message_content[1]
+                        resources_data = resources_row.findAll("span", {"class": "resspan"})
+                        resources = None
+                        if resources_data is not None:
+                            metal = parse_resource(resources_data[0].text)
+                            crystal = parse_resource(resources_data[1].text)
+                            deuterium = parse_resource(resources_data[2].text)
+                            resources = general.Resources(metal, crystal, deuterium)
+                        loot_row = message_content[2]
+                        loot_data = loot_row.find("span", {"class": "ctn ctn4"})
+                        loot = parse_loot_percentage(loot_data.text)
+                        defense_row = message_content[3]
+                        fleet_data = defense_row.find("span", {"class": "ctn ctn4 tooltipLeft"})
+                        defenses_data = defense_row.find("span", {"class": "ctn ctn4 fright tooltipRight"})
+
+                        if fleet_data is not None and defenses_data is not None:
+                            fleet = parse_resource(fleet_data.text)
+                            defenses = parse_resource(defenses_data.text)
+                        else:
+                            fleet = None
+                            defenses = None
                     else:
                         fleet = None
                         defenses = None
-                else:
-                    fleet = None
-                    defenses = None
-                    resources = None
-                    loot = None
+                        resources = None
+                        loot = None
 
-                report = SpyReport(str(planet_name), player_name, player_state, str(coordinates), resources, fleet,
-                                   defenses, loot, message_datetime)
-                spy_reports.append(report)
+                    report = SpyReport(planet_name.encode('utf-8'), player_name, player_state, coordinates, resources, fleet,
+                                       defenses, loot, message_datetime)
+                    spy_reports.append(report)
+
+            except Exception as e:
+                exception_message = traceback.format_exc()
+                self.logger.error(exception_message)
 
         return spy_reports
 
 
 def parse_resource(text):
     """Use to parse resources values to int, ex: metal: 2.492M becomes 2492000"""
-    value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("M", "000"))
+
+    try:
+        value = int(text.split(':')[1].strip().replace(".", "").replace(",", "").replace("Mn", "000").replace("M", "000"))
+    except Exception as e:
+        print 'Failed to parse resources string "' + text + '"'
+        exception_message = traceback.format_exc()
+        print exception_message
+
+        # Default to 1
+        value = 1
+
     return value
 
 
 def parse_loot_percentage(text):
     """Use to parse loot percentage string, ie: Roubo: 50% becomes 0.5"""
-    percentage = float(text.split(':')[1].strip("%")) / 100
+
+    try:
+        percentage = float(text.split(':')[1].strip("%")) / 100
+
+    except Exception as e:
+        print 'Failed to parse loot string "' + text + '"'
+        exception_message = traceback.format_exc()
+        print exception_message
+
+        # Default to 50 %
+        percentage = 0.5
+
     return percentage
 
 

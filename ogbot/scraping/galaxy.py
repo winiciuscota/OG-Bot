@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib
 from scraper import *
-import re
+import re, json
 
 
 class Galaxy(Scraper):
@@ -14,11 +14,11 @@ class Galaxy(Scraper):
         data = urllib.urlencode({'galaxy': galaxy, 'system': system})
         res = self.open_url(url, data).read()
 
-        # For some reason the server is retrieving a file full of escaped quotes,
-        # So we need to replace the spaced quotes for normal quotes
-        res2 = res.replace('\\"', '"')
+        # The server call returns json data
+        jsonData = json.loads(res)
+        data = jsonData['galaxy'].encode('utf8')
 
-        soup = BeautifulSoup(self.strip_text(res2), "lxml")
+        soup = BeautifulSoup(self.strip_text(data), "lxml")
 
         table = soup.find("table", {"id": "galaxytable"})
 
@@ -39,15 +39,15 @@ class Galaxy(Scraper):
             planet_position = self.strip_text(table_row.find('td', {'class': "position"}).text)
             planet_coordinates = ":".join([galaxy, system, planet_position])
             player_name_data = table_row(attrs={'class': "playername"})[0]
-            player_name_heading = table_row.find('h1')
+            player_name_heading = player_name_data.find('h1')
             if player_name_heading is None:
                 continue
-            player_name = player_name_heading.find('span').text
+            player_name = player_name_heading.find('span').text.encode('utf8')
 
             # Set player state
             player_name_classes = player_name_data.get("class")
 
-            if 'longinactive' in player_name_classes:
+            if 'longinactive' in player_name_classes or 'inactive' in player_name_classes:
                 player_state = PlayerState.Inactive
 
             elif 'vacationlonginactive' in player_name_classes or 'vacation' in player_name_classes:
@@ -62,7 +62,7 @@ class Galaxy(Scraper):
 
     @staticmethod
     def strip_text(text):
-        return text.replace("\\n", '').strip("u' [ ]")
+        return text.replace("\\n", '').strip("u' [ ]").strip()
 
     @staticmethod
     def get_rank(soup, player_name):
@@ -92,6 +92,9 @@ class Planet(object):
         self.player_rank = player_rank
 
     def __str__(self):
+        return unicode(self).encode('utf-8')
+
+    def __unicode__(self):
         description = "Planet: %s, Coordinates: %s, Player %s (%s)(%d)" % (self.name,
                                                                            self.coordinates, self.player_name,
                                                                            self.player_state, self.player_rank)

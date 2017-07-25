@@ -9,7 +9,7 @@ class ExpeditionaryBot(BaseBot):
     """Logging functions for the bot"""
 
     def __init__(self, browser, config, planets):
-        self.fleet_client = fleet.Fleet(browser, config)
+        self.fleet_client = fleet.Fleet(browser, config, planets)
 
         super(ExpeditionaryBot, self).__init__(browser, config, planets)
 

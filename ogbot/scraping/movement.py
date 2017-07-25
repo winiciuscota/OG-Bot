@@ -2,10 +2,12 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from scraper import *
 from general import General
+import traceback
 
 
 def get_arrival_time(arrival_time_str):
-    time = datetime.strptime(arrival_time_str.strip(), '%H:%M:%S').time()
+    arrival_time_strip = arrival_time_str.split(' ')[0]
+    time = datetime.strptime(arrival_time_strip, '%H:%M:%S').time()
     now = datetime.now()
     arrival_time = datetime.combine(now, time)
     return arrival_time
@@ -27,11 +29,14 @@ class Movement(Scraper):
         movement_nodes = soup.findAll("div", {"class": "fleetDetails detailsOpened"})
         fleet_movements = []
         for movement_node in movement_nodes:
+            mission_code = int( movement_node['data-mission-type'] )
+            mission_type = self.mission_types[ mission_code ]
             origin_planet_coords = self.parse_coords(movement_node.find("span", {"class": "originCoords"}).text)
             origin_planet_name = movement_node.find("span", {"class": "originPlanet"}).text.strip()
             destination_coords = self.parse_coords(
                 movement_node.find("span", {"class": "destinationCoords tooltip"}).text)
             movement = FleetMovement(origin_planet_coords, origin_planet_name, destination_coords)
+            movement.mission = mission_type
             fleet_movements.append(movement)
         return fleet_movements
 
@@ -45,20 +50,30 @@ class Movement(Scraper):
 
         fleet_movements = []
         for movement_row in movement_rows:
-            origin_coords = self.parse_coords(movement_row.find("td", {"class": "coordsOrigin"}).text.strip())
-            origin_planet_name = movement_row.find("td", {"class": "originFleet"}).text.strip()
-            dest_coords = self.parse_coords(movement_row.find("td", {"class": "destCoords"}).text.strip())
-            dest_planet_name = movement_row.find("td", {"class": "destFleet"}).text.strip()
-            count_down_td = movement_row.find("td", {"class": "countDown"})
-            is_friendly = 'friendly' in count_down_td.attrs['class']
 
-            arrival_time_str = movement_row.find("td", {"class": "arrivalTime"}).text
-            arrival_time = get_arrival_time(arrival_time_str)
-            countdown_time = self.get_countdown_time(arrival_time)
+            try:
+                mission_code = int( movement_row['data-mission-type'] )
+                mission_type = self.mission_types[ mission_code ]
+                origin_coords = self.parse_coords(movement_row.find("td", {"class": "coordsOrigin"}).text.strip())
+                origin_planet_name = movement_row.find("td", {"class": "originFleet"}).text.strip()
+                dest_coords = self.parse_coords(movement_row.find("td", {"class": "destCoords"}).text.strip())
+                dest_planet_data = movement_row.find("td", {"class": "destFleet"})
+                dest_planet_name = movement_row.find("td", {"class": "destFleet"}).text.strip()
+                isMoon = False if dest_planet_data.find("figure", {"class": "moon"}) is None else True
+                count_down_td = movement_row.find("td", {"class": "countDown"})
+                is_friendly = 'friendly' in count_down_td.attrs['class']
 
-            movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly,
-                                     arrival_time, countdown_time)
-            fleet_movements.append(movement)
+                arrival_time_str = movement_row.find("td", {"class": "arrivalTime"}).text
+                arrival_time = get_arrival_time(arrival_time_str)
+                countdown_time = self.get_countdown_time(arrival_time)
+
+                movement = FleetMovement(origin_coords, origin_planet_name, dest_coords, dest_planet_name, is_friendly,
+                                         arrival_time, countdown_time, mission_type, isMoon)
+                fleet_movements.append(movement)
+
+            except Exception as e:
+                exception_message = traceback.format_exc()
+                self.logger.error(exception_message)
 
         return fleet_movements
 

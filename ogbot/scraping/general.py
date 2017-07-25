@@ -21,7 +21,7 @@ class General(Scraper):
         return game_datetime
 
     def get_resources(self, planet):
-        self.logger.info('Getting resources data for planet %s' % planet.name)
+        self.logger.debug('Getting resources data for planet %s' % planet.name)
         url = self.url_provider.get_page_url('resources', planet)
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
@@ -40,15 +40,60 @@ class General(Scraper):
         res = self.open_url(url)
         soup = BeautifulSoup(res.read(), "lxml")
 
-        links = soup(attrs={'class': "planetlink"})
+        elems = soup(attrs={'class': "smallplanet"})
+        links = soup(attrs={'class': ["planetlink", 'moonlink']})
+        planets = []
 
-        planets = [Planet((str(link(attrs={'class': "planet-name"})[0].contents[0])),
-                          urlparse.parse_qs(link['href'])['cp'][0],
-                          parse_coordinates(str(link(attrs={'class': "planet-koords"})[0].contents[0])))
-                   for link in links]
+        for elem in elems:
+            link = elem.find('a', {"class": "planetlink"})
+            mlink = elem.find('a', {"class": "moonlink"})
+
+            spaceUsed, spaceMax = parse_space(link['title'])
+            coords = parse_coordinates((link(attrs={'class': "planet-koords"})[0].contents[0]).decode('utf-8'))
+            pID = urlparse.parse_qs(link['href'])['cp'][0]
+
+            planet = Planet(((link(attrs={'class': "planet-name"})[0].contents[0]).decode('utf-8')),
+                          pID, spaceUsed, spaceMax, coords)
+            planets.append(planet)
+
+            if mlink is not None:
+                name = mlink.find('img')['alt']
+                mID = urlparse.parse_qs(mlink['href'])['cp'][0]
+                spaceUsed, spaceMax = parse_space(mlink['title'])
+
+                moon = Planet(name, mID, spaceUsed, spaceMax, coords)
+                moon.isMoon = True
+                moon.hasMoon = True
+
+                planet.moon = moon
+                planet.hasMoon = True
+                planets.append(moon)
+
+
 
         return planets
 
 
 def parse_coordinates(coords):
     return coords.replace('[', '').replace(']', '')
+
+def parse_space(title):
+
+    try:
+        data = title.split('(')[1]
+        data = data.split(')')[0]
+        data = data.split('/')
+
+        used, total = data[0], data[1]
+
+        if 'overmark' in used:
+            used = total
+
+        used, total = int(used), int(total)
+
+    # Default to 0
+    except Exception:
+        used, total = 0, 0
+
+    return used, total
+

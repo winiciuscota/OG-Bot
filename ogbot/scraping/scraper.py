@@ -47,6 +47,16 @@ class Scraper(object):
             "212": ShipItem(212, "Solar Satellite"),
         }
 
+        self.SHIPS_SIZE = {
+            "sg": 5000,
+            "lg": 25000,
+            "r": 20000,
+
+            "202": 5000,
+            "203": 25000,
+            "209": 20000
+        }
+
         self.missions = {
             "expedition": 15,
             "colonization": 7,
@@ -60,6 +70,19 @@ class Scraper(object):
             "destroyStar": 9
         }
 
+        self.mission_types = {
+            15 : "expedition",
+            7 : "colonization",
+            8 : "recycle",
+            3 : "transport",
+            4 : "transfer",
+            6 : "spy",
+            5 : "defend",
+            1 : "attack",
+            2 : "allianceAttack",
+            9 : "destroyStar"
+        }
+
     def open_url(self, url, data=None):
         """
         Redirect to the url, makes up to 3 attempts
@@ -69,7 +92,15 @@ class Scraper(object):
         for attempt in range(0, self.attempts):
             try:
                 res = self.browser.open(url, data, self.timeout)
+
+                # Detect authentication loss
+                if url.startswith(self.url_provider.main_url) \
+                    and not res.geturl().startswith(self.url_provider.main_url):
+                    self.logger.error('Authentication lost, exiting the bot')
+                    exit()
+
                 return res
+
             except mechanize.URLError:
                 self.logger.warning("URLError opening url, trying again for the %dth time" % (attempt + 1))
 
@@ -85,6 +116,7 @@ class Scraper(object):
             try:
                 res = self.browser.submit()
                 return res
+
             except mechanize.URLError:
                 self.logger.warning("URLError submitting form, trying again for the %dth time" % (attempt + 1))
 
@@ -172,7 +204,7 @@ class Resources(object):
 
 
 class Planet(object):
-    def __init__(self, name, link, coordinates, resources=None, defenses=None, fleet=None, research=None):
+    def __init__(self, name, link, spaceUsed, spaceMax, coordinates, resources=None, defenses=None, fleet=None, research=None):
         """
         :param name: Planet name
         :param link: Planet link
@@ -188,9 +220,18 @@ class Planet(object):
         self.defenses = defenses
         self.fleet = fleet
         self.research = research
+        self.safe = True
+        self.spaceUsed = spaceUsed
+        self.spaceMax = spaceMax
+        self.moon = None
+        self.isMoon = False
+        self.hasMoon = False
 
     def __str__(self):
-        return "[Planet: %s, Link: %s, Coordinates: %s]" % (self.name, self.link, self.coordinates)
+        return unicode(self).encode('utf-8')
+
+    def __unicode__(self):
+        return "[Planet: %s, Link: %s, Coordinates: %s, Space: %d/%d, Moon: %s]" % (self.name, self.link, self.coordinates, self.spaceUsed, self.spaceMax, 'Yes' if self.isMoon else 'No')
 
 
 class FleetResult(Enum):
@@ -238,7 +279,7 @@ class ResearchItem(Item):
 
 class FleetMovement(object):
     def __init__(self, origin_coordinates, origin_name, destination_coordinates, destination_name, friendly,
-                 arrival_time=None, countdown_time=None):
+                 arrival_time=None, countdown_time=None, mission='attack', isMoon=False):
         """
         :param origin_coordinates: Coordinates of the origin planet
         :param origin_name: Name of the origin planet
@@ -251,12 +292,14 @@ class FleetMovement(object):
         self.friendly = friendly
         self.arrival_time = arrival_time
         self.countdown_time = countdown_time
+        self.mission = mission
+        self.isMoon = isMoon
 
     def __str__(self):
-        return "%s fleet from planet %s(%s) to planet %s(%s) in %s" % (("Friendly" if self.friendly else "Hostile"),
+        return "%s fleet from planet %s(%s) to planet %s(%s) in %s with %s mission" % (("Friendly" if self.friendly else "Hostile"),
                                                                        self.origin_name, self.origin_coords,
                                                                        self.destination_name, self.destination_coords,
-                                                                       self.countdown_time)
+                                                                       self.countdown_time, self.mission)
 
     def get_count_down_time(self, arrival_time):
         game_time = self.general_client.get_game_datetime()

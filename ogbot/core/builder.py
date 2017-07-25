@@ -1,6 +1,7 @@
 from base import BaseBot
 from scraping import buildings, defense, general
-
+import traceback, urllib, json
+from random import shuffle
 
 class BuilderBot(BaseBot):
     """Logging functions for the bot"""
@@ -9,6 +10,7 @@ class BuilderBot(BaseBot):
         self.defense_client = defense.Defense(browser, config)
         self.buildings_client = buildings.Buildings(browser, config)
         self.general_client = general.General(browser, config)
+        self.url_provider = self.general_client.url_provider
         self.planets = planets
         super(BuilderBot, self).__init__(browser, config, planets)
 
@@ -47,39 +49,165 @@ class BuilderBot(BaseBot):
         """
             Auto build structures on all planets
         """
+        self.buy_item()
 
         for planet in self.planets:
-            self.auto_build_structures_to_planet(planet)
+            try:
+                self.force_repair_ships(planet)
+                self.auto_build_structures_to_planet(planet)
+
+            except Exception as e:
+                exception_message = traceback.format_exc()
+                self.logger.error(exception_message)
+
+    def force_repair_ships(self, planet):
+        self.collect_repaired_ships(planet)
+        self.repair_ships(planet)
+
+    def collect_repaired_ships(self, planet):
+        if planet is not None:
+            self.logger.info("Collecting ships on planet %s", planet)
+            url = self.url_provider.get_page_url('collectShips', planet)
+            self.general_client.open_url(url)
+
+    def repair_ships(self, planet):
+        if planet is not None:
+            self.logger.info("Repairing ships on planet %s", planet)
+            url = self.url_provider.get_page_url('repairShips', planet)
+            self.general_client.open_url(url)
+
+    def buy_item(self):
+        main = self.url_provider.get_main_url()
+
+        url = main + '?page=traderOverview&show=importexport&ajax=1'
+        resp = self.general_client.open_url(url)
+        res = resp.read()
+        # print res
+
+        tkName = 'importToken'
+        tkNamePos = res.find(tkName)
+        tkPos = res.find('"', tkNamePos) + 1
+        tkEnd = res.find('"', tkPos)
+
+        token = res[tkPos:tkEnd]
+        # print token
+
+        data = {}
+
+        for planet in self.planets:
+            planet.resources = self.general_client.get_resources(planet)
+
+        planets = sorted(self.planets, key=lambda p: p.resources.deuterium, reverse=True)
+        total = 0
+
+        for planet in planets:
+
+            cDeuterium = planet.resources.deuterium
+            next_bid = cDeuterium
+
+            varName = 'bid[planets][' + planet.link + ']'
+
+            if total > 200000:
+                next_bid = 0
+
+            # data[ varName + '[metal]' ] = resources.metal
+            # data[ varName + '[crystal]' ] = resources.crystal
+            data[ varName + '[metal]' ] = 0
+            data[ varName + '[crystal]' ] = 0
+            data[ varName + '[deuterium]' ] = next_bid
+
+            total = total + next_bid
+
+
+        data['token'] = token
+        data['ajax'] = 1
+        data['action'] = 'trade'
+        data['bid[honor]'] = 0
+
+        data = urllib.urlencode(data)
+        # print data
+
+        url = main + '?page=import'
+        resp = self.general_client.open_url(url, data)
+        res = resp.read()
+
+        jsonData = json.loads(res)
+        error = jsonData['error']
+        token = jsonData['newToken']
+        # print jsonData
+
+        if error:
+            self.logger.info('Unable to buy a new object : %s', jsonData['message'])
+            # print data
+            return False
+
+        data = {}
+        data['token'] = token
+        data['ajax'] = 1
+        data['action'] = 'takeItem'
+
+        data = urllib.urlencode(data)
+
+        url = main + '?page=import'
+        resp = self.general_client.open_url(url, data)
+        res = resp.read()
+
+        jsonData = json.loads(res)
+        error = jsonData['error']
+        # print jsonData
+
+        if error:
+            self.logger.info('Error : unable to collect a new object')
+            print jsonData
+            return False
+
+        token = jsonData['newToken']
+        item = jsonData['item']
+        itemName = item['name'].encode('utf8')
+
+        self.logger.info('Item %s successfully obtained', itemName)
+        return True
+
 
     def auto_build_structures_to_planet(self, planet):
         """
             Build the first available structure on the weaker planet
             If the planet has negative energy will prioritize energy buildings
         """
-        resources = self.general_client.get_resources(planet)
+
         available_buildings = self.get_available_buildings_for_planet(planet)
-        available_buildings = self.filter_available_buildings(available_buildings, self.config)
+        building = None
+        if not self.buildings_client.is_in_construction_mode():
+            if available_buildings > 0:
+                building = self.get_next_building_to_build_on_planet(
+                            planet, available_buildings)
 
-        if len(available_buildings) > 0:
-            building = available_buildings[0]
-            if resources.energy < 0:
-                self.logger.info("Planet has not enough energy, building solar plant or fusion reactor")
+            if building:
 
-                id_energy_buildings = [buildings.BUILDINGS_DATA.get("sp").id,
-                                       buildings.BUILDINGS_DATA.get("fr").id]
+                # Last built field gotta be lunar base for moons
+                if planet.isMoon and (planet.spaceMax - planet.spaceUsed) <= 1 \
+                    and building.id != 41:
+                    self.logger.warning("Too many buildings already on moon %s" % planet)
+                    return True
 
-                energy_buildings = filter(lambda value: value.id in id_energy_buildings, available_buildings)
+                # Ignore storage buildings for moons
+                if planet.isMoon and building.id in [22, 23, 24]:
+                    self.logger.warning("Ignoring storage buildings for moon  %s" % planet)
+                    return True
 
-                if len(energy_buildings) > 0:
-                    # Get the last element from the list, this way the bot will build fusion reactors first
-                    building = energy_buildings[-1]
-                else:
-                    self.logger.info("No available resources to build solar plant or fusion reactor")
+                # Only build metal / crystal mines or solar plant when not much space left
+                if not planet.isMoon and (planet.spaceUsed >= self.config.maxFields \
+                   or (planet.spaceMax - planet.spaceUsed) <= self.config.minFreeFields) \
+                   and building.id not in [1, 2, 4]:
+                    self.logger.warning("Too many buildings already on planet %s" % planet)
+                    return True
 
-            self.buildings_client.build_structure(building, planet)
-            self.sms_sender.send_sms("Building %s on planet %s" % (building, planet))
+                self.buildings_client.build_structure(building, planet)
+                self.sms_sender.send_sms("Building %s on planet %s" % (building, planet))
+            else:
+                self.logger.info("No available buildings on planet %s" % planet)
         else:
-            self.logger.info("No available buildings on planet %s" % planet)
+            self.logger.info("Planet is already in construction_mode: %s" % planet)
 
     def get_least_developed_planet(self):
         return min(self.planets, key=self.get_planet_building_total_lvl)
@@ -119,3 +247,56 @@ class BuilderBot(BaseBot):
         available_buildings = filter(lambda building: building.id not in ignored_buildings, available_buildings)
 
         return available_buildings
+
+    def get_next_building_to_build_on_planet(self, planet, available_buildings):
+        resources = self.general_client.get_resources(planet)
+        priority_list = [
+            41, #   LunarBase
+            42, #   SensorPhalynx
+            43, #   JumpGate
+            15, #   NaniteFactory
+            14, #   RobotFactory
+            1,  #   MetalMine
+            2,  #   KristalMine
+            3,  #   DeuteriumSynthesizer
+            21, #   Shipyard
+            31, #   ResearchLab
+            22, #   MetalStorage
+            23, #   CrystalStorage
+            24, #   DeuteriumStorage
+        ]
+
+        building = None
+        if available_buildings:
+            for abuilding in available_buildings:
+                if abuilding.id in priority_list:
+                    building = abuilding
+                    break
+
+            for building_candidate in available_buildings:
+                if building_candidate.id in priority_list:
+                    bc_priority = priority_list.index(building_candidate.id)
+                    b_priority =  priority_list.index(building.id)
+                    if bc_priority < b_priority:
+                        building = building_candidate
+
+                # If energy is below 0, it should be prioritized
+                if resources.energy < 0:
+                    # FusionReactor
+                    if building_candidate.id == 12 and self.config.build_fusion_reactor:
+                        building = building_candidate
+                        break
+                    # SolarPlant
+                    elif building_candidate.id == 4:
+                        building = building_candidate
+                        break
+
+        if building and resources.energy < -100:
+            if not (building.id == 12 or building.id == 4):
+                self.logger.info("Not much energy waiting to build a power plant")
+                building = None
+
+        if building:
+            self.logger.info("%s selected for building" % building.name)
+
+        return building

@@ -1,6 +1,7 @@
 from base import BaseBot
 
 from scraping import research, general
+import traceback
 
 
 class ResearcherBot(BaseBot):
@@ -23,19 +24,22 @@ class ResearcherBot(BaseBot):
         available_research_item = None
 
         priority_list = [
-            109,    #WeaponTech
+            199,    #Graviton
+            108,    #ComputerTech
+            106,    #EspionageTech
+            113,    #EnergyTech
+            124,    #AstroPhysics
+            118,    #HyperspaceDrive
+            114,    #HyperspaceTech
+            115,    #CombustionDrive
+            117,    #ImpulseDrive
             110,    #ShieldTech
             111,    #ArmourTech
-            106,    #EspionageTech
-            108,    #ComputerTech
-            113,    #EnergyTech
+            109,    #WeaponTech
+            122,    #PlasmaTech
             120,    #LaserTech
-            115,    #CombustionDrive
+            123,    #ResearchNetwork
             121,    #IonTech
-            117,    #ImpulseDrive
-            124,    #AstroPhysics
-            114,    #HyperspaceTech
-            118,    #HyperspaceDrive
 
         ]
 
@@ -61,9 +65,21 @@ class ResearcherBot(BaseBot):
         return available_research_item
 
     def auto_research_next_item(self):
-        planet = self.get_planet_for_research(self.planets)
-        research = self.get_next_research_item(planet)
-        if research is not None:
-            self.research_client.research_item(research, planet)
-        else:
-            self.logger.info("Nothing to research on planet %s" % planet)
+        #planet = self.get_planet_for_research(self.planets)
+
+        # Attempt research on each planet until one is started
+        for planet in self.planets:
+
+            try:
+                research = self.get_next_research_item(planet)
+
+                if research is not None:
+                    self.research_client.research_item(research, planet)
+                    break;
+
+                else:
+                    self.logger.info("Nothing to research on planet %s" % planet)
+
+            except Exception as e:
+                exception_message = traceback.format_exc()
+                self.logger.error(exception_message)

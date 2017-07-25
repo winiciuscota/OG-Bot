@@ -1,22 +1,42 @@
-﻿from __future__ import division
+from __future__ import division
 from bs4 import BeautifulSoup
 import general
 import math
 from scraper import *
+from core.base import BaseBot
+import hangar
+import traceback
 
 
 class Fleet(Scraper):
-    def __init__(self, browser, config):
+    def __init__(self, browser, config, planets):
         super(Fleet, self).__init__(browser, config)
 
         self.general_client = general.General(browser, config)
+        self.planets = planets
+        self.hangar_client = hangar.Hangar(browser, config)
 
-    def spy_planet(self, origin_planet, destination_planet, spy_probes_count):
+    def spy_planet_from(self, origin_planet, destination_planet, spy_probes_count):
 
         self.logger.info("Spying planet %s (%s)", destination_planet.name, destination_planet.coordinates)
 
         result = self.send_fleet(origin_planet, destination_planet.coordinates,
                                  self.missions["spy"], {self.SHIPS_DATA.get('ep'): spy_probes_count})
+
+        return result
+
+    def spy_planet(self, destination_planet, spy_probes_count):
+
+        # Get the nearest planets from target
+        nearest_planets = BaseBot.get_nearest_planets_to_target(destination_planet, self.planets)
+
+        # Spy from each planet ordered by proximity until success or error
+        for planet in nearest_planets:
+            result = self.spy_planet_from(planet, destination_planet, spy_probes_count)
+
+            # Stop on success or no more slots
+            if result == FleetResult.Success or result == FleetResult.NoAvailableSlots:
+                break
 
         return result
 
@@ -28,17 +48,59 @@ class Fleet(Scraper):
             self.SHIPS_DATA.get('ep'): 1
         }
 
-        self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.name, coordinates)
+        self.logger.info("Sending expedition from planet %s to coordinates %s", origin_planet.coordinates, coordinates)
         self.send_fleet(origin_planet, coordinates, self.missions.get("expedition"), fleet)
 
     def attack_inactive_planet(self, origin_planet, target_planet):
         fleet = self.get_attack_fleet(origin_planet, target_planet)
 
-        self.logger.info("Attacking planet %s from planet %s", target_planet.planet_name, origin_planet.name)
+        self.logger.info("Attacking planet %s from planet %s", target_planet.coordinates, origin_planet.coordinates)
 
         result = self.send_fleet(origin_planet, target_planet.coordinates,
                                  self.missions["attack"], fleet)
         return result
+
+    def fleet_escape(self, target):
+        ships = self.hangar_client.get_ships(target)
+        resources = self.general_client.get_resources(target)
+
+        resources.energy = 0
+
+        cr = self.SHIPS_DATA.get('cr')
+        ss = self.SHIPS_DATA.get('ss')
+        lf = self.SHIPS_DATA.get('lf')
+
+        resLF = (3 + 1) * 1000
+        bestMoonDebris = 2 * 1000 * 1000
+        debrisFactor = self.config.server.debrisFactor
+        bestMoonLF = int(math.ceil( bestMoonDebris / float(debrisFactor * resLF) ))
+        self.logger.info("bestMoonLF : %d", bestMoonLF)
+
+        minMoonLF = bestMoonLF * 0.8
+
+        fleet = {ship.item: ship.amount if not (ship.item.id == lf.id and not target.hasMoon and ship.amount > bestMoonLF) else (ship.amount - bestMoonLF)
+                 for ship in ships
+                 if ship.amount > 0
+                 # Ignore solar satellites
+                 and not ship.item.id == ss.id
+                 # Allow moon fleet destruction once minimum ship amount available
+                 and not (ship.item.id == lf.id and not target.hasMoon and minMoonLF < ship.amount and ship.amount <= bestMoonLF)}
+                 # Keep cruisers to destroy potential moon fleets
+                 #and not (ship.item.id == cr.id
+                 #   and ship.amount > 150)}
+
+        if len(fleet) == 0:
+            self.logger.warning('No fleet available, aborting escape')
+            return True
+
+        safe_planets = [planet for planet in self.planets
+                        if planet.coordinates != target.coordinates
+                        and planet.safe]
+
+        nearest = BaseBot.get_nearest_planet_to_target(target, safe_planets)
+
+        self.send_fleet(target, nearest.coordinates,
+                        self.missions["transfer"], fleet, resources)
 
     def transport_resources(self, origin_planet, destination_planet, resources):
         planet_resources = self.general_client.get_resources(origin_planet)
@@ -91,17 +153,34 @@ class Fleet(Scraper):
             self.logger.error('The planet has no available ships')
             return FleetResult.NoAvailableShips
 
+        ss = self.SHIPS_DATA.get('ss')
+        sent = 0
+
         # set ships to send
         for ship, amount in ships.iteritems():
+
+            # Ignore ships with 0 amount and solar satellites
+            if amount <= 0 or ship.id == ss.id:
+                continue
+
             self.logger.info("Adding %d %s to the mission fleet" % (amount, ship.name))
             control_name = "am" + str(ship.id)
             control = self.browser.form.find_control(control_name)
+
             # If there is no available ships exit
             if not control.readonly:
                 self.browser[control_name] = str(amount)
+
             else:
                 self.logger.warning("Not enough %s to send" % ship.name)
                 return FleetResult.NoAvailableShips
+
+            sent = sent + amount
+
+        if sent <= 0:
+            self.logger.error('The planet has no available ships')
+            return FleetResult.NoAvailableShips
+
         self.submit_request()
 
         # set target planet
@@ -110,6 +189,10 @@ class Fleet(Scraper):
         except mechanize.FormNotFoundError:
             self.logger.error('Error sending ships')
             return FleetResult.NoAvailableShips
+
+        self.browser.form.set_all_readonly(False)
+        self.browser["type"] = '1' # Target type : 1 for planet, 2 for debris, 3 for moon
+
         self.browser["galaxy"] = coordinates.split(':')[0]
         self.browser["system"] = coordinates.split(':')[1]
         self.browser["position"] = coordinates.split(':')[2]
@@ -191,27 +274,74 @@ class Fleet(Scraper):
 
         return self.get_cargo_fleet_for_mission(origin_planet, resources_count)
 
+    def get_attack_loot(self, origin_planet, target_planet):
+        """
+        Get loot for attacks to inactive targets.
+        :param origin_planet: Origin planet
+        :param target_planet: Target planet
+        :return: Predicted loot
+        """
+
+        resources = target_planet.resources.total()
+        resources_count = resources * target_planet.loot
+
+        fleet = self.get_attack_fleet(origin_planet, target_planet)
+
+        maxLoot = 0
+
+        for ship, amount in fleet.iteritems():
+            maxLoot += self.SHIPS_SIZE.get(str(ship.id)) * amount
+
+        if resources_count >= maxLoot:
+            return maxLoot
+
+        return resources_count
+
+
     def get_cargo_fleet_for_mission(self, origin_planet, resources_count):
         """
         :param origin_planet: Origin to check for cargos
         :param resources_count: Amount of resources to transport
         :return: Get fleet of cargos for the mission
         """
-        small_cargos_count = self.get_ships_count(origin_planet, "sg")
 
-        self.logger.info("Checking if there is enough small cargos for the mission")
-        if (small_cargos_count * 5000) > resources_count:
-            self.logger.info("Using small cargos")
-            ships_count = int(math.ceil(resources_count / 5000))
-            return {self.SHIPS_DATA.get('sg'): ships_count}
-        else:
-            self.logger.info("Not enough Small Cargos, using Large Cargos instead")
-            ships_count = int(math.ceil(resources_count / 25000))
-            large_cargos_count = self.get_ships_count(origin_planet, "lg")
-            if ships_count > large_cargos_count:
-                ships_count = large_cargos_count
-            fleet = {self.SHIPS_DATA.get('lg'): ships_count}
-            return fleet
+        small_cargos_count = self.get_ships_count(origin_planet, "sg")
+        large_cargos_count = self.get_ships_count(origin_planet, "lg")
+        #recyclers_count = self.get_ships_count(origin_planet, "r")
+
+        # self.logger.info("Computing small cargos / recyclers / large cargos for the mission")
+        # self.logger.info("Resources : %d" % resources_count)
+
+        # self.logger.info("Available small cargos : %d" % small_cargos_count)
+        # self.logger.info("Available large cargos : %d " % large_cargos_count)
+        # self.logger.info("Available recyclers : %d " % recyclers_count)
+
+        sel_lg_count, left_count = update_count(large_cargos_count, resources_count, 25000, False)
+        #sel_recycler_count, left_count = update_count(recyclers_count, left_count, 20000, False)
+        sel_sg_count, left_count = update_count(small_cargos_count, left_count, 5000, True)
+
+
+        fleet = {}
+
+        if sel_sg_count:
+            # self.logger.info("Small cargos : %d " % sel_sg_count)
+            fleet[ self.SHIPS_DATA.get('sg') ] = sel_sg_count
+
+        if sel_lg_count:
+            # self.logger.info("Large cargos : %d " % sel_lg_count)
+            fleet[ self.SHIPS_DATA.get('lg') ] = sel_lg_count
+
+        # if sel_recycler_count:
+        #     # self.logger.info("Recyclers : %d " % sel_recycler_count)
+        #     fleet[ self.SHIPS_DATA.get('r') ] = sel_recycler_count
+
+        if len(fleet) == 0:
+            fleet[ self.SHIPS_DATA.get('lg') ] = 0
+
+        # self.logger.info("Leftover resources : %d" % left_count)
+
+        return fleet
+
 
     def get_ships_count(self, planet, ship_type):
         """
@@ -228,3 +358,31 @@ class Fleet(Scraper):
 
 def get_ships_list(ships):
     return ", ".join([str(ships.get(ship)) + ' ' + ship.name for ship in ships])
+
+
+def update_count(sel_count, res_count, sel_size, getCeil):
+    if sel_count == 0:
+        return 0, res_count
+
+    fCount = float(res_count) / sel_size
+    count = math.ceil(fCount) if getCeil \
+            else math.floor(fCount)
+
+    if not getCeil:
+        left = res_count - count * sel_size
+
+        if float(left)/sel_size > 0.6:
+            count = math.ceil(fCount)
+
+    if count > sel_count:
+        count = sel_count
+
+    count = int(count)
+
+    left = res_count - count * sel_size
+
+    if left < 0:
+        left = 0
+
+    return count, left
+

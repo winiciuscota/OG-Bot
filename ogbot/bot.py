@@ -12,9 +12,9 @@ class OgameBot(object):
         self.config = config
         self.logger = logging.getLogger('OGBot')
 
-        # Get planets and remove excluded planets in the config file
-        planets = general.General(browser, config).get_planets()
-        planets = filter(lambda x: x.name.lower() not in config.excluded_planets, planets)
+        self.general_client = general.General(browser, config)
+        planets = self.general_client.get_planets()
+        self.planets = planets
 
         self.attacker_bot = attacker.AttackerBot(browser, config, planets)
         self.defender_bot = defender.DefenderBot(browser, config, planets)
@@ -28,6 +28,11 @@ class OgameBot(object):
         self.movement_bot = movement.MovementBot(browser, config, planets)
         self.sms_sender = sms.SMSSender(config)
 
+    def print_resources(self):
+        for planet in self.planets:
+            res = self.general_client.get_resources(planet)
+            self.logger.info("%s : %s" % (planet, res))
+
     def explore(self):
         self.expeditionary_bot.auto_send_expeditions()
         self.attack_inactive_planets()
@@ -38,13 +43,17 @@ class OgameBot(object):
         if len(reports) == 0:
             self.logger.info("There isn't any valid spy reports from inactive targets")
             self.logger.info("Scanning for new targets")
-            self.spy_bot.auto_spy_inactive_planets(self.config.attack_range)
+            error = self.spy_bot.auto_spy_inactive_planets(self.config.attack_range)
+
+            if error:
+                return True
+
             self.logger.info("Waiting %f seconds for probes to return" % self.config.time_to_wait_for_probes)
             time.sleep(self.config.time_to_wait_for_probes)
             reports = self.messages_bot.get_valid_spy_reports_from_inactive_targets()
             self.attacker_bot.attack_inactive_planets_from_spy_reports(reports)
-        else:
 
+        else:
             self.attacker_bot.attack_inactive_planets_from_spy_reports(reports)
 
         self.messages_bot.clear_spy_reports()

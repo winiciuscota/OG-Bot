@@ -2,6 +2,7 @@ from base import BaseBot
 from scraping import general, defense, scraper
 
 import sys
+import traceback
 
 
 class DefenderBot(BaseBot):
@@ -15,7 +16,12 @@ class DefenderBot(BaseBot):
         """Auto build defenses on all planets"""
         planets = self.planets
         for planet in planets:
-            self.auto_build_defenses_to_planet(planet)
+            try:
+                self.auto_build_defenses_to_planet(planet)
+
+            except Exception as e:
+                exception_message = traceback.format_exc()
+                self.logger.error(exception_message)
 
     def auto_build_defenses_to_planet(self, planet, iteration_budget=.5):
         """
@@ -151,4 +157,7 @@ class DefenderBot(BaseBot):
             self.current_amount = current_amount
 
         def proportion_rate(self):
-            return self.target_amount / float(self.current_amount)
+            curAmount = float(self.current_amount)
+            if curAmount == 0:
+            	return 1
+            return self.target_amount / curAmount

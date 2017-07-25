@@ -1,0 +1,155 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
+
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+<div class="well well-lg">
+
+<div class="col-md-3">
+<form class="pull-left" id="loginForm" name="loginForm" target="_blank" method="post" action="https://en.ogame.gameforge.com:443/main/login">
+<input type="hidden" name="kid" value="">
+<input type="hidden" name="login" value="">
+<input type="hidden" name="pass" value="">
+<input type="hidden" name="uni" value="s138-en.ogame.gameforge.com">
+<input type="submit" class="btn btn-info btn-xs" id="loginSubmit" value="Libra">
+&nbsp;
+</form>
+
+<form class="col-md-offset-0 pull-left" id="rhea" name="loginForm" target="_blank" method="post" action="https://fr.ogame.gameforge.com:443/main/login">
+<input type="hidden" name="kid" value="">
+<input type="hidden" name="login" value="">
+<input type="hidden" name="pass" value="">
+<input type="hidden" name="uni" value="s144-fr.ogame.gameforge.com">
+<input type="submit" class="btn btn-info btn-xs" id="loginSubmit" value="Rhea">
+<!--
+<a href="?target=rhea" class="btn btn-info btn-xs" onclick="document.getElementById('rhea').submit();">Rhea</a>
+-->
+&nbsp;
+</form>
+
+<form class="pull-left" id="Uriel" name="loginForm" target="_blank" method="post" action="https://fr.ogame.gameforge.com:443/main/login">
+<input type="hidden" name="kid" value="">
+<input type="hidden" name="login" value="">
+<input type="hidden" name="pass" value="">
+<input type="hidden" name="uni" value="s147-fr.ogame.gameforge.com">
+<input type="submit" class="btn btn-info btn-xs" id="loginSubmit" value="Uriel">
+&nbsp;
+</form>
+
+<form class="pull-left" id="loginForm" name="loginForm" target="_blank" method="post" action="https://fr.ogame.gameforge.com:443/main/login">
+<input type="hidden" name="kid" value="">
+<input type="hidden" name="login" value="">
+<input type="hidden" name="pass" value="">
+<input type="hidden" name="uni" value="s148-fr.ogame.gameforge.com">
+<input type="submit" class="btn btn-info btn-xs" id="loginSubmit" value="Virgo">
+</form>
+</div>
+
+<div class="col-md-offset-7">
+<form class="form-inline">
+  <div class="form-group">
+    <input type="password" class="form-control"
+           value="" onchange="save('login', this.value)"
+           name="login" id="name" placeholder="Login">
+  </div>
+  <div class="form-group">
+    <input type="password" class="form-control"
+           value="" onchange="save('pass', this.value)"
+           name="pass" id="password" placeholder="Password">
+  </div>
+</form>
+</div>
+
+</div>
+
+
+<script>
+/*
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+}
+
+var target = getUrlParameter('target');
+
+var form = $('#'+target);
+
+var data = JSON.stringify( form.serializeArray() );
+
+
+$.ajax({
+	url: form.attr('action'),
+	type: 'POST',
+	data: data,
+	crossDomain: true,
+	success: function() {
+
+		$log.log('yes')
+
+	}
+});
+*/
+
+function getLogin() {
+    return $('#name').val();
+}
+
+
+function getPass() {
+    return $('#password').val();
+}
+
+$('#name').val( load('login') );
+$('#password').val( load('pass') );
+
+
+$("form").each( function() {
+
+    var form = $(this);
+
+    form.submit(function(e) {
+        var self = this;
+
+        e.preventDefault();
+
+        var login = form.find('input[name=login]');
+        var pass = form.find('input[name=pass]');
+
+        login.val( getLogin() );
+        pass.val( getPass() );
+
+        self.submit();
+
+        return false;
+    });
+
+});
+
+
+
+function save(name, value) {
+    localStorage.setItem(name, value);
+}
+
+function load(name) {
+    return localStorage.getItem(name);
+}
+
+
+</script>
+

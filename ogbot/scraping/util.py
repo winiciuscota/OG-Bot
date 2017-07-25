@@ -2,6 +2,7 @@ import logging
 
 
 class UrlProvider:
+
     def __init__(self, universe, country):
         self.main_url = 'https://s' + str(universe) + '-' + country + '.ogame.gameforge.com/game/index.php'
         self.logger = logging.getLogger('ogame-bot')
@@ -18,7 +19,10 @@ class UrlProvider:
             'messages': self.main_url + '?page=messages',
             'movement': self.main_url + '?page=movement',
             'missileAtack': self.main_url + '?page=missileattacklayer',
-            'eventList': self.main_url + '?page=eventList&ajax=1'
+            'eventList': self.main_url + '?page=eventList&ajax=1',
+            'collectShips': self.main_url + '?page=repairlayer&component=repairlayer&ajax=1&reCommission=1',
+            'repairShips': self.main_url + '?page=repairlayer&component=repairlayer&ajax=1&startRepairs=1',
+            'station': self.main_url + '?page=station'
         }
 
     def get_pages(self):
